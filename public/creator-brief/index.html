@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creator Brief Generator — Halle Gilbert Lab</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+</head>
+<body>
+  <div style="position:fixed;top:0;left:0;right:0;z-index:9999;padding:10px 24px;background:rgba(250,249,246,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #E5E3DE;display:flex;justify-content:space-between;align-items:center"><a href="/" style="font-family:Space Mono,monospace;font-size:10px;letter-spacing:0.1em;text-decoration:none;color:#8A8780;text-transform:uppercase">← Back to Lab</a><a href="https://halle.studio" style="font-family:Space Mono,monospace;font-size:10px;letter-spacing:0.1em;text-decoration:none;color:#C03B2D">halle.studio</a></div><div id="root" style="padding-top:44px"></div>
+  <script type="text/babel">
+    const { useState, useRef, useEffect } = React;
+
+
+
+const OBJECTIVES = [
+  "Brand Awareness",
+  "Product Launch",
+  "Seasonal Push",
+  "Foot Traffic / In-Store",
+  "Conversion / Sales",
+  "Community Building",
+  "Event Promotion",
+];
+
+const PLATFORMS = [
+  "TikTok",
+  "Instagram Reels",
+  "Instagram Stories",
+  "YouTube",
+  "Multi-Platform",
+];
+
+const BUDGET_TIERS = [
+  "Micro Creators (<10K followers)",
+  "Mid-Tier (10K–100K followers)",
+  "Macro (100K+ followers)",
+  "Mixed Portfolio",
+];
+
+const VIBES = [
+  "Polished & Aspirational",
+  "Lo-Fi Authentic",
+  "Funny / Irreverent",
+  "Educational / Informative",
+  "Storytelling / Emotional",
+  "Edgy / Cultural",
+];
+
+window.__App = function CreatorBriefGenerator() {
+  const [formData, setFormData] = useState({
+    brand: "",
+    description: "",
+    objective: "",
+    audience: "",
+    platform: "",
+    budget: "",
+    vibe: "",
+  });
+  const [brief, setBrief] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const isComplete =
+    formData.brand &&
+    formData.description &&
+    formData.objective &&
+    formData.audience &&
+    formData.platform &&
+    formData.budget &&
+    formData.vibe;
+
+  const generateBrief = async () => {
+    setLoading(true);
+    setError(null);
+    setBrief(null);
+
+    const prompt = `You are an expert creator marketing strategist who has built and scaled creator affiliate programs across multi-brand portfolios. Generate a comprehensive, professional creator brief based on these inputs:
+
+Brand: ${formData.brand}
+What they sell: ${formData.description}
+Campaign Objective: ${formData.objective}
+Target Audience: ${formData.audience}
+Platform: ${formData.platform}
+Creator Budget Tier: ${formData.budget}
+Desired Tone/Vibe: ${formData.vibe}
+
+Return ONLY a JSON object with exactly these fields (no markdown, no backticks, no preamble):
+{
+  "campaignConcept": "2-3 sentence campaign concept",
+  "creatorProfile": "Description of the ideal creator for this campaign",
+  "contentDirection": ["Post idea 1 with specific format and hook", "Post idea 2", "Post idea 3"],
+  "deliverables": "Specific deliverables list (number of posts, formats, usage rights, timeline)",
+  "talkingPoints": ["Must-include point 1", "Must-include point 2", "Must-include point 3", "Must-include point 4"],
+  "kpis": ["KPI 1 with target benchmark", "KPI 2", "KPI 3", "KPI 4"],
+  "compStructure": "Suggested compensation structure with specifics"
+}`;
+
+    try {
+      const response = await fetch("/api/claude", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          messages: [{ role: "user", content: prompt }],
+        }),
+      });
+
+      const data = await response.json();
+      const text = data.content
+        .filter((item) => item.type === "text")
+        .map((item) => item.text)
+        .join("");
+
+      const clean = text.replace(/```json|```/g, "").trim();
+      const parsed = JSON.parse(clean);
+      setBrief(parsed);
+    } catch (err) {
+      setError("Brief generation failed. Please try again.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetForm = () => {
+    setBrief(null);
+    setFormData({
+      brand: "",
+      description: "",
+      objective: "",
+      audience: "",
+      platform: "",
+      budget: "",
+      vibe: "",
+    });
+  };
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#FAFAF7",
+        fontFamily:
+          '-apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif',
+      }}
+    >
+      {/* Header */}
+      <div
+        style={{
+          borderBottom: "1px solid #E8E5DE",
+          padding: "24px 32px",
+          backgroundColor: "#FAFAF7",
+        }}
+      >
+        <div style={{ maxWidth: 800, margin: "0 auto" }}>
+          <div
+            style={{
+              fontSize: 11,
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              color: "#999",
+              marginBottom: 4,
+            }}
+          >
+            Halle Gilbert — AI-Powered Marketing Tool
+          </div>
+          <h1
+            style={{
+              fontSize: 28,
+              fontWeight: 600,
+              color: "#1a1a1a",
+              margin: 0,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Creator Brief Generator
+          </h1>
+          <p
+            style={{
+              fontSize: 15,
+              color: "#666",
+              margin: "6px 0 0 0",
+              lineHeight: 1.5,
+            }}
+          >
+            Input your brand details. Get a structured, ready-to-send creator
+            brief in seconds.
+          </p>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 800, margin: "0 auto", padding: "32px" }}>
+        {!brief ? (
+          /* Form */
+          <div>
+            <div style={{ marginBottom: 28 }}>
+              <label style={labelStyle}>Brand Name</label>
+              <input
+                type="text"
+                placeholder="e.g. Belmond, Pernod Ricard, Blank Street"
+                value={formData.brand}
+                onChange={(e) => handleChange("brand", e.target.value)}
+                style={inputStyle}
+              />
+            </div>
+
+            <div style={{ marginBottom: 28 }}>
+              <label style={labelStyle}>What do they sell? (one line)</label>
+              <input
+                type="text"
+                placeholder="e.g. Luxury train and hotel experiences across Europe and Asia"
+                value={formData.description}
+                onChange={(e) => handleChange("description", e.target.value)}
+                style={inputStyle}
+              />
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 20,
+                marginBottom: 28,
+              }}
+            >
+              <div>
+                <label style={labelStyle}>Campaign Objective</label>
+                <select
+                  value={formData.objective}
+                  onChange={(e) => handleChange("objective", e.target.value)}
+                  style={selectStyle}
+                >
+                  <option value="">Select...</option>
+                  {OBJECTIVES.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>Platform</label>
+                <select
+                  value={formData.platform}
+                  onChange={(e) => handleChange("platform", e.target.value)}
+                  style={selectStyle}
+                >
+                  <option value="">Select...</option>
+                  {PLATFORMS.map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 28 }}>
+              <label style={labelStyle}>Target Audience</label>
+              <input
+                type="text"
+                placeholder="e.g. Urban millennials 28-38, interested in craft cocktails and experiential dining"
+                value={formData.audience}
+                onChange={(e) => handleChange("audience", e.target.value)}
+                style={inputStyle}
+              />
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 20,
+                marginBottom: 28,
+              }}
+            >
+              <div>
+                <label style={labelStyle}>Creator Budget Tier</label>
+                <select
+                  value={formData.budget}
+                  onChange={(e) => handleChange("budget", e.target.value)}
+                  style={selectStyle}
+                >
+                  <option value="">Select...</option>
+                  {BUDGET_TIERS.map((b) => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>Tone / Vibe</label>
+                <select
+                  value={formData.vibe}
+                  onChange={(e) => handleChange("vibe", e.target.value)}
+                  style={selectStyle}
+                >
+                  <option value="">Select...</option>
+                  {VIBES.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {error && (
+              <div
+                style={{
+                  padding: 12,
+                  backgroundColor: "#FFF0F0",
+                  border: "1px solid #FFD4D4",
+                  borderRadius: 6,
+                  color: "#CC3333",
+                  fontSize: 14,
+                  marginBottom: 20,
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <button
+              onClick={generateBrief}
+              disabled={!isComplete || loading}
+              style={{
+                width: "100%",
+                padding: "16px 24px",
+                backgroundColor: isComplete && !loading ? "#1a1a1a" : "#ccc",
+                color: "#fff",
+                border: "none",
+                borderRadius: 6,
+                fontSize: 15,
+                fontWeight: 600,
+                cursor: isComplete && !loading ? "pointer" : "not-allowed",
+                letterSpacing: "0.02em",
+                transition: "background-color 0.2s",
+              }}
+            >
+              {loading ? "Generating brief..." : "Generate Creator Brief →"}
+            </button>
+          </div>
+        ) : (
+          /* Brief Output */
+          <div>
+            {/* Brief Header */}
+            <div
+              style={{
+                borderBottom: "2px solid #1a1a1a",
+                paddingBottom: 16,
+                marginBottom: 32,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 11,
+                  letterSpacing: "0.15em",
+                  textTransform: "uppercase",
+                  color: "#999",
+                  marginBottom: 4,
+                }}
+              >
+                Creator Brief
+              </div>
+              <h2
+                style={{
+                  fontSize: 24,
+                  fontWeight: 600,
+                  color: "#1a1a1a",
+                  margin: 0,
+                }}
+              >
+                {formData.brand}
+              </h2>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 16,
+                  marginTop: 12,
+                  flexWrap: "wrap",
+                }}
+              >
+                {[
+                  formData.objective,
+                  formData.platform,
+                  formData.budget,
+                  formData.vibe,
+                ].map((tag, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      fontSize: 12,
+                      padding: "4px 10px",
+                      backgroundColor: "#F0EDE6",
+                      borderRadius: 3,
+                      color: "#666",
+                      letterSpacing: "0.02em",
+                    }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Campaign Concept */}
+            <Section title="Campaign Concept">
+              <p style={bodyText}>{brief.campaignConcept}</p>
+            </Section>
+
+            {/* Ideal Creator Profile */}
+            <Section title="Ideal Creator Profile">
+              <p style={bodyText}>{brief.creatorProfile}</p>
+            </Section>
+
+            {/* Content Direction */}
+            <Section title="Content Direction">
+              {brief.contentDirection.map((idea, i) => (
+                <div
+                  key={i}
+                  style={{
+                    padding: "12px 16px",
+                    backgroundColor: "#F7F6F2",
+                    borderRadius: 4,
+                    marginBottom: 8,
+                    borderLeft: "3px solid #C4553A",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: "#C4553A",
+                      letterSpacing: "0.1em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    IDEA {i + 1}
+                  </span>
+                  <p
+                    style={{
+                      margin: "6px 0 0 0",
+                      fontSize: 14,
+                      lineHeight: 1.6,
+                      color: "#333",
+                    }}
+                  >
+                    {idea}
+                  </p>
+                </div>
+              ))}
+            </Section>
+
+            {/* Deliverables */}
+            <Section title="Deliverables">
+              <p style={bodyText}>{brief.deliverables}</p>
+            </Section>
+
+            {/* Talking Points */}
+            <Section title="Talking Points / Must-Includes">
+              {brief.talkingPoints.map((point, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    gap: 10,
+                    marginBottom: 8,
+                    alignItems: "flex-start",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "#C4553A",
+                      minWidth: 18,
+                      marginTop: 2,
+                    }}
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: 14,
+                      lineHeight: 1.6,
+                      color: "#333",
+                    }}
+                  >
+                    {point}
+                  </p>
+                </div>
+              ))}
+            </Section>
+
+            {/* KPIs */}
+            <Section title="KPIs to Track">
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 8,
+                }}
+              >
+                {brief.kpis.map((kpi, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      padding: "10px 14px",
+                      backgroundColor: "#F7F6F2",
+                      borderRadius: 4,
+                      fontSize: 13,
+                      color: "#444",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {kpi}
+                  </div>
+                ))}
+              </div>
+            </Section>
+
+            {/* Comp Structure */}
+            <Section title="Suggested Compensation">
+              <p style={bodyText}>{brief.compStructure}</p>
+            </Section>
+
+            {/* Actions */}
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                marginTop: 32,
+                paddingTop: 24,
+                borderTop: "1px solid #E8E5DE",
+              }}
+            >
+              <button
+                onClick={resetForm}
+                style={{
+                  flex: 1,
+                  padding: "14px 24px",
+                  backgroundColor: "#1a1a1a",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 6,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                ← New Brief
+              </button>
+              <button
+                onClick={generateBrief}
+                style={{
+                  flex: 1,
+                  padding: "14px 24px",
+                  backgroundColor: "#fff",
+                  color: "#1a1a1a",
+                  border: "1px solid #ddd",
+                  borderRadius: 6,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                }}
+              >
+                Regenerate ↻
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Section({ title, children }) {
+  return (
+    <div style={{ marginBottom: 28 }}>
+      <h3
+        style={{
+          fontSize: 11,
+          letterSpacing: "0.15em",
+          textTransform: "uppercase",
+          color: "#999",
+          margin: "0 0 12px 0",
+          fontWeight: 600,
+        }}
+      >
+        {title}
+      </h3>
+      {children}
+    </div>
+  );
+}
+
+const labelStyle = {
+  display: "block",
+  fontSize: 12,
+  fontWeight: 600,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  color: "#555",
+  marginBottom: 8,
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: "12px 14px",
+  border: "1px solid #DDD",
+  borderRadius: 6,
+  fontSize: 15,
+  backgroundColor: "#fff",
+  color: "#1a1a1a",
+  outline: "none",
+  boxSizing: "border-box",
+  fontFamily: "inherit",
+};
+
+const selectStyle = {
+  ...inputStyle,
+  appearance: "auto",
+};
+
+const bodyText = {
+  fontSize: 14,
+  lineHeight: 1.7,
+  color: "#333",
+  margin: 0,
+};
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(window.__App));
+  </script>
+</body>
+</html>

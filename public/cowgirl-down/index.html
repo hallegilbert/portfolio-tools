@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COWGIRL DOWN</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:ital@0;1&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Special+Elite&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --cream: #F5F0E8;
+    --brown: #2C2418;
+    --rust: #A0522D;
+    --tobacco: #6B4E37;
+    --highway-yellow: #D4A017;
+    --motel-blue: #4A6B7A;
+    --faded-red: #B85C4A;
+    --light-tan: #E8DFD0;
+    --pink: #D4738A;
+    --denim: #7A8FA3;
+    --line: #6B4E37;
+  }
+  body {
+    background-color: var(--cream);
+    color: var(--brown);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    padding-top: 32px;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+  }
+  .page { max-width: 640px; margin: 0 auto; padding: 0 20px; }
+
+  /* STATUS BAR */
+  .status-bar {
+    position: fixed; top: 0; left: 0; right: 0;
+    background: var(--brown);
+    padding: 8px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    z-index: 999;
+  }
+  .status-bar span { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cream); opacity: 0.7; }
+  .status-live { display: flex; align-items: center; gap: 6px; }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--faded-red); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+  /* HERO */
+  .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 60px 0; }
+  .wanted-tag { font-size: 9px; letter-spacing: 0.35em; text-transform: uppercase; color: var(--rust); border: 1px solid var(--rust); display: inline-block; padding: 4px 10px; margin-bottom: 32px; opacity: 0.8; }
+  .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(52px,14vw,110px); line-height: 0.88; color: var(--brown); letter-spacing: -0.03em; }
+  .hero h1 .down { color: var(--rust); }
+  .hero-sub { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 18px; color: var(--tobacco); margin-top: 20px; opacity: 0.7; }
+  .hero-location { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: #8B7355; margin-top: 40px; line-height: 2; }
+  .scroll-indicator { width: 1px; height: 50px; background: var(--rust); margin-top: 48px; opacity: 0.3; }
+
+  .divider { width: 100%; height: 1px; background: var(--light-tan); }
+  .rust-line { width: 30px; height: 2px; background: var(--rust); }
+
+  /* ILLUSTRATION */
+  .illo { display: flex; justify-content: center; margin: 32px 0; }
+  .illo svg { opacity: 0.85; }
+
+  /* FLYER */
+  .flyer-section { padding: 80px 0; text-align: center; }
+  .flyer-box { border: 2px solid var(--brown); padding: 40px 32px; max-width: 400px; margin: 0 auto; background: var(--cream); }
+  .flyer-headline { font-family: 'DM Serif Display', serif; font-size: 32px; margin-bottom: 8px; }
+  .flyer-headline .rust { color: var(--rust); }
+  .flyer-sub { font-family: 'Special Elite', cursive; font-size: 14px; color: var(--tobacco); margin-bottom: 24px; }
+  .flyer-body { font-size: 11px; line-height: 2; color: #6B5D4F; }
+  .flyer-footer { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: #B0A48E; margin-top: 24px; }
+
+  /* MAP */
+  .map-section { padding: 60px 0; text-align: center; }
+  .map-label { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--rust); margin-bottom: 20px; }
+
+  /* DISPATCHES */
+  .dispatches { padding: 60px 0; }
+  .dispatches-header { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--rust); margin-bottom: 48px; }
+  .dispatch { margin-bottom: 64px; padding-bottom: 64px; border-bottom: 1px solid var(--light-tan); }
+  .dispatch:last-child { border-bottom: none; }
+  .dispatch-day { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--motel-blue); margin-bottom: 6px; }
+  .dispatch-date { font-family: 'DM Serif Display', serif; font-size: 14px; color: #8B7355; margin-bottom: 20px; }
+  .dispatch-title { font-family: 'DM Serif Display', serif; font-size: 26px; line-height: 1.25; color: var(--brown); margin-bottom: 20px; }
+  .dispatch-body { font-family: 'Special Elite', cursive; font-size: 14px; line-height: 1.9; color: #4A3F32; margin-bottom: 20px; }
+  .dispatch-sighting { font-size: 11px; line-height: 1.8; color: #8B7355; padding-left: 16px; border-left: 2px solid var(--rust); }
+  .dispatch-hat-callout { margin-top: 24px; padding: 16px 20px; background: var(--light-tan); font-size: 11px; line-height: 1.7; color: var(--tobacco); }
+  .hat-name { font-weight: 700; color: var(--brown); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* HAT MOCKUP */
+  .hat-mockup { display: flex; justify-content: center; margin: 16px 0 8px; }
+
+  /* SHOP */
+  .shop { padding: 80px 0; }
+  .shop-header { font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--rust); margin-bottom: 12px; }
+  .shop-title { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--brown); margin-bottom: 8px; }
+  .shop-sub { font-size: 12px; color: #8B7355; margin-bottom: 40px; line-height: 1.7; }
+  .hat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .hat-card { border: 1px solid var(--light-tan); padding: 20px 16px 24px; text-align: center; transition: border-color 0.2s; cursor: pointer; }
+  .hat-card:hover { border-color: var(--rust); }
+  .hat-card-name { font-family: 'DM Serif Display', serif; font-size: 15px; color: var(--brown); margin-bottom: 6px; }
+  .hat-card-desc { font-size: 10px; line-height: 1.7; color: #8B7355; margin-bottom: 10px; }
+  .hat-card-color { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #B0A48E; margin-bottom: 10px; }
+  .hat-price { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--rust); }
+  .sold-out { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--faded-red); margin-top: 6px; }
+
+  /* MYTH */
+  .myth-section { padding: 80px 0; }
+  .myth-lead { font-family: 'DM Serif Display', serif; font-size: 28px; line-height: 1.35; color: var(--brown); margin-bottom: 32px; }
+  .myth-body { font-size: 12px; line-height: 2.2; color: #6B5D4F; max-width: 440px; }
+  .meanings { padding: 48px 0; }
+  .meaning-item { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #8B7355; padding: 10px 0; display: flex; align-items: center; gap: 10px; }
+  .meaning-item::before { content: '·'; color: var(--rust); }
+  .question { padding: 60px 0; }
+  .question p { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 20px; color: #4A3F32; line-height: 1.6; }
+
+  /* EMAIL */
+  .capture { padding: 60px 0 100px; }
+  .capture-prompt { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--brown); margin-bottom: 6px; }
+  .capture-sub { font-size: 11px; color: #8B7355; margin-bottom: 28px; letter-spacing: 0.05em; }
+  .email-row { display: flex; max-width: 380px; border-bottom: 1px solid var(--brown); }
+  .email-row input { flex: 1; background: transparent; border: none; outline: none; font-family: 'Space Mono', monospace; font-size: 12px; color: var(--brown); padding: 10px 0; }
+  .email-row input::placeholder { color: #B0A48E; }
+  .email-row button { background: none; border: none; font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--rust); cursor: pointer; padding: 10px 0 10px 14px; }
+  .no-address { font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #B0A48E; margin-top: 14px; }
+  .footer { padding: 32px 0; border-top: 1px solid var(--light-tan); display: flex; justify-content: space-between; }
+  .footer span { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: #B0A48E; }
+</style>
+</head>
+<body><div style="position:fixed;top:0;left:0;right:0;z-index:9999;padding:10px 24px;background:rgba(243,237,224,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #D4CFC4;display:flex;justify-content:space-between;align-items:center"><a href="/" style="font-family:monospace;font-size:10px;letter-spacing:0.1em;text-decoration:none;color:#8A8780;text-transform:uppercase">← Back to Lab</a><a href="https://halle.studio" style="font-family:monospace;font-size:10px;letter-spacing:0.1em;text-decoration:none;color:#A0522D">halle.studio</a></div><div style="height:44px"></div>
+>
+
+<div class="status-bar">
+  <span>Cowgirl Down / Whitefish, MT</span>
+  <div class="status-live"><div class="live-dot"></div><span>Last seen: Sunday 11:47pm</span></div>
+</div>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="wanted-tag">Under the Big Sky Festival / July 18-20</div>
+    <h1>COWGIRL<br><span class="down">DOWN.</span></h1>
+    <div class="hero-sub">Have you seen her?</div>
+
+    <!-- Hero illustration: cowgirl from behind, walking away -->
+    <div class="illo" style="margin-top: 40px;">
+      <svg width="180" height="280" viewBox="0 0 180 280" fill="none" stroke="#6B4E37" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Hair flowing -->
+        <path d="M78,28 Q60,20 55,40 Q50,65 58,80" opacity="0.6"/>
+        <path d="M90,22 Q95,18 102,22 Q115,30 118,50 Q120,65 115,78" opacity="0.6"/>
+        <path d="M70,25 Q72,15 85,12 Q98,12 105,20"/>
+        <!-- Head -->
+        <ellipse cx="88" cy="35" rx="18" ry="22"/>
+        <!-- Neck -->
+        <line x1="88" y1="57" x2="88" y2="70"/>
+        <!-- Shoulders -->
+        <path d="M88,70 Q68,72 58,85"/>
+        <path d="M88,70 Q108,72 118,85"/>
+        <!-- Back / shirt -->
+        <path d="M58,85 L55,145"/>
+        <path d="M118,85 L121,145"/>
+        <!-- Waist tuck -->
+        <path d="M55,145 Q88,140 121,145"/>
+        <!-- Belt -->
+        <line x1="55" y1="148" x2="121" y2="148" stroke-width="2"/>
+        <rect x="84" y="144" width="8" height="8" rx="1" stroke-width="1"/>
+        <!-- Jeans -->
+        <path d="M55,148 L50,230 Q48,240 52,245"/>
+        <path d="M121,148 L126,230 Q128,240 124,245"/>
+        <!-- Inner leg line -->
+        <path d="M88,148 L85,230"/>
+        <path d="M88,148 L91,230"/>
+        <!-- Boots -->
+        <path d="M52,245 L42,248 Q38,250 40,255 L56,255 Q58,250 56,248 Z"/>
+        <path d="M124,245 L134,248 Q138,250 136,255 L120,255 Q118,250 120,248 Z"/>
+        <!-- Boot heels -->
+        <rect x="44" y="255" width="10" height="5" rx="1"/>
+        <rect x="122" y="255" width="10" height="5" rx="1"/>
+        <!-- Left arm, relaxed at side -->
+        <path d="M58,85 Q48,100 45,120 Q43,135 46,150"/>
+        <path d="M46,150 Q44,155 46,158"/>
+        <!-- Right arm, slightly back -->
+        <path d="M118,85 Q128,100 132,120 Q134,138 130,152"/>
+        <path d="M130,152 Q132,157 130,160"/>
+        <!-- Hair detail on back -->
+        <path d="M72,50 Q65,70 62,90" opacity="0.4"/>
+        <path d="M105,48 Q112,68 115,88" opacity="0.4"/>
+      </svg>
+    </div>
+
+    <div class="hero-location">
+      Big Mountain Ranch, Whitefish, Montana<br>
+      350 acres · Two stages · One rodeo · No forwarding address
+    </div>
+    <div class="scroll-indicator"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FLYER -->
+  <div class="flyer-section">
+    <div class="flyer-box">
+      <div class="flyer-headline">COWGIRL <span class="rust">DOWN.</span></div>
+      <div class="flyer-sub">Have you seen her?</div>
+      <div class="flyer-body">
+        Last seen westbound on Central Ave.<br>
+        Left a bar tab at The Great Northern.<br>
+        No forwarding address.<br><br>
+        If spotted, do not approach.<br>
+        She left on purpose.
+      </div>
+      <div class="flyer-footer">Found on festival grounds · July 2025</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MAP -->
+  <div class="map-section">
+    <div class="map-label">Known sightings / Whitefish, MT</div>
+    <svg width="100%" viewBox="0 0 580 420" fill="none" stroke="#6B4E37" stroke-width="1" stroke-linecap="round">
+      <!-- Streets -->
+      <!-- Central Ave (main drag, vertical) -->
+      <line x1="290" y1="40" x2="290" y2="380" stroke="#C4B69E" stroke-width="2"/>
+      <text x="296" y="210" font-family="'Space Mono', monospace" font-size="7" fill="#B0A48E" letter-spacing="2" transform="rotate(90,296,210)">CENTRAL AVE</text>
+
+      <!-- Railway St (parallel, left) -->
+      <line x1="180" y1="60" x2="180" y2="360" stroke="#C4B69E" stroke-width="1" stroke-dasharray="6,4"/>
+      <text x="168" y="360" font-family="'Space Mono', monospace" font-size="6" fill="#B0A48E">RAILWAY ST</text>
+
+      <!-- Spokane Ave (parallel, right) -->
+      <line x1="400" y1="60" x2="400" y2="360" stroke="#C4B69E" stroke-width="1" stroke-dasharray="6,4"/>
+      <text x="406" y="360" font-family="'Space Mono', monospace" font-size="6" fill="#B0A48E">SPOKANE AVE</text>
+
+      <!-- Cross streets -->
+      <line x1="130" y1="120" x2="450" y2="120" stroke="#D4C9B8" stroke-width="0.5"/>
+      <line x1="130" y1="200" x2="450" y2="200" stroke="#D4C9B8" stroke-width="0.5"/>
+      <line x1="130" y1="280" x2="450" y2="280" stroke="#D4C9B8" stroke-width="0.5"/>
+
+      <!-- MT 40 (diagonal to Blue Moon) -->
+      <path d="M290,340 Q380,360 500,330" stroke="#C4B69E" stroke-width="1.5"/>
+      <text x="430" y="345" font-family="'Space Mono', monospace" font-size="6" fill="#B0A48E">MT-40</text>
+
+      <!-- Road to festival (top) -->
+      <path d="M290,40 Q310,10 400,5 Q480,2 560,20" stroke="#C4B69E" stroke-width="1.5"/>
+      <text x="460" y="15" font-family="'Space Mono', monospace" font-size="6" fill="#B0A48E">→ BIG MOUNTAIN RANCH</text>
+
+      <!-- LOCATION PINS -->
+
+      <!-- 1. The Great Northern - 27 Central Ave -->
+      <circle cx="290" cy="150" r="8" fill="var(--rust)" opacity="0.15"/>
+      <text x="290" y="153" text-anchor="middle" font-family="'DM Serif Display', serif" font-size="10" fill="var(--rust)">×</text>
+      <text x="304" y="148" font-family="'Space Mono', monospace" font-size="7" fill="var(--brown)">The Great Northern</text>
+      <text x="304" y="158" font-family="'Special Elite', cursive" font-size="6" fill="#8B7355">Friday 11pm / bar tab, whiskey, laughing</text>
+
+      <!-- 2. Casey's rooftop -->
+      <circle cx="310" cy="230" r="8" fill="var(--rust)" opacity="0.15"/>
+      <text x="310" y="233" text-anchor="middle" font-family="'DM Serif Display', serif" font-size="10" fill="var(--rust)">×</text>
+      <text x="324" y="228" font-family="'Space Mono', monospace" font-size="7" fill="var(--brown)">Casey's</text>
+      <text x="324" y="238" font-family="'Special Elite', cursive" font-size="6" fill="#8B7355">Saturday 2am / rooftop, alone, mountains</text>
+
+      <!-- 3. The Remington -->
+      <circle cx="270" cy="270" r="8" fill="var(--rust)" opacity="0.15"/>
+      <text x="270" y="273" text-anchor="middle" font-family="'DM Serif Display', serif" font-size="10" fill="var(--rust)">×</text>
+      <text x="230" y="290" font-family="'Space Mono', monospace" font-size="7" fill="var(--brown)">The Remington</text>
+      <text x="206" y="300" font-family="'Special Elite', cursive" font-size="6" fill="#8B7355">Sunday / tambourine, one song, side door</text>
+
+      <!-- 4. Blue Moon (off MT-40) -->
+      <circle cx="490" cy="325" r="8" fill="var(--rust)" opacity="0.15"/>
+      <text x="490" y="328" text-anchor="middle" font-family="'DM Serif Display', serif" font-size="10" fill="var(--rust)">×</text>
+      <text x="460" y="315" font-family="'Space Mono', monospace" font-size="7" fill="var(--brown)">Blue Moon</text>
+      <text x="438" y="310" font-family="'Special Elite', cursive" font-size="6" fill="#8B7355">Sat midnight / bull, 11 seconds</text>
+
+      <!-- 5. Spotted Bear Spirits -->
+      <circle cx="260" cy="190" r="8" fill="var(--rust)" opacity="0.15"/>
+      <text x="260" y="193" text-anchor="middle" font-family="'DM Serif Display', serif" font-size="10" fill="var(--rust)">×</text>
+      <text x="170" y="188" font-family="'Space Mono', monospace" font-size="7" fill="var(--brown)">Spotted Bear Spirits</text>
+      <text x="170" y="198" font-family="'Special Elite', cursive" font-size="6" fill="#8B7355">Sunday / "this one's personal"</text>
+
+      <!-- 6. Amtrak Station -->
+      <circle cx="180" cy="320" r="8" fill="var(--rust)" opacity="0.15"/>
+      <text x="180" y="323" text-anchor="middle" font-family="'DM Serif Display', serif" font-size="10" fill="var(--rust)">×</text>
+      <text x="120" y="335" font-family="'Space Mono', monospace" font-size="7" fill="var(--brown)">Amtrak Station</text>
+      <text x="108" y="345" font-family="'Special Elite', cursive" font-size="6" fill="#8B7355">Sunday 3:22am / final sighting, gone</text>
+
+      <!-- 7. Festival grounds -->
+      <circle cx="540" cy="18" r="10" fill="var(--rust)" opacity="0.2"/>
+      <text x="540" y="22" text-anchor="middle" font-family="'DM Serif Display', serif" font-size="12" fill="var(--rust)">×</text>
+      <text x="540" y="38" text-anchor="middle" font-family="'Space Mono', monospace" font-size="7" fill="var(--brown)">UTBS Festival</text>
+
+      <!-- 8. Spokane Ave flyer -->
+      <circle cx="400" cy="310" r="6" fill="none" stroke="var(--rust)" stroke-dasharray="2,2"/>
+      <text x="400" y="313" text-anchor="middle" font-family="'DM Serif Display', serif" font-size="8" fill="var(--rust)">⬡</text>
+      <text x="416" y="308" font-family="'Special Elite', cursive" font-size="6" fill="#8B7355">Flyer found / 3am</text>
+
+      <!-- Walking path (dashed) -->
+      <path d="M540,18 Q400,30 290,150" stroke="var(--rust)" stroke-width="0.8" stroke-dasharray="4,4" opacity="0.4"/>
+      <path d="M290,150 L310,230 L270,270 L180,320" stroke="var(--rust)" stroke-width="0.8" stroke-dasharray="4,4" opacity="0.4"/>
+    </svg>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- DISPATCHES -->
+  <div class="dispatches">
+    <div class="dispatches-header">Field dispatches / July 2025</div>
+
+    <!-- DAY 1 -->
+    <div class="dispatch">
+      <div class="dispatch-day">Day One / Friday</div>
+      <div class="dispatch-date">July 18, 2025</div>
+      <div class="dispatch-title">Arrived with nothing to prove.</div>
+
+      <!-- Illustration: woman leaning on fence rail, looking at stage -->
+      <div class="illo">
+        <svg width="280" height="160" viewBox="0 0 280 160" fill="none" stroke="#6B4E37" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Fence rail -->
+          <line x1="0" y1="110" x2="280" y2="110" stroke="#C4B69E" stroke-width="2"/>
+          <line x1="0" y1="125" x2="280" y2="125" stroke="#C4B69E" stroke-width="1.5"/>
+          <line x1="40" y1="95" x2="40" y2="140" stroke="#C4B69E" stroke-width="2"/>
+          <line x1="140" y1="95" x2="140" y2="140" stroke="#C4B69E" stroke-width="2"/>
+          <line x1="240" y1="95" x2="240" y2="140" stroke="#C4B69E" stroke-width="2"/>
+          <!-- Figure leaning on rail, from side -->
+          <!-- Head -->
+          <ellipse cx="170" cy="52" rx="10" ry="12"/>
+          <!-- Hair falling forward -->
+          <path d="M162,48 Q155,55 153,70" opacity="0.5"/>
+          <path d="M165,42 Q158,40 155,48"/>
+          <path d="M175,44 Q182,48 183,58" opacity="0.5"/>
+          <!-- Neck -->
+          <line x1="170" y1="64" x2="170" y2="72"/>
+          <!-- Body leaning forward -->
+          <path d="M170,72 Q165,80 160,90 Q158,100 162,110"/>
+          <!-- Arms resting on rail -->
+          <path d="M170,78 Q175,88 180,95 Q185,100 188,108"/>
+          <path d="M160,90 Q155,98 158,108"/>
+          <!-- Legs -->
+          <path d="M162,110 L158,140 Q156,148 160,150"/>
+          <path d="M166,110 L170,140 Q172,148 168,150"/>
+          <!-- Boot detail -->
+          <path d="M160,150 L154,152" stroke-width="1"/>
+          <path d="M168,150 L174,152" stroke-width="1"/>
+          <!-- Crossed boot -->
+          <path d="M158,135 Q164,138 170,135" stroke-width="0.8" opacity="0.5"/>
+          <!-- Mountain silhouette in distance -->
+          <path d="M0,80 L30,50 L60,70 L100,35 L130,60 L160,30 L200,55 L230,40 L260,65 L280,50" stroke="#D4C9B8" stroke-width="0.8" opacity="0.4"/>
+        </svg>
+      </div>
+
+      <div class="dispatch-body">
+        First sighting at noon, walking through the gate at Big Mountain Ranch. Sunglasses. No companion. Walked in like she'd been here before.
+        <br><br>
+        Spotted side-stage during Red Clay Strays, writing in a notebook. Sat alone on the hill above the Great Northern Stage during Shane Smith & the Saints.
+        <br><br>
+        By 11pm she was at The Great Northern on Central Ave, two whiskeys in, talking to some guy in a Corb Lund shirt about something that made her laugh hard enough to almost fall off the stool.
+      </div>
+      <div class="dispatch-sighting">
+        Confirmed: 1:47am, walking north on Central Ave. Humming something nobody could place.
+      </div>
+
+      <!-- Corduroy dad hat: COWGIRL DOWN -->
+      <div class="hat-mockup">
+        <svg width="180" height="110" viewBox="0 0 180 110">
+          <!-- Unstructured soft crown -->
+          <path d="M30,85 Q30,28 90,22 Q150,28 150,85" fill="#EDE4D4" stroke="#C4B69E" stroke-width="1.2"/>
+          <!-- Corduroy lines -->
+          <line x1="50" y1="35" x2="48" y2="83" stroke="#DDD4C2" stroke-width="0.6"/>
+          <line x1="65" y1="28" x2="63" y2="83" stroke="#DDD4C2" stroke-width="0.6"/>
+          <line x1="80" y1="24" x2="78" y2="83" stroke="#DDD4C2" stroke-width="0.6"/>
+          <line x1="95" y1="24" x2="97" y2="83" stroke="#DDD4C2" stroke-width="0.6"/>
+          <line x1="110" y1="26" x2="112" y2="83" stroke="#DDD4C2" stroke-width="0.6"/>
+          <line x1="125" y1="30" x2="127" y2="83" stroke="#DDD4C2" stroke-width="0.6"/>
+          <line x1="140" y1="38" x2="142" y2="83" stroke="#DDD4C2" stroke-width="0.6"/>
+          <!-- Brim - curved, soft -->
+          <path d="M25,85 Q20,88 18,92 Q16,98 25,100 Q60,106 90,108 Q120,106 155,100 Q164,98 162,92 Q160,88 155,85" fill="#E4D9C5" stroke="#C4B69E" stroke-width="1"/>
+          <!-- Seam -->
+          <path d="M90,22 L90,85" stroke="#D4C9B8" stroke-width="0.5" stroke-dasharray="3,3"/>
+          <!-- Text -->
+          <text x="90" y="54" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="12" fill="#A0522D" letter-spacing="1">COWGIRL</text>
+          <text x="90" y="72" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="12" fill="#A0522D" letter-spacing="1">DOWN</text>
+          <!-- Adjustable strap hint -->
+          <path d="M28,88 Q20,90 16,85" stroke="#C4B69E" stroke-width="0.8"/>
+        </svg>
+      </div>
+      <div class="dispatch-hat-callout">
+        Today's hat: <span class="hat-name">"COWGIRL DOWN"</span>. Dusty cream corduroy, rust embroidery. The one that started it.
+      </div>
+    </div>
+
+    <!-- DAY 2 -->
+    <div class="dispatch">
+      <div class="dispatch-day">Day Two / Saturday</div>
+      <div class="dispatch-date">July 19, 2025</div>
+      <div class="dispatch-title">Rode the bull at Blue Moon. Didn't flinch.</div>
+
+      <!-- Illustration: woman on mechanical bull, one arm up -->
+      <div class="illo">
+        <svg width="240" height="200" viewBox="0 0 240 200" fill="none" stroke="#6B4E37" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Mechanical bull body -->
+          <ellipse cx="120" cy="155" rx="55" ry="25" stroke="#C4B69E" stroke-width="1.5"/>
+          <!-- Bull head -->
+          <path d="M65,150 Q50,140 42,135 Q38,130 40,125" stroke="#C4B69E" stroke-width="1.5"/>
+          <!-- Horns -->
+          <path d="M42,125 Q35,115 28,118" stroke="#C4B69E" stroke-width="1.2"/>
+          <path d="M42,125 Q48,115 52,118" stroke="#C4B69E" stroke-width="1.2"/>
+          <!-- Bull tail -->
+          <path d="M175,148 Q190,140 195,150 Q198,155 195,160" stroke="#C4B69E" stroke-width="1"/>
+          <!-- Platform -->
+          <ellipse cx="120" cy="185" rx="70" ry="10" stroke="#D4C9B8" stroke-width="0.8" fill="none"/>
+          <!-- Figure riding -->
+          <!-- Torso -->
+          <path d="M118,132 Q115,110 118,95"/>
+          <!-- Head -->
+          <ellipse cx="120" cy="78" rx="10" ry="13"/>
+          <!-- Hair flying back -->
+          <path d="M128,72 Q140,68 148,75 Q155,82 150,85" opacity="0.5"/>
+          <path d="M126,68 Q135,60 142,65" opacity="0.4"/>
+          <!-- Neck -->
+          <line x1="120" y1="91" x2="118" y2="95"/>
+          <!-- Left arm - up in the air! -->
+          <path d="M115,100 Q100,85 95,65 Q93,55 98,48"/>
+          <!-- Hand open -->
+          <path d="M98,48 Q95,42 92,44" stroke-width="1"/>
+          <path d="M98,48 Q97,40 95,40" stroke-width="1"/>
+          <path d="M98,48 Q100,42 102,43" stroke-width="1"/>
+          <!-- Right arm holding rope -->
+          <path d="M122,100 Q130,108 135,120 Q138,130 132,138"/>
+          <!-- Legs straddling -->
+          <path d="M112,132 Q100,138 92,148"/>
+          <path d="M125,132 Q135,138 145,148"/>
+          <!-- Boots -->
+          <path d="M92,148 Q88,152 85,150" stroke-width="1"/>
+          <path d="M145,148 Q149,152 152,150" stroke-width="1"/>
+        </svg>
+      </div>
+
+      <div class="dispatch-body">
+        Changed hats. This one said NO MONEY / RICH. Someone asked where she got it. She said "I made it" and walked away.
+        <br><br>
+        Spotted at the rodeo ring mid-afternoon, boots crossed on the fence. A man walked up. Leather jacket, too much confidence, the kind that means trouble or history. They talked for four minutes. He touched her arm. She moved it. He left first.
+        <br><br>
+        She watched Mumford & Sons from the same spot and didn't move for ninety minutes.
+        <br><br>
+        By midnight she was at Blue Moon off Montana 40. Nightclub and rodeo in one building. She got on the mechanical bull. Eleven seconds. Got off, tipped her hat to nobody, ordered another drink.
+        <br><br>
+        A flyer turned up in the women's restroom. COWGIRL DOWN. HAVE YOU SEEN HER? QR code. Nothing else.
+      </div>
+      <div class="dispatch-sighting">
+        Confirmed: 2:12am, Casey's rooftop, alone at the rail, looking at the mountains.
+      </div>
+
+      <!-- Corduroy dad hat: NO MONEY / RICH -->
+      <div class="hat-mockup">
+        <svg width="180" height="110" viewBox="0 0 180 110">
+          <path d="M30,85 Q30,28 90,22 Q150,28 150,85" fill="#7A8FA3" stroke="#6B7F92" stroke-width="1.2"/>
+          <line x1="50" y1="35" x2="48" y2="83" stroke="#8BA0B5" stroke-width="0.6"/>
+          <line x1="65" y1="28" x2="63" y2="83" stroke="#8BA0B5" stroke-width="0.6"/>
+          <line x1="80" y1="24" x2="78" y2="83" stroke="#8BA0B5" stroke-width="0.6"/>
+          <line x1="95" y1="24" x2="97" y2="83" stroke="#8BA0B5" stroke-width="0.6"/>
+          <line x1="110" y1="26" x2="112" y2="83" stroke="#8BA0B5" stroke-width="0.6"/>
+          <line x1="125" y1="30" x2="127" y2="83" stroke="#8BA0B5" stroke-width="0.6"/>
+          <line x1="140" y1="38" x2="142" y2="83" stroke="#8BA0B5" stroke-width="0.6"/>
+          <path d="M25,85 Q20,88 18,92 Q16,98 25,100 Q60,106 90,108 Q120,106 155,100 Q164,98 162,92 Q160,88 155,85" fill="#6E8495" stroke="#6B7F92" stroke-width="1"/>
+          <path d="M90,22 L90,85" stroke="#8BA0B5" stroke-width="0.5" stroke-dasharray="3,3"/>
+          <text x="90" y="50" text-anchor="middle" font-family="'Space Mono', monospace" font-size="10" fill="#E8DFD0" letter-spacing="1">NO MONEY</text>
+          <line x1="58" y1="57" x2="122" y2="57" stroke="#E8DFD0" stroke-width="0.5"/>
+          <text x="90" y="74" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#E8DFD0" font-weight="bold" letter-spacing="2">RICH</text>
+          <path d="M28,88 Q20,90 16,85" stroke="#6B7F92" stroke-width="0.8"/>
+        </svg>
+      </div>
+      <div class="dispatch-hat-callout">
+        Today's hat: <span class="hat-name">"NO MONEY / RICH"</span>. Faded denim corduroy, cream thread. For girls who tip well on an empty bank account.
+      </div>
+    </div>
+
+    <!-- DAY 3 -->
+    <div class="dispatch">
+      <div class="dispatch-day">Day Three / Sunday</div>
+      <div class="dispatch-date">July 20, 2025</div>
+      <div class="dispatch-title">Got onstage at an afterparty. Nobody asked her to.</div>
+
+      <!-- Illustration: woman onstage with tambourine, from slight below angle -->
+      <div class="illo">
+        <svg width="240" height="200" viewBox="0 0 240 200" fill="none" stroke="#6B4E37" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Stage edge -->
+          <line x1="20" y1="170" x2="220" y2="170" stroke="#C4B69E" stroke-width="2"/>
+          <line x1="20" y1="170" x2="10" y2="195" stroke="#C4B69E" stroke-width="1"/>
+          <line x1="220" y1="170" x2="230" y2="195" stroke="#C4B69E" stroke-width="1"/>
+          <!-- Mic stand to her right -->
+          <line x1="165" y1="60" x2="165" y2="170" stroke="#C4B69E" stroke-width="1"/>
+          <circle cx="165" cy="58" r="6" stroke="#C4B69E" fill="none"/>
+          <!-- Figure -->
+          <!-- Head tilted back slightly -->
+          <ellipse cx="115" cy="52" rx="11" ry="14"/>
+          <!-- Hair -->
+          <path d="M105,45 Q95,42 90,50 Q85,62 88,75" opacity="0.5"/>
+          <path d="M125,48 Q132,50 135,58 Q137,68 133,78" opacity="0.5"/>
+          <!-- Neck -->
+          <line x1="115" y1="66" x2="115" y2="76"/>
+          <!-- Body -->
+          <path d="M115,76 Q108,80 102,90"/>
+          <path d="M115,76 Q122,80 128,90"/>
+          <!-- Shirt/body -->
+          <path d="M102,90 L98,140"/>
+          <path d="M128,90 L132,140"/>
+          <!-- Waist -->
+          <path d="M98,140 Q115,137 132,140"/>
+          <!-- Legs -->
+          <path d="M98,140 L94,168"/>
+          <path d="M132,140 L136,168"/>
+          <path d="M110,140 L108,168"/>
+          <path d="M120,140 L122,168"/>
+          <!-- Boots on stage -->
+          <path d="M94,168 L88,170" stroke-width="1"/>
+          <path d="M136,168 L142,170" stroke-width="1"/>
+          <!-- Right arm UP with tambourine -->
+          <path d="M128,90 Q140,80 148,65 Q152,55 148,48"/>
+          <!-- Tambourine -->
+          <circle cx="148" cy="42" r="12" stroke-width="1.5"/>
+          <circle cx="148" cy="42" r="8" stroke-width="0.5" stroke-dasharray="2,2"/>
+          <!-- Jingles -->
+          <circle cx="136" cy="40" r="2" fill="#6B4E37" opacity="0.3"/>
+          <circle cx="148" cy="30" r="2" fill="#6B4E37" opacity="0.3"/>
+          <circle cx="160" cy="40" r="2" fill="#6B4E37" opacity="0.3"/>
+          <circle cx="148" cy="54" r="2" fill="#6B4E37" opacity="0.3"/>
+          <!-- Left arm relaxed -->
+          <path d="M102,90 Q92,100 88,115 Q86,125 90,135"/>
+          <!-- Crowd suggestion at bottom -->
+          <circle cx="40" cy="192" r="6" stroke="#D4C9B8" stroke-width="0.8" opacity="0.4"/>
+          <circle cx="60" cy="190" r="5" stroke="#D4C9B8" stroke-width="0.8" opacity="0.4"/>
+          <circle cx="80" cy="193" r="6" stroke="#D4C9B8" stroke-width="0.8" opacity="0.4"/>
+          <circle cx="100" cy="190" r="5" stroke="#D4C9B8" stroke-width="0.8" opacity="0.4"/>
+          <circle cx="140" cy="192" r="6" stroke="#D4C9B8" stroke-width="0.8" opacity="0.4"/>
+          <circle cx="160" cy="190" r="5" stroke="#D4C9B8" stroke-width="0.8" opacity="0.4"/>
+          <circle cx="185" cy="192" r="6" stroke="#D4C9B8" stroke-width="0.8" opacity="0.4"/>
+          <circle cx="205" cy="190" r="5" stroke="#D4C9B8" stroke-width="0.8" opacity="0.4"/>
+        </svg>
+      </div>
+
+      <div class="dispatch-body">
+        New hat. Pink thread on cream: I ♥ SWEET MEN. A woman at Spotted Bear Spirits asked to buy it off her head. She said no. "This one's personal."
+        <br><br>
+        Tyler Childers closed the festival. She was near the front, eyes closed for half the set. The leather jacket guy was three rows back. She knew. Didn't turn around.
+        <br><br>
+        After the last song she went straight to The Remington. Afterparty band playing covers. She ended up onstage with a tambourine for one song. Nobody's sure how. Stepped down, half-bowed, slipped out the side door.
+        <br><br>
+        Last flyer found stapled to a telephone pole on Spokane Ave around 3am. It just said: LAST SEEN WESTBOUND.
+      </div>
+      <div class="dispatch-sighting">
+        Final sighting: 3:22am, walking south on Railway Street toward the Amtrak station. One hat on, two in hand. Gone by morning.
+      </div>
+
+      <!-- Corduroy dad hat: I ♥ SWEET MEN -->
+      <div class="hat-mockup">
+        <svg width="180" height="110" viewBox="0 0 180 110">
+          <path d="M30,85 Q30,28 90,22 Q150,28 150,85" fill="#F2E8DA" stroke="#D4C9B8" stroke-width="1.2"/>
+          <line x1="50" y1="35" x2="48" y2="83" stroke="#E8DFD0" stroke-width="0.6"/>
+          <line x1="65" y1="28" x2="63" y2="83" stroke="#E8DFD0" stroke-width="0.6"/>
+          <line x1="80" y1="24" x2="78" y2="83" stroke="#E8DFD0" stroke-width="0.6"/>
+          <line x1="95" y1="24" x2="97" y2="83" stroke="#E8DFD0" stroke-width="0.6"/>
+          <line x1="110" y1="26" x2="112" y2="83" stroke="#E8DFD0" stroke-width="0.6"/>
+          <line x1="125" y1="30" x2="127" y2="83" stroke="#E8DFD0" stroke-width="0.6"/>
+          <line x1="140" y1="38" x2="142" y2="83" stroke="#E8DFD0" stroke-width="0.6"/>
+          <path d="M25,85 Q20,88 18,92 Q16,98 25,100 Q60,106 90,108 Q120,106 155,100 Q164,98 162,92 Q160,88 155,85" fill="#EBE0D0" stroke="#D4C9B8" stroke-width="1"/>
+          <path d="M90,22 L90,85" stroke="#E8DFD0" stroke-width="0.5" stroke-dasharray="3,3"/>
+          <text x="90" y="48" text-anchor="middle" font-family="'Space Mono', monospace" font-size="9" fill="#D4738A">I</text>
+          <text x="90" y="63" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="16" fill="#D4738A">♥</text>
+          <text x="90" y="79" text-anchor="middle" font-family="'Space Mono', monospace" font-size="8" fill="#D4738A" letter-spacing="1.5">SWEET MEN</text>
+          <path d="M28,88 Q20,90 16,85" stroke="#D4C9B8" stroke-width="0.8"/>
+        </svg>
+      </div>
+      <div class="dispatch-hat-callout">
+        Today's hat: <span class="hat-name">"I ♥ SWEET MEN"</span>. Cream corduroy, pink thread. The one she said was personal.
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SHOP -->
+  <div class="shop">
+    <div class="shop-header">What she left behind</div>
+    <div class="shop-title">The Hats</div>
+    <div class="shop-sub">Small batch. Corduroy. Made before the festival. Won't be made again.</div>
+
+    <div class="hat-grid">
+      <div class="hat-card">
+        <div class="hat-mockup">
+          <svg width="120" height="75" viewBox="0 0 180 110">
+            <path d="M30,85 Q30,28 90,22 Q150,28 150,85" fill="#EDE4D4" stroke="#C4B69E" stroke-width="1.2"/>
+            <line x1="55" y1="32" x2="53" y2="83" stroke="#DDD4C2" stroke-width="0.6"/><line x1="75" y1="25" x2="73" y2="83" stroke="#DDD4C2" stroke-width="0.6"/><line x1="95" y1="24" x2="97" y2="83" stroke="#DDD4C2" stroke-width="0.6"/><line x1="115" y1="27" x2="117" y2="83" stroke="#DDD4C2" stroke-width="0.6"/><line x1="135" y1="35" x2="137" y2="83" stroke="#DDD4C2" stroke-width="0.6"/>
+            <path d="M25,85 Q20,88 18,92 Q16,98 25,100 Q60,106 90,108 Q120,106 155,100 Q164,98 162,92 Q160,88 155,85" fill="#E4D9C5" stroke="#C4B69E" stroke-width="1"/>
+            <text x="90" y="54" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="12" fill="#A0522D" letter-spacing="1">COWGIRL</text>
+            <text x="90" y="72" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="12" fill="#A0522D" letter-spacing="1">DOWN</text>
+          </svg>
+        </div>
+        <div class="hat-card-name">COWGIRL DOWN</div>
+        <div class="hat-card-desc">Bold, ironic, slightly chaotic.</div>
+        <div class="hat-card-color">Cream corduroy · Rust embroidery</div>
+        <div class="hat-price">$38</div>
+        <div class="sold-out">Sold out</div>
+      </div>
+
+      <div class="hat-card">
+        <div class="hat-mockup">
+          <svg width="120" height="75" viewBox="0 0 180 110">
+            <path d="M30,85 Q30,28 90,22 Q150,28 150,85" fill="#7A8FA3" stroke="#6B7F92" stroke-width="1.2"/>
+            <line x1="55" y1="32" x2="53" y2="83" stroke="#8BA0B5" stroke-width="0.6"/><line x1="75" y1="25" x2="73" y2="83" stroke="#8BA0B5" stroke-width="0.6"/><line x1="95" y1="24" x2="97" y2="83" stroke="#8BA0B5" stroke-width="0.6"/><line x1="115" y1="27" x2="117" y2="83" stroke="#8BA0B5" stroke-width="0.6"/><line x1="135" y1="35" x2="137" y2="83" stroke="#8BA0B5" stroke-width="0.6"/>
+            <path d="M25,85 Q20,88 18,92 Q16,98 25,100 Q60,106 90,108 Q120,106 155,100 Q164,98 162,92 Q160,88 155,85" fill="#6E8495" stroke="#6B7F92" stroke-width="1"/>
+            <text x="90" y="50" text-anchor="middle" font-family="'Space Mono', monospace" font-size="10" fill="#E8DFD0" letter-spacing="1">NO MONEY</text>
+            <line x1="58" y1="57" x2="122" y2="57" stroke="#E8DFD0" stroke-width="0.5"/>
+            <text x="90" y="74" text-anchor="middle" font-family="'Space Mono', monospace" font-size="13" fill="#E8DFD0" font-weight="bold" letter-spacing="2">RICH</text>
+          </svg>
+        </div>
+        <div class="hat-card-name">NO MONEY / RICH</div>
+        <div class="hat-card-desc">Broke-but-fabulous. Service industry chic.</div>
+        <div class="hat-card-color">Denim corduroy · Cream thread</div>
+        <div class="hat-price">$38</div>
+        <div class="sold-out">Sold out</div>
+      </div>
+
+      <div class="hat-card">
+        <div class="hat-mockup">
+          <svg width="120" height="75" viewBox="0 0 180 110">
+            <path d="M30,85 Q30,28 90,22 Q150,28 150,85" fill="#F2E8DA" stroke="#D4C9B8" stroke-width="1.2"/>
+            <line x1="55" y1="32" x2="53" y2="83" stroke="#E8DFD0" stroke-width="0.6"/><line x1="75" y1="25" x2="73" y2="83" stroke="#E8DFD0" stroke-width="0.6"/><line x1="95" y1="24" x2="97" y2="83" stroke="#E8DFD0" stroke-width="0.6"/><line x1="115" y1="27" x2="117" y2="83" stroke="#E8DFD0" stroke-width="0.6"/><line x1="135" y1="35" x2="137" y2="83" stroke="#E8DFD0" stroke-width="0.6"/>
+            <path d="M25,85 Q20,88 18,92 Q16,98 25,100 Q60,106 90,108 Q120,106 155,100 Q164,98 162,92 Q160,88 155,85" fill="#EBE0D0" stroke="#D4C9B8" stroke-width="1"/>
+            <text x="90" y="48" text-anchor="middle" font-family="'Space Mono', monospace" font-size="9" fill="#D4738A">I</text>
+            <text x="90" y="63" text-anchor="middle" font-family="'DM Serif Display', Georgia, serif" font-size="16" fill="#D4738A">♥</text>
+            <text x="90" y="79" text-anchor="middle" font-family="'Space Mono', monospace" font-size="8" fill="#D4738A" letter-spacing="1.5">SWEET MEN</text>
+          </svg>
+        </div>
+        <div class="hat-card-name">I ♥ SWEET MEN</div>
+        <div class="hat-card-desc">Soft, disarming, flirty. The personal one.</div>
+        <div class="hat-card-color">Cream corduroy · Pink thread</div>
+        <div class="hat-price">$38</div>
+        <div class="sold-out">Sold out</div>
+      </div>
+
+      <div class="hat-card">
+        <div class="hat-mockup">
+          <svg width="120" height="75" viewBox="0 0 180 110">
+            <path d="M30,85 Q30,28 90,22 Q150,28 150,85" fill="#2A2A2A" stroke="#444" stroke-width="1.2"/>
+            <line x1="55" y1="32" x2="53" y2="83" stroke="#383838" stroke-width="0.6"/><line x1="75" y1="25" x2="73" y2="83" stroke="#383838" stroke-width="0.6"/><line x1="95" y1="24" x2="97" y2="83" stroke="#383838" stroke-width="0.6"/><line x1="115" y1="27" x2="117" y2="83" stroke="#383838" stroke-width="0.6"/><line x1="135" y1="35" x2="137" y2="83" stroke="#383838" stroke-width="0.6"/>
+            <path d="M25,85 Q20,88 18,92 Q16,98 25,100 Q60,106 90,108 Q120,106 155,100 Q164,98 162,92 Q160,88 155,85" fill="#222" stroke="#444" stroke-width="1"/>
+            <text x="90" y="50" text-anchor="middle" font-family="'Space Mono', monospace" font-size="10" fill="#D4A017" letter-spacing="2">DEAD</text>
+            <text x="90" y="62" text-anchor="middle" font-family="'Space Mono', monospace" font-size="7" fill="#D4A017">&amp;</text>
+            <text x="90" y="76" text-anchor="middle" font-family="'Space Mono', monospace" font-size="10" fill="#D4A017" letter-spacing="2">ALIVE</text>
+          </svg>
+        </div>
+        <div class="hat-card-name">DEAD & ALIVE</div>
+        <div class="hat-card-desc">Schrödinger's cowgirl.</div>
+        <div class="hat-card-color">Black corduroy · Highway yellow</div>
+        <div class="hat-price">$38</div>
+        <div class="sold-out">Sold out</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MYTH -->
+  <div class="myth-section">
+    <div class="myth-lead">There was a woman who left.</div>
+    <div class="rust-line" style="margin-bottom: 28px;"></div>
+    <div class="myth-body">
+      No forwarding address. No goodbye. Just a bar tab and a dust trail.
+      <br><br>
+      She went west. Bought land. Started something small and strange. Works the late shift somewhere no one thought to look.
+    </div>
+  </div>
+
+  <!-- Illustration: woman walking away into distance, small -->
+  <div class="illo">
+    <svg width="200" height="120" viewBox="0 0 200 120" fill="none" stroke="#6B4E37" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Horizon line -->
+      <line x1="0" y1="95" x2="200" y2="95" stroke="#D4C9B8" stroke-width="0.5"/>
+      <!-- Road converging -->
+      <line x1="80" y1="115" x2="98" y2="70" stroke="#D4C9B8" stroke-width="0.8"/>
+      <line x1="120" y1="115" x2="102" y2="70" stroke="#D4C9B8" stroke-width="0.8"/>
+      <!-- Small figure in distance -->
+      <ellipse cx="100" cy="76" rx="3" ry="4" stroke-width="0.8"/>
+      <line x1="100" y1="80" x2="100" y2="90" stroke-width="0.8"/>
+      <line x1="100" y1="90" x2="97" y2="98" stroke-width="0.8"/>
+      <line x1="100" y1="90" x2="103" y2="98" stroke-width="0.8"/>
+      <line x1="100" y1="83" x2="96" y2="88" stroke-width="0.8"/>
+      <line x1="100" y1="83" x2="104" y2="88" stroke-width="0.8"/>
+      <!-- Mountains -->
+      <path d="M0,85 L25,65 L45,78 L70,55 L95,70 L120,50 L150,68 L175,58 L200,72" stroke="#D4C9B8" stroke-width="0.6" opacity="0.5"/>
+    </svg>
+  </div>
+
+  <div class="meanings">
+    <div class="meaning-item">A rodeo injury notice</div>
+    <div class="meaning-item">A highway alert</div>
+    <div class="meaning-item">A radio interruption</div>
+    <div class="meaning-item">A classified ad</div>
+    <div class="meaning-item">A whispered warning</div>
+  </div>
+
+  <div class="question">
+    <p>Nobody's sure if it means she fell or she just left.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- EMAIL -->
+  <div class="capture">
+    <div class="capture-prompt">If you hear anything,</div>
+    <div class="capture-sub">let us know.</div>
+    <div class="email-row">
+      <input type="email" placeholder="your email">
+      <button>REPORT</button>
+    </div>
+    <div class="no-address">No forwarding address required.</div>
+  </div>
+
+  <div class="footer">
+    <span>Cowgirl Down</span>
+    <span>Last seen westbound</span>
+  </div>
+
+</div>
+</body>
+</html>

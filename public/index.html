@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lab — Halle Gilbert</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #FAF9F6;
+      color: #1C1B18;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: rgba(192,59,45,0.12); }
+
+    .container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 64px 40px 80px;
+    }
+
+    .eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #8A8780;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(48px, 8vw, 72px);
+      font-weight: 400;
+      line-height: 1;
+      margin-bottom: 16px;
+      color: #1C1B18;
+    }
+    h1 span { color: #C03B2D; }
+
+    .subtitle {
+      font-size: 15px;
+      line-height: 1.6;
+      color: #6B6965;
+      max-width: 520px;
+      margin-bottom: 40px;
+    }
+
+    .demo-note {
+      background: rgba(192,59,45,0.05);
+      border: 1px solid rgba(192,59,45,0.12);
+      border-radius: 3px;
+      padding: 14px 18px;
+      margin-bottom: 40px;
+      font-size: 13px;
+      color: #6B6965;
+      line-height: 1.5;
+    }
+    .demo-note strong { color: #C03B2D; }
+
+    /* GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #E8E6E2;
+      border-radius: 4px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s ease;
+      min-height: 180px;
+    }
+    .card:hover {
+      border-color: #C03B2D;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-number {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #C03B2D;
+    }
+    .card-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 2px;
+      font-weight: 700;
+    }
+    .tag-interactive { background: rgba(192,59,45,0.08); color: #C03B2D; }
+    .tag-tool { background: rgba(44,74,110,0.08); color: #2C4A6E; }
+    .tag-campaign { background: rgba(160,82,45,0.08); color: #A0522D; }
+    .tag-satire { background: rgba(212,43,43,0.08); color: #B22222; }
+    .tag-app { background: rgba(59,111,160,0.08); color: #3B6FA0; }
+
+    .card-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 1.2;
+    }
+    .card-desc {
+      font-size: 13px;
+      line-height: 1.55;
+      color: #6B6965;
+    }
+    .card-tech {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: #8A8780;
+      letter-spacing: 0.03em;
+      margin-top: auto;
+      padding-top: 8px;
+      border-top: 1px solid #F0EFEC;
+    }
+
+    .footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid #E5E3DE;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer a {
+      color: #C03B2D;
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .footer a:hover { text-decoration: underline; }
+    .footer-right {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      color: #B0AEA8;
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 40px 24px 60px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="eyebrow">Halle Gilbert / Lab</div>
+    <h1>Things I <span>built.</span></h1>
+    <p class="subtitle">
+      Tools, campaigns, and experiments made with AI. Each one started with a real question or a real constraint. A few of them you can try yourself.
+    </p>
+
+    <div class="demo-note">
+      <strong>Live demos:</strong> Tools marked "interactive" use AI and are limited to ~10 uses per day. They're real and functional.
+    </div>
+
+    <div class="grid">
+
+      <a href="/move-hq/case-study/" class="card">
+        <div class="card-header">
+          <span class="card-number">01</span>
+          <span class="card-tag tag-app">APP</span>
+        </div>
+        <div class="card-title">NYC Move HQ</div>
+        <div class="card-desc">Life management app built to coordinate a cross-country move. Task tracking, apartment hunting, budgets, and vibe checks.</div>
+        <div class="card-tech">React · Full-Stack App · Product Design</div>
+      </a>
+
+      <a href="/viral-forensics/case-study/" class="card">
+        <div class="card-header">
+          <span class="card-number">02</span>
+          <span class="card-tag tag-interactive">INTERACTIVE</span>
+        </div>
+        <div class="card-title">Viral Content Forensics</div>
+        <div class="card-desc">Paste any social post. Get the structural, psychological, and cultural mechanics behind why it works.</div>
+        <div class="card-tech">React · Claude API · Content Strategy</div>
+      </a>
+
+      <a href="/creator-brief/case-study/" class="card">
+        <div class="card-header">
+          <span class="card-number">03</span>
+          <span class="card-tag tag-interactive">INTERACTIVE</span>
+        </div>
+        <div class="card-title">Creator Brief Generator</div>
+        <div class="card-desc">Input a brand and objective, get a structured creator partnership brief. Built from real program experience.</div>
+        <div class="card-tech">React · Claude API · Creator Partnerships</div>
+      </a>
+
+      <a href="/campaign-concept/case-study/" class="card">
+        <div class="card-header">
+          <span class="card-number">04</span>
+          <span class="card-tag tag-interactive">INTERACTIVE</span>
+        </div>
+        <div class="card-title">Campaign Concept Generator</div>
+        <div class="card-desc">Input any brand + objective. Get a full campaign strategy with activations, channel roles, and KPIs.</div>
+        <div class="card-tech">React · Claude API · Campaign Strategy</div>
+      </a>
+
+      <a href="/reverse-research/case-study/" class="card">
+        <div class="card-header">
+          <span class="card-number">05</span>
+          <span class="card-tag tag-interactive">INTERACTIVE</span>
+        </div>
+        <div class="card-title">Reverse Research Lab</div>
+        <div class="card-desc">Upload your work. Get mapped to adjacent thinkers, frameworks, and references you didn't know existed.</div>
+        <div class="card-tech">React · Claude API · Research Methodology</div>
+      </a>
+
+      <a href="/command-center/case-study/" class="card">
+        <div class="card-header">
+          <span class="card-number">06</span>
+          <span class="card-tag tag-tool">TOOL</span>
+        </div>
+        <div class="card-title">Job Search Command Center</div>
+        <div class="card-desc">Kanban pipeline tracker for job applications. Board and list views, priority tagging, status filtering.</div>
+        <div class="card-tech">React · Client-side State · Product Design</div>
+      </a>
+
+      <a href="/cowgirl-down/case-study/" class="card">
+        <div class="card-header">
+          <span class="card-number">07</span>
+          <span class="card-tag tag-campaign">CAMPAIGN</span>
+        </div>
+        <div class="card-title">Cowgirl Down</div>
+        <div class="card-desc">Full brand campaign for a fictional western concept. Strategy, identity, product line, guerrilla distribution, and a phased website.</div>
+        <div class="card-tech">HTML · SVG · Brand Campaign</div>
+      </a>
+
+      <a href="/manosphere/case-study/" class="card">
+        <div class="card-header">
+          <span class="card-number">08</span>
+          <span class="card-tag tag-satire">SATIRE</span>
+        </div>
+        <div class="card-title">Manosphere Generator</div>
+        <div class="card-desc">Generates absurd alpha-male motivational content. Cultural commentary disguised as a toy.</div>
+        <div class="card-tech">HTML · JavaScript · Cultural Satire</div>
+      </a>
+
+    </div>
+
+    <div class="footer">
+      <a href="https://halle.studio">halle.studio</a>
+      <div class="footer-right">2026</div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reverse Research Lab — Halle Gilbert Lab</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+</head>
+<body>
+  <div style="position:fixed;top:0;left:0;right:0;z-index:9999;padding:10px 24px;background:rgba(250,249,246,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #E5E3DE;display:flex;justify-content:space-between;align-items:center"><a href="/" style="font-family:Space Mono,monospace;font-size:10px;letter-spacing:0.1em;text-decoration:none;color:#8A8780;text-transform:uppercase">← Back to Lab</a><a href="https://halle.studio" style="font-family:Space Mono,monospace;font-size:10px;letter-spacing:0.1em;text-decoration:none;color:#C03B2D">halle.studio</a></div><div id="root" style="padding-top:44px"></div>
+  <script type="text/babel">
+    const { useState, useRef, useEffect } = React;
+
+
+
+window.__App = function ReverseResearchLab() {
+  const [input, setInput] = useState("");
+  const [inputType, setInputType] = useState("text"); // text or file
+  const [fileName, setFileName] = useState("");
+  const [fileData, setFileData] = useState(null);
+  const [results, setResults] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [expandedNode, setExpandedNode] = useState(null);
+  const fileRef = useRef(null);
+
+  const MAX_FILE_MB = 4.5;
+  const MAX_TEXT_CHARS = 12000;
+
+  const handleFile = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setError(null);
+
+    const fileMB = file.size / (1024 * 1024);
+
+    if (file.type === "application/pdf") {
+      if (fileMB > MAX_FILE_MB) {
+        setError(
+          `That PDF is ${fileMB.toFixed(1)}MB. The API limit is ~${MAX_FILE_MB}MB. Try pasting the text directly instead, or upload a shorter excerpt.`
+        );
+        e.target.value = "";
+        return;
+      }
+      setFileName(file.name + ` (${fileMB.toFixed(1)}MB)`);
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result.split(",")[1];
+        setFileData({ type: "pdf", data: base64 });
+      };
+      reader.readAsDataURL(file);
+    } else if (file.type.startsWith("image/")) {
+      if (fileMB > MAX_FILE_MB) {
+        setError(
+          `That image is ${fileMB.toFixed(1)}MB. Try a smaller or compressed version.`
+        );
+        e.target.value = "";
+        return;
+      }
+      setFileName(file.name + ` (${fileMB.toFixed(1)}MB)`);
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result.split(",")[1];
+        const mediaType = file.type;
+        setFileData({ type: "image", data: base64, mediaType });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // Text files: read and truncate if needed
+      let text = await file.text();
+      if (text.length > MAX_TEXT_CHARS) {
+        text = text.slice(0, MAX_TEXT_CHARS);
+        setError(
+          `File was ${Math.round(text.length / 1000)}K chars. Trimmed to first ~${MAX_TEXT_CHARS / 1000}K characters for analysis.`
+        );
+      }
+      setFileName(file.name);
+      setInput(text);
+      setInputType("text");
+      setFileData(null);
+    }
+  };
+
+  const isReady =
+    input.trim().length > 30 || (fileData && fileName);
+
+  const runResearch = async () => {
+    setLoading(true);
+    setError(null);
+    setResults(null);
+    setExpandedNode(null);
+
+    const systemPrompt = `You are a polymath research engine that works backwards. Instead of helping someone find sources for a known topic, you analyze original work and reveal the intellectual, cultural, and strategic territory the creator didn't know they were occupying.
+
+You think across disciplines: critical theory, design history, behavioral psychology, marketing strategy, contemporary art, philosophy, sociology, technology criticism, literary theory, brand strategy, and cultural studies.
+
+Your job is to surprise. Find connections the creator would never Google. Not obvious references. The adjacent, unexpected, illuminating ones.`;
+
+    const truncatedInput = input.length > MAX_TEXT_CHARS ? input.slice(0, MAX_TEXT_CHARS) : input;
+
+    const userPrompt = `Analyze this work and map it to adjacent thinkers, frameworks, movements, and references the creator probably doesn't know they're connected to.
+
+${fileData ? "[See attached file]" : `WORK TO ANALYZE:\n${truncatedInput}`}
+
+Return ONLY a JSON object (no markdown, no backticks, no preamble) with exactly this structure:
+{
+  "workReading": "Your 2-3 sentence read on what this work is actually doing beneath the surface. Not a summary. An interpretation.",
+  "territory": "Name the intellectual/creative territory this occupies in 3-5 words. Like naming a neighborhood that doesn't exist yet.",
+  "adjacencies": [
+    {
+      "name": "Person, concept, or work name",
+      "field": "Their discipline in 2-3 words",
+      "connection": "Why this connects to the submitted work. Be specific and surprising. 2-3 sentences.",
+      "entryPoint": "One specific book, essay, talk, or work to start with. Include year.",
+      "surprise": 1-5
+    },
+    {
+      "name": "Second reference",
+      "field": "Discipline",
+      "connection": "Specific connection",
+      "entryPoint": "Specific work with year",
+      "surprise": 1-5
+    },
+    {
+      "name": "Third reference",
+      "field": "Discipline",
+      "connection": "Specific connection",
+      "entryPoint": "Specific work with year",
+      "surprise": 1-5
+    },
+    {
+      "name": "Fourth reference",
+      "field": "Discipline",
+      "connection": "Specific connection",
+      "entryPoint": "Specific work with year",
+      "surprise": 1-5
+    },
+    {
+      "name": "Fifth reference",
+      "field": "Discipline",
+      "connection": "Specific connection",
+      "entryPoint": "Specific work with year",
+      "surprise": 1-5
+    },
+    {
+      "name": "Sixth reference",
+      "field": "Discipline",
+      "connection": "Specific connection",
+      "entryPoint": "Specific work with year",
+      "surprise": 1-5
+    }
+  ],
+  "blindSpot": "One framework or thinker the creator is almost certainly unaware of that would fundamentally change how they think about their own work. 2-3 sentences.",
+  "readingList": ["Specific book or essay 1 (Author, Year)", "Specific book or essay 2 (Author, Year)", "Specific book or essay 3 (Author, Year)"]
+}
+
+The "surprise" field rates how unexpected the connection is: 1 = obvious, 5 = "how did you even get there?" Aim for an average of 3.5+. Never give more than one adjacency below 2.`;
+
+    try {
+      const messages = [];
+
+      if (fileData && fileData.type === "pdf") {
+        messages.push({
+          role: "user",
+          content: [
+            {
+              type: "document",
+              source: {
+                type: "base64",
+                media_type: "application/pdf",
+                data: fileData.data,
+              },
+            },
+            { type: "text", text: userPrompt },
+          ],
+        });
+      } else if (fileData && fileData.type === "image") {
+        messages.push({
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: {
+                type: "base64",
+                media_type: fileData.mediaType,
+                data: fileData.data,
+              },
+            },
+            { type: "text", text: userPrompt },
+          ],
+        });
+      } else {
+        messages.push({ role: "user", content: userPrompt });
+      }
+
+      const response = await fetch("/api/claude", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 2000,
+          system: systemPrompt,
+          messages,
+        }),
+      });
+
+      const data = await response.json();
+      const text = data.content
+        .filter((item) => item.type === "text")
+        .map((item) => item.text)
+        .join("");
+
+      const clean = text.replace(/```json|```/g, "").trim();
+      const parsed = JSON.parse(clean);
+      setResults(parsed);
+    } catch (err) {
+      setError("Analysis failed. Try again or paste shorter text.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const reset = () => {
+    setResults(null);
+    setInput("");
+    setFileName("");
+    setFileData(null);
+    setInputType("text");
+    setExpandedNode(null);
+  };
+
+  const fonts = `'Newsreader', 'Georgia', serif`;
+  const mono = `'IBM Plex Mono', 'Consolas', monospace`;
+  const sans = `'IBM Plex Sans', 'Helvetica Neue', sans-serif`;
+
+  const surpriseColor = (level) => {
+    const colors = ["#4A4540", "#7A6B55", "#B08840", "#D4783A", "#E8453A"];
+    return colors[Math.min(level - 1, 4)];
+  };
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#FDFBF7",
+        color: "#2C2418",
+        fontFamily: sans,
+      }}
+    >
+      <link
+        href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet"
+      />
+
+      {/* Header */}
+      <div
+        style={{
+          borderBottom: "1px solid #E8E2D6",
+          padding: "32px 40px",
+        }}
+      >
+        <div style={{ maxWidth: 720, margin: "0 auto" }}>
+          <div
+            style={{
+              fontFamily: mono,
+              fontSize: 10,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              color: "#A09888",
+              marginBottom: 10,
+            }}
+          >
+            Halle Gilbert / AI-Powered Research Tool
+          </div>
+          <h1
+            style={{
+              fontFamily: fonts,
+              fontSize: 40,
+              fontWeight: 400,
+              color: "#2C2418",
+              margin: 0,
+              lineHeight: 1.1,
+            }}
+          >
+            Reverse Research Lab
+          </h1>
+          <p
+            style={{
+              fontFamily: fonts,
+              fontStyle: "italic",
+              fontSize: 17,
+              color: "#8A7E6E",
+              margin: "10px 0 0",
+              lineHeight: 1.5,
+            }}
+          >
+            Upload your work. Find out what you don't know you're adjacent to.
+          </p>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 720, margin: "0 auto", padding: "36px 40px" }}>
+        {!results ? (
+          <div>
+            {/* How it works */}
+            <div
+              style={{
+                padding: "20px 24px",
+                backgroundColor: "#F5F1EA",
+                borderRadius: 4,
+                marginBottom: 32,
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: mono,
+                  fontSize: 10,
+                  letterSpacing: "0.15em",
+                  textTransform: "uppercase",
+                  color: "#A09888",
+                  marginBottom: 10,
+                }}
+              >
+                How it works
+              </div>
+              <p
+                style={{
+                  fontSize: 14,
+                  lineHeight: 1.7,
+                  color: "#5A5245",
+                  margin: 0,
+                }}
+              >
+                Paste text or upload a file (PDF, image, or document). The tool
+                reads your work and maps you to thinkers, frameworks, movements,
+                and references you wouldn't find through normal research. It
+                works backwards: you made the thing first, now find out where it
+                lives.
+              </p>
+            </div>
+
+            {/* Input toggle */}
+            <div
+              style={{
+                display: "flex",
+                gap: 0,
+                marginBottom: 20,
+                borderBottom: "1px solid #E8E2D6",
+              }}
+            >
+              <button
+                onClick={() => setInputType("text")}
+                style={{
+                  padding: "10px 20px",
+                  fontFamily: mono,
+                  fontSize: 11,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: inputType === "text" ? "#2C2418" : "#A09888",
+                  backgroundColor: "transparent",
+                  border: "none",
+                  borderBottom:
+                    inputType === "text"
+                      ? "2px solid #2C2418"
+                      : "2px solid transparent",
+                  cursor: "pointer",
+                  marginBottom: -1,
+                }}
+              >
+                Paste Text
+              </button>
+              <button
+                onClick={() => setInputType("file")}
+                style={{
+                  padding: "10px 20px",
+                  fontFamily: mono,
+                  fontSize: 11,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: inputType === "file" ? "#2C2418" : "#A09888",
+                  backgroundColor: "transparent",
+                  border: "none",
+                  borderBottom:
+                    inputType === "file"
+                      ? "2px solid #2C2418"
+                      : "2px solid transparent",
+                  cursor: "pointer",
+                  marginBottom: -1,
+                }}
+              >
+                Upload File
+              </button>
+            </div>
+
+            {inputType === "text" ? (
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Paste your writing, campaign brief, brand deck, thesis excerpt, portfolio statement, or any creative work here..."
+                style={{
+                  width: "100%",
+                  minHeight: 220,
+                  padding: "18px 20px",
+                  border: "1px solid #E0D9CC",
+                  borderRadius: 4,
+                  fontSize: 15,
+                  fontFamily: fonts,
+                  lineHeight: 1.7,
+                  color: "#2C2418",
+                  backgroundColor: "#FDFBF7",
+                  outline: "none",
+                  resize: "vertical",
+                  boxSizing: "border-box",
+                }}
+              />
+            ) : (
+              <div
+                onClick={() => fileRef.current?.click()}
+                style={{
+                  border: "2px dashed #D4CEC0",
+                  borderRadius: 4,
+                  padding: "48px 24px",
+                  textAlign: "center",
+                  cursor: "pointer",
+                  backgroundColor: fileName ? "#F5F1EA" : "transparent",
+                  transition: "all 0.2s",
+                }}
+              >
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".pdf,.png,.jpg,.jpeg,.gif,.txt,.md,.doc,.docx"
+                  onChange={handleFile}
+                  style={{ display: "none" }}
+                />
+                {fileName ? (
+                  <div>
+                    <div
+                      style={{
+                        fontFamily: mono,
+                        fontSize: 12,
+                        color: "#2C2418",
+                        marginBottom: 4,
+                      }}
+                    >
+                      {fileName}
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: mono,
+                        fontSize: 10,
+                        color: "#A09888",
+                        letterSpacing: "0.1em",
+                      }}
+                    >
+                      READY TO ANALYZE
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div
+                      style={{
+                        fontFamily: fonts,
+                        fontSize: 17,
+                        color: "#8A7E6E",
+                        marginBottom: 6,
+                      }}
+                    >
+                      Drop a file here or click to browse
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: mono,
+                        fontSize: 10,
+                        color: "#A09888",
+                        letterSpacing: "0.1em",
+                      }}
+                    >
+                      PDF / IMAGE / TEXT — MAX {MAX_FILE_MB}MB
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div
+              style={{
+                fontFamily: mono,
+                fontSize: 10,
+                color: "#C4B8A4",
+                marginTop: 8,
+                marginBottom: 28,
+                letterSpacing: "0.05em",
+              }}
+            >
+              {inputType === "text"
+                ? `${input.split(/\s+/).filter(Boolean).length} words`
+                : ""}
+            </div>
+
+            {error && (
+              <div
+                style={{
+                  padding: 14,
+                  backgroundColor: "#FFF8F5",
+                  border: "1px solid #E8C4B8",
+                  borderRadius: 4,
+                  color: "#A04030",
+                  fontSize: 13,
+                  marginBottom: 20,
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <button
+              onClick={runResearch}
+              disabled={!isReady || loading}
+              style={{
+                width: "100%",
+                padding: "18px",
+                backgroundColor: isReady && !loading ? "#2C2418" : "#D4CEC0",
+                color: isReady && !loading ? "#F3EDE0" : "#A09888",
+                border: "none",
+                borderRadius: 4,
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: isReady && !loading ? "pointer" : "not-allowed",
+                fontFamily: mono,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                transition: "all 0.2s",
+              }}
+            >
+              {loading
+                ? "Mapping adjacencies..."
+                : "Show me what I'm adjacent to →"}
+            </button>
+          </div>
+        ) : (
+          /* RESULTS */
+          <div>
+            {/* Interpretation */}
+            <div style={{ marginBottom: 40 }}>
+              <div
+                style={{
+                  fontFamily: mono,
+                  fontSize: 10,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  color: "#A09888",
+                  marginBottom: 12,
+                }}
+              >
+                Our read on your work
+              </div>
+              <p
+                style={{
+                  fontFamily: fonts,
+                  fontSize: 20,
+                  lineHeight: 1.6,
+                  color: "#2C2418",
+                  margin: 0,
+                  fontWeight: 300,
+                }}
+              >
+                {results.workReading}
+              </p>
+            </div>
+
+            {/* Territory */}
+            <div
+              style={{
+                padding: "20px 28px",
+                backgroundColor: "#2C2418",
+                borderRadius: 4,
+                marginBottom: 40,
+                display: "flex",
+                alignItems: "center",
+                gap: 16,
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: mono,
+                  fontSize: 10,
+                  letterSpacing: "0.15em",
+                  textTransform: "uppercase",
+                  color: "#8A7E6E",
+                  minWidth: 80,
+                }}
+              >
+                Territory
+              </div>
+              <div
+                style={{
+                  fontFamily: fonts,
+                  fontSize: 22,
+                  color: "#F3EDE0",
+                  fontStyle: "italic",
+                  fontWeight: 300,
+                }}
+              >
+                {results.territory}
+              </div>
+            </div>
+
+            {/* Adjacencies */}
+            <div style={{ marginBottom: 40 }}>
+              <div
+                style={{
+                  fontFamily: mono,
+                  fontSize: 10,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  color: "#A09888",
+                  marginBottom: 20,
+                }}
+              >
+                Adjacencies ({results.adjacencies.length})
+              </div>
+
+              {results.adjacencies.map((adj, i) => (
+                <div
+                  key={i}
+                  style={{
+                    borderTop: i === 0 ? "1px solid #E8E2D6" : "none",
+                    borderBottom: "1px solid #E8E2D6",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    onClick={() =>
+                      setExpandedNode(expandedNode === i ? null : i)
+                    }
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "18px 0",
+                      cursor: "pointer",
+                      gap: 16,
+                    }}
+                  >
+                    {/* Surprise indicator */}
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 3,
+                        minWidth: 50,
+                      }}
+                    >
+                      {[1, 2, 3, 4, 5].map((level) => (
+                        <div
+                          key={level}
+                          style={{
+                            width: 6,
+                            height: 6,
+                            borderRadius: "50%",
+                            backgroundColor:
+                              level <= adj.surprise
+                                ? surpriseColor(adj.surprise)
+                                : "#E8E2D6",
+                          }}
+                        />
+                      ))}
+                    </div>
+
+                    <div style={{ flex: 1 }}>
+                      <span
+                        style={{
+                          fontFamily: fonts,
+                          fontSize: 17,
+                          color: "#2C2418",
+                          fontWeight: 400,
+                        }}
+                      >
+                        {adj.name}
+                      </span>
+                      <span
+                        style={{
+                          fontFamily: mono,
+                          fontSize: 10,
+                          color: "#A09888",
+                          marginLeft: 12,
+                          letterSpacing: "0.08em",
+                        }}
+                      >
+                        {adj.field}
+                      </span>
+                    </div>
+
+                    <span
+                      style={{
+                        fontFamily: mono,
+                        fontSize: 14,
+                        color: "#C4B8A4",
+                        transform:
+                          expandedNode === i
+                            ? "rotate(45deg)"
+                            : "none",
+                        transition: "transform 0.2s",
+                      }}
+                    >
+                      +
+                    </span>
+                  </div>
+
+                  {expandedNode === i && (
+                    <div
+                      style={{
+                        padding: "0 0 20px 66px",
+                      }}
+                    >
+                      <p
+                        style={{
+                          fontSize: 14,
+                          lineHeight: 1.7,
+                          color: "#5A5245",
+                          margin: "0 0 12px",
+                        }}
+                      >
+                        {adj.connection}
+                      </p>
+                      <div
+                        style={{
+                          fontFamily: mono,
+                          fontSize: 11,
+                          color: "#8A7E6E",
+                          padding: "8px 12px",
+                          backgroundColor: "#F5F1EA",
+                          borderRadius: 3,
+                          display: "inline-block",
+                        }}
+                      >
+                        Start here → {adj.entryPoint}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Blind Spot */}
+            <div
+              style={{
+                padding: "24px 28px",
+                border: "2px solid #D4783A",
+                borderRadius: 4,
+                marginBottom: 40,
+                backgroundColor: "#FFFCF8",
+              }}
+            >
+              <div
+                style={{
+                  fontFamily: mono,
+                  fontSize: 10,
+                  letterSpacing: "0.15em",
+                  textTransform: "uppercase",
+                  color: "#D4783A",
+                  marginBottom: 10,
+                }}
+              >
+                Your blind spot
+              </div>
+              <p
+                style={{
+                  fontFamily: fonts,
+                  fontSize: 16,
+                  lineHeight: 1.7,
+                  color: "#2C2418",
+                  margin: 0,
+                  fontWeight: 300,
+                }}
+              >
+                {results.blindSpot}
+              </p>
+            </div>
+
+            {/* Reading List */}
+            <div style={{ marginBottom: 40 }}>
+              <div
+                style={{
+                  fontFamily: mono,
+                  fontSize: 10,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  color: "#A09888",
+                  marginBottom: 14,
+                }}
+              >
+                Where to go from here
+              </div>
+              {results.readingList.map((item, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: "flex",
+                    gap: 14,
+                    alignItems: "baseline",
+                    padding: "10px 0",
+                    borderBottom: "1px solid #F0EBE2",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: mono,
+                      fontSize: 11,
+                      color: "#C4B8A4",
+                      minWidth: 20,
+                    }}
+                  >
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: fonts,
+                      fontStyle: "italic",
+                      fontSize: 15,
+                      color: "#5A5245",
+                      lineHeight: 1.5,
+                    }}
+                  >
+                    {item}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Actions */}
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                paddingTop: 24,
+                borderTop: "1px solid #E8E2D6",
+              }}
+            >
+              <button
+                onClick={reset}
+                style={{
+                  flex: 1,
+                  padding: "16px",
+                  backgroundColor: "#2C2418",
+                  color: "#F3EDE0",
+                  border: "none",
+                  borderRadius: 4,
+                  fontSize: 12,
+                  cursor: "pointer",
+                  fontFamily: mono,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                }}
+              >
+                ← Analyze new work
+              </button>
+              <button
+                onClick={runResearch}
+                style={{
+                  flex: 1,
+                  padding: "16px",
+                  backgroundColor: "transparent",
+                  color: "#8A7E6E",
+                  border: "1px solid #E0D9CC",
+                  borderRadius: 4,
+                  fontSize: 12,
+                  cursor: "pointer",
+                  fontFamily: mono,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Run again ↻
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(window.__App));
+  </script>
+</body>
+</html>

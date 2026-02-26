@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Viral Content Forensics — Halle Gilbert Lab</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+</head>
+<body>
+  <div style="position:fixed;top:0;left:0;right:0;z-index:9999;padding:10px 24px;background:rgba(250,249,246,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #E5E3DE;display:flex;justify-content:space-between;align-items:center"><a href="/" style="font-family:Space Mono,monospace;font-size:10px;letter-spacing:0.1em;text-decoration:none;color:#8A8780;text-transform:uppercase">← Back to Lab</a><a href="https://halle.studio" style="font-family:Space Mono,monospace;font-size:10px;letter-spacing:0.1em;text-decoration:none;color:#C03B2D">halle.studio</a></div><div id="root" style="padding-top:44px"></div>
+  <script type="text/babel">
+    const { useState, useRef, useEffect } = React;
+
+
+
+window.__App = function ViralContentForensics() {
+  const [platform, setPlatform] = useState("tiktok");
+  const [postText, setPostText] = useState("");
+  const [metrics, setMetrics] = useState({ views: "", likes: "", comments: "", shares: "" });
+  const [context, setContext] = useState("");
+  const [results, setResults] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [expandedSection, setExpandedSection] = useState(null);
+
+  const C = {
+    bg: "#F7F6F3",
+    surface: "#FFFFFF",
+    surfaceAlt: "#F0EFEC",
+    border: "#E2E0DB",
+    text: "#1A1917",
+    textMid: "#4A4843",
+    textLight: "#8A8780",
+    accent: "#C03B2D",
+    accentSoft: "rgba(192,59,45,0.08)",
+    green: "#2D8A5E",
+    greenSoft: "rgba(45,138,94,0.08)",
+    amber: "#B8860B",
+    amberSoft: "rgba(184,134,11,0.08)",
+    label: "#6B6965",
+  };
+
+  const platforms = [
+    { id: "tiktok", label: "TikTok" },
+    { id: "instagram", label: "Instagram" },
+    { id: "twitter", label: "X / Twitter" },
+    { id: "linkedin", label: "LinkedIn" },
+    { id: "youtube", label: "YouTube" },
+  ];
+
+  const hasMetrics = Object.values(metrics).some((v) => v.trim() !== "");
+  const isReady = postText.trim().length > 10;
+
+  const runForensics = async () => {
+    setLoading(true);
+    setError(null);
+    setResults(null);
+    setExpandedSection(null);
+
+    const metricsBlock = hasMetrics
+      ? `\nMETRICS:\n${metrics.views ? `Views: ${metrics.views}` : ""}${metrics.likes ? `\nLikes: ${metrics.likes}` : ""}${metrics.comments ? `\nComments: ${metrics.comments}` : ""}${metrics.shares ? `\nShares: ${metrics.shares}` : ""}`
+      : "";
+    const contextBlock = context.trim() ? `\nADDITIONAL CONTEXT: ${context}` : "";
+
+    const systemPrompt = `You are a viral content forensics analyst. You dissect social media content to identify exactly why it works (or doesn't) — the structural, psychological, and cultural mechanics beneath the surface. You think like a media strategist, behavioral psychologist, and culture writer combined.
+
+You are clinical and specific. No vague praise. No generic advice. Every observation should make the reader think "I never noticed that but it's obvious now."
+
+Respond ONLY in valid JSON with this exact structure:
+{
+  "verdict": "VIRAL MECHANICS CONFIRMED" or "UNDERPERFORMING — FIXABLE" or "STRUCTURAL FAILURE" or "SLEEPER HIT POTENTIAL",
+  "verdict_detail": "One sentence explaining the verdict",
+  "hook_analysis": {
+    "score": 1-10,
+    "first_three_seconds": "What happens in the first 3 seconds / first line. Why it works or fails.",
+    "pattern_match": "Name the specific hook archetype being used (e.g., 'Pattern Interrupt', 'Curiosity Gap', 'Identity Call-Out', 'Hot Take Opener', 'Mid-Conversation Drop-In', 'Shock Stat', 'Confession Hook')",
+    "rewrite": "A stronger version of their hook if score is below 8. null if 8+"
+  },
+  "retention_architecture": {
+    "structure": "Name the content structure (e.g., 'Escalating Reveal', 'List Stack', 'Story Arc', 'Before/After', 'POV Shift', 'Tutorial Loop', 'Rant-to-Resolution')",
+    "tension_points": ["Where tension is created or released — be specific about which moments"],
+    "drop_off_risk": "Where viewers most likely leave and why",
+    "pacing_note": "One observation about rhythm, timing, or editorial pacing"
+  },
+  "psychology_layer": {
+    "primary_trigger": "The dominant psychological trigger (e.g., 'Social Proof', 'Identity Validation', 'FOMO', 'Outrage', 'Aspirational Self', 'Nostalgia', 'Schadenfreude', 'Belonging')",
+    "secondary_trigger": "A second psychological lever at work",
+    "share_motivation": "Why someone shares this — what it says about THEM to their audience",
+    "comment_catalyst": "What specifically drives people to comment (not just 'engagement')"
+  },
+  "cultural_timing": {
+    "moment": "What cultural moment, trend, or tension this taps into",
+    "shelf_life": "How long this content stays relevant: 'Evergreen', '2-4 weeks', '48 hours', 'Already expired'",
+    "trend_position": "Where this sits: 'Early wave', 'Peak saturation', 'Late but self-aware', 'Counter-trend'"
+  },
+  "platform_fit": {
+    "score": 1-10,
+    "algorithm_alignment": "How well this content maps to the platform's current algorithm priorities",
+    "format_optimization": "What the format gets right or wrong for this specific platform",
+    "cross_platform_potential": "Which other platform this would perform on and what would need to change"
+  },
+  "forensic_breakdown": [
+    "5-7 ultra-specific observations. Not generic advice. Things like: 'The caption uses second-person plural (we/us) which activates in-group psychology', or 'The cut at 0:04 happens mid-sentence which exploits the Zeigarnik effect', or 'This is structured as a confession but functions as a flex — the audience knows it and participates in the performance'"
+  ],
+  "improvement_rx": {
+    "keep": ["2-3 specific things to keep doing"],
+    "kill": ["1-2 things to stop or remove"],
+    "test": ["2-3 specific A/B tests or variations to try"]
+  }
+}`;
+
+    try {
+      const response = await fetch("/api/claude", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 2000,
+          system: systemPrompt,
+          messages: [{ role: "user", content: `PLATFORM: ${platform.toUpperCase()}\n\nPOST CONTENT:\n${postText}${metricsBlock}${contextBlock}\n\nPerform a full forensic analysis.` }],
+        }),
+      });
+      const data = await response.json();
+      const text = data.content.filter((b) => b.type === "text").map((b) => b.text).join("");
+      setResults(JSON.parse(text.replace(/```json|```/g, "").trim()));
+    } catch (err) {
+      console.error(err);
+      setError("Analysis failed. Check your input and try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verdictColor = (v) => {
+    if (!v) return C.green;
+    if (v.includes("CONFIRMED")) return C.green;
+    if (v.includes("SLEEPER")) return C.amber;
+    if (v.includes("FIXABLE")) return "#B85C1A";
+    return C.accent;
+  };
+
+  const scoreBar = (score) => {
+    const pct = (score / 10) * 100;
+    const color = score >= 8 ? C.green : score >= 5 ? C.amber : C.accent;
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "6px" }}>
+        <div style={{ flex: 1, height: "3px", background: C.border, borderRadius: "2px", overflow: "hidden" }}>
+          <div style={{ width: `${pct}%`, height: "100%", background: color, borderRadius: "2px", transition: "width 0.6s ease" }} />
+        </div>
+        <span style={{ fontFamily: "'Space Mono', monospace", fontSize: "13px", color, fontWeight: 700 }}>{score}/10</span>
+      </div>
+    );
+  };
+
+  const Section = ({ id, number, title, children }) => {
+    const isOpen = expandedSection === id;
+    return (
+      <div style={{ borderTop: `1px solid ${C.border}` }}>
+        <button onClick={() => setExpandedSection(isOpen ? null : id)} style={{
+          width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "18px 0", background: "none", border: "none", cursor: "pointer", color: C.text,
+          fontFamily: "'Space Mono', monospace", fontSize: "12px", letterSpacing: "0.08em", textTransform: "uppercase",
+        }}>
+          <span><span style={{ color: C.accent, marginRight: "12px", fontWeight: 700 }}>{number}</span>{title}</span>
+          <span style={{ transform: isOpen ? "rotate(45deg)" : "rotate(0deg)", transition: "transform 0.2s ease", fontSize: "18px", color: C.accent }}>+</span>
+        </button>
+        {isOpen && <div style={{ padding: "0 0 24px 0", animation: "fadeIn 0.3s ease" }}>{children}</div>}
+      </div>
+    );
+  };
+
+  const Label = ({ children }) => (
+    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", color: C.label, marginBottom: "6px", marginTop: "16px" }}>{children}</div>
+  );
+  const Value = ({ children, highlight }) => (
+    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "14px", lineHeight: "1.65", color: highlight ? C.accent : C.textMid }}>{children}</div>
+  );
+  const Tag = ({ children, color = C.accentSoft, textColor = C.accent }) => (
+    <span style={{ display: "inline-block", padding: "4px 10px", background: color, color: textColor, fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: "0.05em", borderRadius: "2px", marginRight: "6px", marginBottom: "4px", fontWeight: 700 }}>{children}</span>
+  );
+
+  return (
+    <div style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "'DM Sans', sans-serif" }}>
+      <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&family=Instrument+Serif&display=swap" rel="stylesheet" />
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+        ::selection { background: rgba(192,59,45,0.15); }
+        textarea:focus, input:focus { outline: none; border-color: ${C.accent} !important; }
+        input::placeholder, textarea::placeholder { color: ${C.textLight}; }
+      `}</style>
+
+      <div style={{ padding: "48px 40px 0", maxWidth: "720px", margin: "0 auto" }}>
+        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: C.textLight, marginBottom: "12px" }}>FORENSIC ANALYSIS TOOL</div>
+        <h1 style={{ fontFamily: "'Instrument Serif', serif", fontSize: "clamp(32px, 5vw, 48px)", fontWeight: 400, lineHeight: 1.1, margin: "0 0 12px 0" }}>
+          Viral Content<br /><span style={{ color: C.accent }}>Forensics</span>
+        </h1>
+        <p style={{ fontSize: "15px", lineHeight: 1.6, color: C.textLight, maxWidth: "480px", margin: "0 0 40px 0" }}>
+          Paste any social post. Get the structural, psychological, and cultural mechanics behind why it works — or why it doesn't.
+        </p>
+
+        {/* Platform */}
+        <div style={{ display: "flex", gap: "6px", marginBottom: "24px", flexWrap: "wrap" }}>
+          {platforms.map((p) => (
+            <button key={p.id} onClick={() => setPlatform(p.id)} style={{
+              padding: "8px 16px", background: platform === p.id ? C.accentSoft : C.surface,
+              border: `1px solid ${platform === p.id ? C.accent + "40" : C.border}`, borderRadius: "2px",
+              color: platform === p.id ? C.accent : C.textLight, fontFamily: "'Space Mono', monospace",
+              fontSize: "11px", cursor: "pointer", fontWeight: platform === p.id ? 700 : 400,
+            }}>{p.label}</button>
+          ))}
+        </div>
+
+        {/* Post Text */}
+        <div style={{ marginBottom: "20px" }}>
+          <label style={{ fontFamily: "'Space Mono', monospace", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", color: C.label, display: "block", marginBottom: "8px" }}>POST CONTENT / CAPTION / TRANSCRIPT</label>
+          <textarea value={postText} onChange={(e) => setPostText(e.target.value)}
+            placeholder="Paste the full post text, caption, or video transcript here..." rows={6}
+            style={{ width: "100%", padding: "16px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: "2px", color: C.text, fontFamily: "'DM Sans', sans-serif", fontSize: "14px", lineHeight: 1.6, resize: "vertical", boxSizing: "border-box" }} />
+        </div>
+
+        {/* Metrics */}
+        <div style={{ marginBottom: "20px" }}>
+          <label style={{ fontFamily: "'Space Mono', monospace", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", color: C.label, display: "block", marginBottom: "8px" }}>METRICS (OPTIONAL)</label>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "8px" }}>
+            {["views", "likes", "comments", "shares"].map((m) => (
+              <input key={m} type="text" placeholder={m.charAt(0).toUpperCase() + m.slice(1)} value={metrics[m]}
+                onChange={(e) => setMetrics({ ...metrics, [m]: e.target.value })}
+                style={{ padding: "10px 12px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: "2px", color: C.text, fontFamily: "'Space Mono', monospace", fontSize: "12px", boxSizing: "border-box" }} />
+            ))}
+          </div>
+        </div>
+
+        {/* Context */}
+        <div style={{ marginBottom: "32px" }}>
+          <label style={{ fontFamily: "'Space Mono', monospace", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", color: C.label, display: "block", marginBottom: "8px" }}>ADDITIONAL CONTEXT (OPTIONAL)</label>
+          <input type="text" value={context} onChange={(e) => setContext(e.target.value)}
+            placeholder="e.g., 'Brand account, 12K followers, usually gets 2K views'"
+            style={{ width: "100%", padding: "12px 16px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: "2px", color: C.text, fontFamily: "'DM Sans', sans-serif", fontSize: "14px", boxSizing: "border-box" }} />
+        </div>
+
+        {/* Button */}
+        <button onClick={runForensics} disabled={!isReady || loading} style={{
+          width: "100%", padding: "16px", background: isReady && !loading ? C.accent : C.border,
+          border: "none", borderRadius: "2px", color: isReady && !loading ? "#fff" : C.textLight,
+          fontFamily: "'Space Mono', monospace", fontSize: "12px", fontWeight: 700, letterSpacing: "0.15em",
+          textTransform: "uppercase", cursor: isReady && !loading ? "pointer" : "not-allowed", marginBottom: "16px",
+        }}>{loading ? "ANALYZING..." : "RUN FORENSICS"}</button>
+
+        {loading && <div style={{ textAlign: "center", padding: "40px 0" }}><div style={{ fontFamily: "'Space Mono', monospace", fontSize: "11px", color: C.textLight, letterSpacing: "0.1em", animation: "pulse 1.5s ease infinite" }}>EXTRACTING SIGNAL FROM NOISE...</div></div>}
+        {error && <div style={{ padding: "14px 18px", background: C.accentSoft, border: `1px solid ${C.accent}30`, borderRadius: "2px", color: C.accent, fontSize: "13px", marginBottom: "24px" }}>{error}</div>}
+
+        {results && (
+          <div style={{ paddingBottom: "80px", animation: "fadeIn 0.4s ease" }}>
+            <div style={{ margin: "24px 0", padding: "28px 24px", background: C.surface, border: `1px solid ${C.border}`, borderLeft: `4px solid ${verdictColor(results.verdict)}`, borderRadius: "2px" }}>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "10px", letterSpacing: "0.15em", color: C.textLight, marginBottom: "10px" }}>VERDICT</div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "18px", fontWeight: 700, color: verdictColor(results.verdict), marginBottom: "8px" }}>{results.verdict}</div>
+              <div style={{ fontSize: "14px", color: C.textMid, lineHeight: 1.5 }}>{results.verdict_detail}</div>
+            </div>
+
+            <Section id="hook" number="01" title="Hook Analysis">
+              {scoreBar(results.hook_analysis?.score)}
+              <Label>FIRST 3 SECONDS</Label><Value>{results.hook_analysis?.first_three_seconds}</Value>
+              <Label>HOOK ARCHETYPE</Label><Tag>{results.hook_analysis?.pattern_match}</Tag>
+              {results.hook_analysis?.rewrite && (<><Label>SUGGESTED REWRITE</Label><Value highlight>{results.hook_analysis.rewrite}</Value></>)}
+            </Section>
+
+            <Section id="retention" number="02" title="Retention Architecture">
+              <Label>CONTENT STRUCTURE</Label><Tag>{results.retention_architecture?.structure}</Tag>
+              <Label>TENSION POINTS</Label>
+              {results.retention_architecture?.tension_points?.map((t, i) => <Value key={i}><span style={{ color: C.accent, marginRight: "8px", fontWeight: 700 }}>›</span>{t}</Value>)}
+              <Label>DROP-OFF RISK</Label><Value>{results.retention_architecture?.drop_off_risk}</Value>
+              <Label>PACING</Label><Value>{results.retention_architecture?.pacing_note}</Value>
+            </Section>
+
+            <Section id="psych" number="03" title="Psychology Layer">
+              <Label>PRIMARY TRIGGER</Label><Tag>{results.psychology_layer?.primary_trigger}</Tag>
+              <Label>SECONDARY TRIGGER</Label><Tag color={C.amberSoft} textColor={C.amber}>{results.psychology_layer?.secondary_trigger}</Tag>
+              <Label>WHY PEOPLE SHARE THIS</Label><Value>{results.psychology_layer?.share_motivation}</Value>
+              <Label>COMMENT CATALYST</Label><Value>{results.psychology_layer?.comment_catalyst}</Value>
+            </Section>
+
+            <Section id="culture" number="04" title="Cultural Timing">
+              <Label>MOMENT</Label><Value>{results.cultural_timing?.moment}</Value>
+              <div style={{ display: "flex", gap: "24px", marginTop: "12px", flexWrap: "wrap" }}>
+                <div><Label>SHELF LIFE</Label><Tag>{results.cultural_timing?.shelf_life}</Tag></div>
+                <div><Label>TREND POSITION</Label><Tag>{results.cultural_timing?.trend_position}</Tag></div>
+              </div>
+            </Section>
+
+            <Section id="platform" number="05" title="Platform Fit">
+              {scoreBar(results.platform_fit?.score)}
+              <Label>ALGORITHM ALIGNMENT</Label><Value>{results.platform_fit?.algorithm_alignment}</Value>
+              <Label>FORMAT OPTIMIZATION</Label><Value>{results.platform_fit?.format_optimization}</Value>
+              <Label>CROSS-PLATFORM POTENTIAL</Label><Value>{results.platform_fit?.cross_platform_potential}</Value>
+            </Section>
+
+            <Section id="forensic" number="06" title="Forensic Breakdown">
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {results.forensic_breakdown?.map((obs, i) => (
+                  <div key={i} style={{ display: "flex", gap: "12px", padding: "12px 14px", background: C.surfaceAlt, borderLeft: `2px solid ${C.accent}30` }}>
+                    <span style={{ fontFamily: "'Space Mono', monospace", fontSize: "10px", color: C.textLight, minWidth: "20px" }}>{String(i + 1).padStart(2, "0")}</span>
+                    <span style={{ fontSize: "13px", lineHeight: 1.6, color: C.textMid }}>{obs}</span>
+                  </div>
+                ))}
+              </div>
+            </Section>
+
+            <Section id="rx" number="07" title="Improvement Rx">
+              <Label>KEEP</Label>
+              {results.improvement_rx?.keep?.map((k, i) => <div key={i} style={{ display: "flex", gap: "8px", marginBottom: "6px" }}><span style={{ color: C.green, fontWeight: 700 }}>+</span><Value>{k}</Value></div>)}
+              <Label>KILL</Label>
+              {results.improvement_rx?.kill?.map((k, i) => <div key={i} style={{ display: "flex", gap: "8px", marginBottom: "6px" }}><span style={{ color: C.accent, fontWeight: 700 }}>x</span><Value>{k}</Value></div>)}
+              <Label>TEST</Label>
+              {results.improvement_rx?.test?.map((t, i) => <div key={i} style={{ display: "flex", gap: "8px", marginBottom: "6px" }}><span style={{ color: C.amber, fontWeight: 700 }}>?</span><Value>{t}</Value></div>)}
+            </Section>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(window.__App));
+  </script>
+</body>
+</html>

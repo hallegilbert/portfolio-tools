@@ -1,0 +1,8 @@
+[build]
+  publish = "public"
+
+# Redirect /api/claude to the serverless function
+[[redirects]]
+  from = "/api/claude"
+  to = "/.netlify/functions/claude-proxy"
+  status = 200

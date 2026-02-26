@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Search Command Center — Halle Gilbert Lab</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+</head>
+<body>
+  <div style="position:fixed;top:0;left:0;right:0;z-index:9999;padding:10px 24px;background:rgba(250,249,246,0.95);backdrop-filter:blur(8px);border-bottom:1px solid #E5E3DE;display:flex;justify-content:space-between;align-items:center"><a href="/" style="font-family:Space Mono,monospace;font-size:10px;letter-spacing:0.1em;text-decoration:none;color:#8A8780;text-transform:uppercase">← Back to Lab</a><a href="https://halle.studio" style="font-family:Space Mono,monospace;font-size:10px;letter-spacing:0.1em;text-decoration:none;color:#C03B2D">halle.studio</a></div><div id="root" style="padding-top:44px"></div>
+  <script type="text/babel">
+    const { useState, useRef, useEffect } = React;
+
+
+
+window.__App = function JobSearchCommandCenter() {
+  // COLOR SCHEME — warm cream + navy
+  const C = {
+    bg: "#FAF9F6",
+    surface: "#FFFFFF",
+    surfaceAlt: "#F3F2EF",
+    border: "#E5E3DE",
+    text: "#1C1B18",
+    textMid: "#4D4B46",
+    textLight: "#8C8A84",
+    accent: "#2C4A6E",
+    accentSoft: "rgba(44,74,110,0.08)",
+    accentMid: "rgba(44,74,110,0.15)",
+    green: "#2D7A50",
+    greenSoft: "rgba(45,122,80,0.08)",
+    red: "#B5362A",
+    redSoft: "rgba(181,54,42,0.08)",
+    amber: "#A67B2C",
+    amberSoft: "rgba(166,123,44,0.08)",
+    muted: "#7A7874",
+    mutedSoft: "rgba(122,120,116,0.08)",
+    label: "#706E69",
+  };
+
+  const [jobs, setJobs] = useState([
+    { id: "demo-1", company: "Acme Corp", role: "Senior Brand Strategist", status: "applied", salary: "$120K-$140K", source: "LinkedIn", contact: "Sarah Chen, VP Marketing", appliedDate: "2025-02-20", notes: "Strong culture fit. Portfolio reviewed by hiring manager.", priority: "high", url: "" },
+    { id: "demo-2", company: "Meridian", role: "Marketing Manager", status: "interview", salary: "$110K-$130K", source: "Referral", contact: "James Liu", appliedDate: "2025-02-15", notes: "Phone screen went well. Second round next week.", priority: "high", url: "" },
+    { id: "demo-3", company: "Northlight Studios", role: "Creative Strategist", status: "saved", salary: "$100K-$125K", source: "Company site", contact: "", appliedDate: "", notes: "Need to tailor portfolio. Deadline March 1.", priority: "medium", url: "" },
+  ]);
+
+  const [view, setView] = useState("board");
+  const [showAdd, setShowAdd] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [filter, setFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [newJob, setNewJob] = useState({ company: "", role: "", status: "saved", salary: "", source: "", contact: "", appliedDate: "", notes: "", priority: "medium", url: "" });
+
+  const statuses = [
+    { id: "saved", label: "Saved", color: C.muted, icon: "◇" },
+    { id: "applied", label: "Applied", color: C.accent, icon: "◈" },
+    { id: "interview", label: "Interview", color: C.green, icon: "▣" },
+    { id: "offer", label: "Offer", color: "#1A8A5E", icon: "★" },
+    { id: "rejected", label: "Rejected", color: C.red, icon: "✕" },
+    { id: "withdrawn", label: "Withdrawn", color: C.textLight, icon: "—" },
+  ];
+
+  const priorities = [
+    { id: "high", label: "High", color: C.red },
+    { id: "medium", label: "Med", color: C.amber },
+    { id: "low", label: "Low", color: C.textLight },
+  ];
+
+  const getStatusColor = (s) => statuses.find((st) => st.id === s)?.color || C.muted;
+  const getStatusIcon = (s) => statuses.find((st) => st.id === s)?.icon || "◇";
+  const getPriorityColor = (p) => priorities.find((pr) => pr.id === p)?.color || C.textLight;
+
+  const filteredJobs = jobs.filter((j) => {
+    if (filter !== "all" && j.status !== filter) return false;
+    if (searchTerm && !`${j.company} ${j.role}`.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+    return true;
+  });
+
+  const addJob = () => {
+    if (!newJob.company.trim() || !newJob.role.trim()) return;
+    setJobs([...jobs, { ...newJob, id: Date.now().toString() }]);
+    setNewJob({ company: "", role: "", status: "saved", salary: "", source: "", contact: "", appliedDate: "", notes: "", priority: "medium", url: "" });
+    setShowAdd(false);
+  };
+
+  const updateJob = (id, field, value) => setJobs(jobs.map((j) => (j.id === id ? { ...j, [field]: value } : j)));
+  const deleteJob = (id) => { setJobs(jobs.filter((j) => j.id !== id)); setEditingId(null); };
+
+  const stats = {
+    total: jobs.length,
+    active: jobs.filter((j) => !["rejected", "withdrawn"].includes(j.status)).length,
+    interviews: jobs.filter((j) => j.status === "interview").length,
+    offers: jobs.filter((j) => j.status === "offer").length,
+    responseRate: jobs.length > 0
+      ? Math.round((jobs.filter((j) => ["interview", "offer"].includes(j.status)).length / (jobs.filter((j) => j.status !== "saved").length || 1)) * 100)
+      : 0,
+  };
+
+  const Stat = ({ label, value, accentColor }) => (
+    <div style={{ padding: "16px 20px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: "2px", flex: "1", minWidth: "100px" }}>
+      <div style={{ fontFamily: "'Instrument Serif', serif", fontSize: "28px", color: accentColor || C.accent, lineHeight: 1, marginBottom: "4px" }}>{value}</div>
+      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", color: C.label }}>{label}</div>
+    </div>
+  );
+
+  const InputField = ({ label, value, onChange, placeholder, type = "text", full }) => (
+    <div style={{ flex: full ? "1 1 100%" : "1 1 calc(50% - 8px)", minWidth: "180px" }}>
+      <label style={{ fontFamily: "'Space Mono', monospace", fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", color: C.label, display: "block", marginBottom: "4px" }}>{label}</label>
+      {type === "textarea" ? (
+        <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={2}
+          style={{ width: "100%", padding: "10px 12px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: "2px", color: C.text, fontFamily: "'DM Sans', sans-serif", fontSize: "13px", resize: "vertical", boxSizing: "border-box" }} />
+      ) : type === "select" ? (
+        <select value={value} onChange={(e) => onChange(e.target.value)}
+          style={{ width: "100%", padding: "10px 12px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: "2px", color: C.text, fontFamily: "'DM Sans', sans-serif", fontSize: "13px", boxSizing: "border-box" }}>
+          {placeholder.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+        </select>
+      ) : (
+        <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+          style={{ width: "100%", padding: "10px 12px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: "2px", color: C.text, fontFamily: "'DM Sans', sans-serif", fontSize: "13px", boxSizing: "border-box" }} />
+      )}
+    </div>
+  );
+
+  const JobCard = ({ job }) => {
+    const isEditing = editingId === job.id;
+    return (
+      <div onClick={() => setEditingId(isEditing ? null : job.id)} style={{
+        padding: "16px 18px", background: isEditing ? C.surfaceAlt : C.surface,
+        border: `1px solid ${isEditing ? C.accent + "30" : C.border}`, borderLeft: `3px solid ${getStatusColor(job.status)}`,
+        borderRadius: "2px", cursor: "pointer", transition: "all 0.15s ease", marginBottom: "8px",
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <div>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "15px", fontWeight: 500, color: C.text, marginBottom: "2px" }}>{job.role}</div>
+            <div style={{ fontSize: "13px", color: C.textLight }}>{job.company}{job.salary ? ` · ${job.salary}` : ""}</div>
+          </div>
+          <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+            <span style={{ display: "inline-block", width: "6px", height: "6px", borderRadius: "50%", background: getPriorityColor(job.priority) }} />
+            <span style={{ fontFamily: "'Space Mono', monospace", fontSize: "10px", color: getStatusColor(job.status), letterSpacing: "0.05em", textTransform: "uppercase", fontWeight: 700 }}>
+              {getStatusIcon(job.status)} {job.status}
+            </span>
+          </div>
+        </div>
+        {isEditing && (
+          <div style={{ marginTop: "16px", animation: "fadeIn 0.2s ease" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "12px" }}>
+              <InputField label="Company" value={job.company} onChange={(v) => updateJob(job.id, "company", v)} placeholder="Company" />
+              <InputField label="Role" value={job.role} onChange={(v) => updateJob(job.id, "role", v)} placeholder="Role" />
+              <InputField label="Salary Range" value={job.salary} onChange={(v) => updateJob(job.id, "salary", v)} placeholder="$XXK-$XXK" />
+              <InputField label="Source" value={job.source} onChange={(v) => updateJob(job.id, "source", v)} placeholder="LinkedIn, Referral, etc." />
+              <InputField label="Contact" value={job.contact} onChange={(v) => updateJob(job.id, "contact", v)} placeholder="Name, title" />
+              <InputField label="Applied Date" value={job.appliedDate} onChange={(v) => updateJob(job.id, "appliedDate", v)} placeholder="YYYY-MM-DD" type="date" />
+              <InputField label="Status" value={job.status} onChange={(v) => updateJob(job.id, "status", v)} type="select" placeholder={statuses.map((s) => ({ value: s.id, label: s.label }))} />
+              <InputField label="Priority" value={job.priority} onChange={(v) => updateJob(job.id, "priority", v)} type="select" placeholder={priorities.map((p) => ({ value: p.id, label: p.label }))} />
+              <InputField label="Job URL" value={job.url} onChange={(v) => updateJob(job.id, "url", v)} placeholder="https://..." full />
+              <InputField label="Notes" value={job.notes} onChange={(v) => updateJob(job.id, "notes", v)} placeholder="Notes..." type="textarea" full />
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button onClick={(e) => { e.stopPropagation(); deleteJob(job.id); }} style={{
+                padding: "6px 14px", background: C.redSoft, border: `1px solid ${C.red}30`, borderRadius: "2px",
+                color: C.red, fontFamily: "'Space Mono', monospace", fontSize: "10px", letterSpacing: "0.08em", cursor: "pointer",
+              }}>DELETE</button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const BoardColumn = ({ status }) => {
+    const columnJobs = filteredJobs.filter((j) => j.status === status.id).sort((a, b) => ({ high: 0, medium: 1, low: 2 }[a.priority] - { high: 0, medium: 1, low: 2 }[b.priority]));
+    return (
+      <div style={{ flex: "1", minWidth: "200px", maxWidth: "280px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", padding: "0 4px" }}>
+          <span style={{ color: status.color, fontSize: "12px" }}>{status.icon}</span>
+          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: "10px", letterSpacing: "0.1em", textTransform: "uppercase", color: status.color, fontWeight: 700 }}>{status.label}</span>
+          <span style={{ fontFamily: "'Space Mono', monospace", fontSize: "10px", color: C.textLight, marginLeft: "auto" }}>{columnJobs.length}</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          {columnJobs.map((job) => (
+            <div key={job.id} onClick={() => { setView("list"); setEditingId(job.id); }} style={{
+              padding: "12px 14px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: "2px", cursor: "pointer", transition: "all 0.15s ease",
+            }}>
+              <div style={{ fontSize: "13px", fontWeight: 500, color: C.text, marginBottom: "2px" }}>{job.company}</div>
+              <div style={{ fontSize: "11px", color: C.textLight }}>{job.role}</div>
+              {job.salary && <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "10px", color: C.label, marginTop: "6px" }}>{job.salary}</div>}
+              <div style={{ display: "inline-block", width: "5px", height: "5px", borderRadius: "50%", background: getPriorityColor(job.priority), marginTop: "6px" }} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "'DM Sans', sans-serif" }}>
+      <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&family=Instrument+Serif&display=swap" rel="stylesheet" />
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        ::selection { background: rgba(44,74,110,0.15); }
+        textarea:focus, input:focus, select:focus { outline: none; border-color: ${C.accent} !important; }
+        input::placeholder, textarea::placeholder { color: ${C.textLight}; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: ${C.border}; border-radius: 2px; }
+      `}</style>
+
+      <div style={{ padding: "48px 40px", maxWidth: "960px", margin: "0 auto" }}>
+        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: C.textLight, marginBottom: "12px" }}>MISSION CONTROL</div>
+        <h1 style={{ fontFamily: "'Instrument Serif', serif", fontSize: "clamp(32px, 5vw, 44px)", fontWeight: 400, lineHeight: 1.1, margin: "0 0 8px 0" }}>
+          Job Search <span style={{ color: C.accent }}>Command Center</span>
+        </h1>
+        <p style={{ fontSize: "14px", color: C.textLight, margin: "0 0 32px 0" }}>Track applications, manage pipeline, maintain momentum.</p>
+
+        {/* Stats */}
+        <div style={{ display: "flex", gap: "8px", marginBottom: "32px", flexWrap: "wrap" }}>
+          <Stat label="Total" value={stats.total} />
+          <Stat label="Active" value={stats.active} />
+          <Stat label="Interviews" value={stats.interviews} accentColor={C.green} />
+          <Stat label="Offers" value={stats.offers} accentColor="#1A8A5E" />
+          <Stat label="Response Rate" value={`${stats.responseRate}%`} />
+        </div>
+
+        {/* Controls */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
+          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+            {["board", "list"].map((v) => (
+              <button key={v} onClick={() => setView(v)} style={{
+                padding: "6px 14px", background: view === v ? C.accentSoft : "transparent",
+                border: `1px solid ${view === v ? C.accent + "40" : C.border}`, borderRadius: "2px",
+                color: view === v ? C.accent : C.textLight, fontFamily: "'Space Mono', monospace",
+                fontSize: "10px", letterSpacing: "0.08em", textTransform: "uppercase", cursor: "pointer", fontWeight: view === v ? 700 : 400,
+              }}>{v}</button>
+            ))}
+            <div style={{ width: "1px", background: C.border, margin: "0 4px" }} />
+            <button onClick={() => setFilter("all")} style={{
+              padding: "6px 12px", background: filter === "all" ? C.accentSoft : "transparent",
+              border: `1px solid ${filter === "all" ? C.accent + "40" : C.border}`, borderRadius: "2px",
+              color: filter === "all" ? C.accent : C.textLight, fontFamily: "'Space Mono', monospace", fontSize: "10px", cursor: "pointer", fontWeight: filter === "all" ? 700 : 400,
+            }}>ALL</button>
+            {statuses.slice(0, 4).map((s) => (
+              <button key={s.id} onClick={() => setFilter(filter === s.id ? "all" : s.id)} style={{
+                padding: "6px 12px", background: filter === s.id ? `${s.color}15` : "transparent",
+                border: `1px solid ${filter === s.id ? `${s.color}40` : C.border}`, borderRadius: "2px",
+                color: filter === s.id ? s.color : C.textLight, fontFamily: "'Space Mono', monospace", fontSize: "10px", cursor: "pointer", fontWeight: filter === s.id ? 700 : 400,
+              }}>{s.icon}</button>
+            ))}
+          </div>
+          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+            <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search..."
+              style={{ padding: "6px 12px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: "2px", color: C.text, fontFamily: "'DM Sans', sans-serif", fontSize: "12px", width: "140px", boxSizing: "border-box" }} />
+            <button onClick={() => setShowAdd(!showAdd)} style={{
+              padding: "6px 16px", background: showAdd ? C.accentSoft : C.accent, border: "none", borderRadius: "2px",
+              color: showAdd ? C.accent : "#fff", fontFamily: "'Space Mono', monospace", fontSize: "10px", fontWeight: 700, letterSpacing: "0.1em", cursor: "pointer",
+            }}>{showAdd ? "CANCEL" : "+ ADD"}</button>
+          </div>
+        </div>
+
+        {/* Add Form */}
+        {showAdd && (
+          <div style={{ padding: "20px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: "2px", marginBottom: "20px", animation: "fadeIn 0.2s ease" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "14px" }}>
+              <InputField label="Company *" value={newJob.company} onChange={(v) => setNewJob({ ...newJob, company: v })} placeholder="Company name" />
+              <InputField label="Role *" value={newJob.role} onChange={(v) => setNewJob({ ...newJob, role: v })} placeholder="Job title" />
+              <InputField label="Salary Range" value={newJob.salary} onChange={(v) => setNewJob({ ...newJob, salary: v })} placeholder="$XXK-$XXK" />
+              <InputField label="Source" value={newJob.source} onChange={(v) => setNewJob({ ...newJob, source: v })} placeholder="LinkedIn, Referral..." />
+              <InputField label="Contact" value={newJob.contact} onChange={(v) => setNewJob({ ...newJob, contact: v })} placeholder="Name, title" />
+              <InputField label="Applied Date" value={newJob.appliedDate} onChange={(v) => setNewJob({ ...newJob, appliedDate: v })} placeholder="" type="date" />
+              <InputField label="Status" value={newJob.status} onChange={(v) => setNewJob({ ...newJob, status: v })} type="select" placeholder={statuses.map((s) => ({ value: s.id, label: s.label }))} />
+              <InputField label="Priority" value={newJob.priority} onChange={(v) => setNewJob({ ...newJob, priority: v })} type="select" placeholder={priorities.map((p) => ({ value: p.id, label: p.label }))} />
+              <InputField label="Notes" value={newJob.notes} onChange={(v) => setNewJob({ ...newJob, notes: v })} placeholder="Notes..." type="textarea" full />
+            </div>
+            <button onClick={addJob} disabled={!newJob.company.trim() || !newJob.role.trim()} style={{
+              padding: "10px 24px", background: newJob.company.trim() && newJob.role.trim() ? C.accent : C.border,
+              border: "none", borderRadius: "2px", color: newJob.company.trim() && newJob.role.trim() ? "#fff" : C.textLight,
+              fontFamily: "'Space Mono', monospace", fontSize: "11px", fontWeight: 700, letterSpacing: "0.1em",
+              cursor: newJob.company.trim() && newJob.role.trim() ? "pointer" : "not-allowed",
+            }}>ADD TO PIPELINE</button>
+          </div>
+        )}
+
+        {/* Board View */}
+        {view === "board" && (
+          <div style={{ display: "flex", gap: "12px", overflowX: "auto", paddingBottom: "20px" }}>
+            {statuses.slice(0, 4).map((s) => <BoardColumn key={s.id} status={s} />)}
+          </div>
+        )}
+
+        {/* List View */}
+        {view === "list" && (
+          <div>
+            {filteredJobs.sort((a, b) => ({ high: 0, medium: 1, low: 2 }[a.priority] - { high: 0, medium: 1, low: 2 }[b.priority])).map((job) => <JobCard key={job.id} job={job} />)}
+            {filteredJobs.length === 0 && (
+              <div style={{ textAlign: "center", padding: "48px 20px", color: C.textLight, fontFamily: "'Space Mono', monospace", fontSize: "12px" }}>No jobs match your filters.</div>
+            )}
+          </div>
+        )}
+
+        <div style={{ marginTop: "48px", padding: "16px 0", borderTop: `1px solid ${C.border}`, fontFamily: "'Space Mono', monospace", fontSize: "10px", color: C.textLight, letterSpacing: "0.05em" }}>
+          Data stored in browser session only. Export coming soon.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(React.createElement(window.__App));
+  </script>
+</body>
+</html>

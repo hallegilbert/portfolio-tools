@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's Your Manosphere Sentence? — Halle Gilbert Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root { --black: #0a0a0a; --cream: #f5f0e8; --red: #d42b2b; --gold: #e8c84a; --gray: #1a1a1a; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--black); color: var(--cream); font-family: 'Space Mono', monospace; min-height: 100vh; overflow-x: hidden; }
+  .nav-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 9999; padding: 10px 24px; background: rgba(10,10,10,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #2a2a2a; display: flex; justify-content: space-between; align-items: center; }
+  .nav-bar a { font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-decoration: none; text-transform: uppercase; }
+  .nav-bar a:first-child { color: #888; }
+  .nav-bar a:last-child { color: var(--red); }
+  .noise { position: fixed; inset: 0; z-index: 0; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); opacity: 0.4; }
+  .container { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 84px 24px 80px; }
+  .header { text-align: center; margin-bottom: 48px; animation: fadeDown 0.6s ease both; }
+  .eyebrow { font-size: 11px; letter-spacing: 0.3em; color: var(--red); text-transform: uppercase; margin-bottom: 12px; }
+  h1 { font-family: 'Anton', sans-serif; font-size: clamp(42px, 8vw, 86px); line-height: 0.9; letter-spacing: -1px; text-transform: uppercase; }
+  h1 span { color: var(--gold); display: block; }
+  .subtitle { margin-top: 16px; font-size: 13px; color: #888; font-style: italic; line-height: 1.5; max-width: 520px; margin-left: auto; margin-right: auto; }
+  .divider { width: 60px; height: 3px; background: var(--red); margin: 24px auto; }
+  .rows-wrapper { display: flex; flex-direction: column; gap: 32px; animation: fadeUp 0.7s 0.4s ease both; }
+  .row-block { border: 1px solid #2a2a2a; background: var(--gray); overflow: hidden; }
+  .row-label { background: var(--red); padding: 10px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.1em; display: flex; align-items: center; gap: 12px; }
+  .row-label .part-tag { background: var(--black); color: var(--gold); font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.15em; padding: 3px 8px; text-transform: uppercase; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .cell { padding: 12px 16px; border-right: 1px solid #222; border-bottom: 1px solid #222; transition: background 0.15s; cursor: default; }
+  .cell:hover { background: #222; }
+  .cell-letter { font-family: 'Bebas Neue', sans-serif; font-size: 28px; color: var(--gold); line-height: 1; }
+  .cell-word { font-size: 11px; color: #ccc; margin-top: 4px; line-height: 1.3; font-style: italic; }
+  .generator { margin-bottom: 32px; background: var(--gray); border: 1px solid #2a2a2a; padding: 32px; animation: fadeUp 0.7s 0.4s ease both; }
+  .gen-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.08em; color: var(--gold); margin-bottom: 24px; }
+  .inputs-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  @media (max-width: 600px) { .inputs-row { grid-template-columns: 1fr; } }
+  .input-group label { display: block; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--red); margin-bottom: 8px; }
+  .input-group input, .input-group select { width: 100%; background: var(--black); border: 1px solid #333; color: var(--cream); padding: 10px 14px; font-family: 'Space Mono', monospace; font-size: 14px; text-transform: uppercase; outline: none; transition: border-color 0.2s; }
+  .input-group input:focus, .input-group select:focus { border-color: var(--gold); }
+  .input-group input::placeholder { color: #555; }
+  .input-group select option { background: var(--black); }
+  .gen-btn { width: 100%; background: var(--red); color: var(--cream); border: none; padding: 16px; font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 0.1em; cursor: pointer; transition: background 0.15s, transform 0.1s; }
+  .gen-btn:hover { background: #b02020; }
+  .gen-btn:active { transform: scale(0.99); }
+  .result { margin-top: 28px; display: none; animation: pop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28) both; }
+  .result.visible { display: block; }
+  .result-label { font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: #666; margin-bottom: 10px; }
+  .result-sentence { font-family: 'Anton', sans-serif; font-size: clamp(22px, 4vw, 38px); line-height: 1.1; color: var(--cream); background: var(--black); padding: 24px; border-left: 4px solid var(--gold); letter-spacing: 0.02em; }
+  .result-sentence .word-1 { color: var(--gold); }
+  .result-sentence .word-2 { color: #fff; }
+  .result-sentence .word-3 { color: var(--red); }
+  .copy-btn { margin-top: 12px; background: transparent; border: 1px solid #333; color: #888; padding: 8px 20px; font-family: 'Space Mono', monospace; font-size: 11px; cursor: pointer; transition: all 0.15s; letter-spacing: 0.1em; text-transform: uppercase; }
+  .copy-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .footer-note { margin-top: 60px; text-align: center; font-size: 11px; color: #444; font-style: italic; line-height: 1.6; animation: fadeUp 0.7s 0.6s ease both; }
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pop { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+</style>
+</head>
+<body>
+<div class="nav-bar"><a href="/">← Back to Lab</a><a href="https://halle.studio">halle.studio</a></div>
+<div class="noise"></div>
+<div class="container">
+  <div class="header">
+    <p class="eyebrow">⚠ Satirical Content Generator ⚠</p>
+    <h1>What's Your<span>Manosphere Sentence?</span></h1>
+    <div class="divider"></div>
+    <p class="subtitle">Three rows. Three inputs. One completely unhinged sentence that sounds like it was scraped from a 4chan thread written by someone who just discovered Andrew Tate.</p>
+  </div>
+  <div class="generator">
+    <div class="gen-title">→ Generate Your Sentence</div>
+    <div class="inputs-row">
+      <div class="input-group"><label>First letter of last name</label><input type="text" id="inp1" maxlength="1" placeholder="A–Z" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'')"></div>
+      <div class="input-group"><label>First letter of street name</label><input type="text" id="inp2" maxlength="1" placeholder="A–Z" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z]/g,'')"></div>
+      <div class="input-group"><label>Month you were born</label><select id="inp3"><option value="">— Select —</option><option value="Jan">January</option><option value="Feb">February</option><option value="Mar">March</option><option value="Apr">April</option><option value="May">May</option><option value="Jun">June</option><option value="Jul">July</option><option value="Aug">August</option><option value="Sep">September</option><option value="Oct">October</option><option value="Nov">November</option><option value="Dec">December</option></select></div>
+    </div>
+    <button class="gen-btn" onclick="generate()">GENERATE MY SENTENCE →</button>
+    <div class="result" id="result">
+      <div class="result-label">// Your manosphere sentence is:</div>
+      <div class="result-sentence" id="sentence"></div>
+      <button class="copy-btn" onclick="copySentence()">Copy to Clipboard</button>
+    </div>
+  </div>
+  <div class="rows-wrapper">
+    <div class="row-block"><div class="row-label"><span>Row 1 — First Letter of Your Last Name</span><span class="part-tag">Subject / Verb</span></div><div class="grid" id="grid1"></div></div>
+    <div class="row-block"><div class="row-label"><span>Row 2 — First Letter of Street You Grew Up On</span><span class="part-tag">Adjective / Concept</span></div><div class="grid" id="grid2"></div></div>
+    <div class="row-block"><div class="row-label"><span>Row 3 — Month You Were Born</span><span class="part-tag">Noun / Outcome</span></div><div class="grid" id="grid3"></div></div>
+  </div>
+  <div class="footer-note">Satirical. Made with irony. All terminology documented for cultural/media literacy purposes.<br>These words have real, often harmful origins — this generator exists to mock the absurdity of the genre.</div>
+</div>
+<script>
+const row1={A:{word:"aura-farmed",def:"accumulated mystical presence"},B:{word:"bonesmashed",def:"self-inflicted bone trauma for gains"},C:{word:"chadmaxxed",def:"fully optimized alpha status"},D:{word:"dadbodpilled",def:"accepted mediocre physique"},E:{word:"eyelidmogged",def:"defeated by superior eye area"},F:{word:"framemogged",def:"outclassed by bigger bone structure"},G:{word:"gigachad-coded",def:"radiating supreme male energy"},H:{word:"hairmogged",def:"eclipsed by better hairline"},I:{word:"incelmaxxed",def:"optimized involuntary celibacy"},J:{word:"jawlinepilled",def:"awakened to jaw supremacy"},K:{word:"killerinstinct-mogged",def:"dominated by predator energy"},L:{word:"looksmaxxed",def:"appearance fully optimized"},M:{word:"mewed my way",def:"tongue-postured to victory"},N:{word:"NPC-coded",def:"robotically following the script"},O:{word:"omega-rotted",def:"lied down and decayed"},P:{word:"personamaxxed",def:"built a dominant aura persona"},Q:{word:"quit bluepilling",def:"escaped mainstream delusion"},R:{word:"rizz-farmed",def:"amassed charisma through grinding"},S:{word:"sigma-grindset",def:"lone wolf work ethic achieved"},T:{word:"testosterone-pilled",def:"awakened to hormonal truth"},U:{word:"unbased myself",def:"temporarily lost grounded truth"},V:{word:"vibe-mogged",def:"crushed by superior energy field"},W:{word:"wristmogged",def:"humiliated by thicker wrists"},X:{word:"X-mogged the normies",def:"dominated unawakened masses"},Y:{word:"Y-pilled",def:"accepted masculine genetic reality"},Z:{word:"zeromaxxed",def:"optimized nothingness"}};
+const row2={A:{word:"anterior pelvic tilt-coded",def:"structurally compromised posture"},B:{word:"based and",def:"grounded in raw truth"},C:{word:"canthal tilt-aware",def:"conscious of eye angle hierarchy"},D:{word:"dark triad",def:"narcissism/machiavellianism/psychopathy"},E:{word:"eight-or-above-only",def:"refuses sub-optimal matches"},F:{word:"frat lord-level",def:"peak fraternal dominance achieved"},G:{word:"gigamogged by",def:"utterly obliterated by"},H:{word:"high-SMV",def:"top-tier sexual market value"},I:{word:"incelcore",def:"aesthetics of involuntary celibacy"},J:{word:"jestermaxxing through",def:"clowning as dominance strategy"},K:{word:"king-coded and",def:"inherently dominant, obviously"},L:{word:"lair-coded and",def:"basement-dwelling energy confirmed"},M:{word:"maximum cortisol-inducing",def:"stress-hormone-spiking"},N:{word:"no-fap-ascended",def:"transmuted urges into power"},O:{word:"over for the",def:"irredeemably finished for"},P:{word:"post-wall",def:"past peak desirability window"},Q:{word:"quota-mogged",def:"systematically disadvantaged"},R:{word:"red-pilled on the",def:"truth-awakened regarding"},S:{word:"sub-8 and",def:"below threshold, doomed"},T:{word:"top percentile",def:"elite tier of hierarchy"},U:{word:"unmoggable by",def:"immune to being outclassed by"},V:{word:"virgin-coded but",def:"inexperienced yet self-aware"},W:{word:"white-knighting for",def:"simping in defense of"},X:{word:"X-factor-mogged by",def:"indefinably eclipsed by"},Y:{word:"your looksmatch is a",def:"your attractiveness tier is"},Z:{word:"zero-rizz",def:"charisma completely absent"}};
+const row3={Jan:{word:"Stacy-adjacent slay",def:"near peak female archetype energy"},Feb:{word:"beta uprising attempt",def:"doomed lower-rank rebellion"},Mar:{word:"mog session outcome",def:"result of dominance comparison"},Apr:{word:"aura farm yield",def:"mystical presence harvest"},May:{word:"sigma lone wolf arc",def:"solo outside-hierarchy journey"},Jun:{word:"frame-mogged jawcel era",def:"defined by bone structure defeat"},Jul:{word:"red pill awakening",def:"ideological conversion event"},Aug:{word:"NPC herd moment",def:"unconscious conformist behavior"},Sep:{word:"looksmaxx grindset",def:"relentless appearance optimization"},Oct:{word:"hypergamy exposure",def:"women's upward-dating reveal"},Nov:{word:"cortisol spike event",def:"stress-hormone-inducing situation"},Dec:{word:"gigachad status unlock",def:"supreme alpha tier achieved"}};
+function renderGrid(d,id){const c=document.getElementById(id);Object.entries(d).forEach(([k,v])=>{const e=document.createElement('div');e.className='cell';e.innerHTML=`<div class="cell-letter">${k}</div><div class="cell-word">${v.word}</div>`;c.appendChild(e)})}
+renderGrid(row1,'grid1');renderGrid(row2,'grid2');renderGrid(row3,'grid3');
+function generate(){const l1=document.getElementById('inp1').value.trim().toUpperCase(),l2=document.getElementById('inp2').value.trim().toUpperCase(),m=document.getElementById('inp3').value;if(!l1||!l2||!m){alert('Fill in all three fields first!');return}document.getElementById('sentence').innerHTML=`I <span class="word-1">${row1[l1]?.word||'???'}</span> into a <span class="word-2">${row2[l2]?.word||'???'}</span> <span class="word-3">${row3[m]?.word||'???'}</span>.`;const r=document.getElementById('result');r.classList.remove('visible');void r.offsetWidth;r.classList.add('visible')}
+function copySentence(){navigator.clipboard.writeText(document.getElementById('sentence').innerText).then(()=>{const b=document.querySelector('.copy-btn');b.textContent='Copied!';setTimeout(()=>b.textContent='Copy to Clipboard',2000)})}
+</script>
+</body>
+</html>
