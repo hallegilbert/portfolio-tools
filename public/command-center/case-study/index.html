@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Search Command Center — Lab — Halle Gilbert</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #FAF9F6;
+      --text: #1C1B18;
+      --muted: #4A4843;
+      --faint: #8A8780;
+      --border: #E2E0DB;
+      --accent: #2C4A6E;
+      --accent-dark: #1E3550;
+      --accent-bg: rgba(44,74,110,0.04);
+      --accent-tag: rgba(44,74,110,0.08);
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+      --serif: 'Instrument Serif', serif;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: rgba(44,74,110,0.12); }
+
+    .nav {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: rgba(250,249,246,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 100;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+    .nav.scrolled { border-bottom-color: var(--border); }
+    .nav-back {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-back:hover { opacity: 0.7; }
+    .nav-number {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--faint);
+    }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 0 40px; }
+
+    .hero {
+      padding: 80px 0 48px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-tag);
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 2px;
+      margin-bottom: 24px;
+      font-weight: 700;
+    }
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 400;
+      line-height: 1.05;
+      color: var(--text);
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+    .hero-subtitle {
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--muted);
+      max-width: 580px;
+    }
+    .tech-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .tech-chip {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--faint);
+    }
+
+    .divider { height: 1px; background: var(--border); }
+
+    .section { padding: 48px 0; }
+    .section-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 24px;
+    }
+
+    .breakdown { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
+    .breakdown-item {
+      display: flex;
+      gap: 20px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .breakdown-item:last-child { border-bottom: none; }
+    .breakdown-key {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      min-width: 100px;
+      flex-shrink: 0;
+      padding-top: 3px;
+    }
+    .breakdown-val {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+    .breakdown-val em { font-style: italic; color: var(--text); }
+
+    /* MOCKUP */
+    .mockup-section { padding: 48px 0; }
+    .mockup-wrapper {
+      background: #F0EFEC;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.02);
+    }
+    .mockup-titlebar {
+      background: #E8E6E2;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .dot-r { background: #E8645A; }
+    .dot-y { background: #F0C350; }
+    .dot-g { background: #6BC86E; }
+    .mockup-url {
+      margin-left: 10px;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--faint);
+      letter-spacing: 0.02em;
+    }
+    .mockup-body { padding: 24px; background: #FDFCFA; }
+    .mockup-caption {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      letter-spacing: 0.04em;
+      text-align: center;
+      margin-top: 14px;
+    }
+    .mockup-single { max-width: 100%; }
+
+    /* Dashboard mockup */
+    .mock-heading {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 400;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    .mock-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .mock-stat {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .mock-stat-num {
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+    .mock-stat-label {
+      font-family: var(--mono);
+      font-size: 7px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--faint);
+    }
+    .mock-kanban {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .mock-column {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 8px;
+    }
+    .mock-col-header {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--faint);
+      font-weight: 700;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .mock-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 6px 8px;
+      margin-bottom: 4px;
+      font-size: 9px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .mock-card:last-child { margin-bottom: 0; }
+    .mock-card-company {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 10px;
+    }
+    .mock-card-role {
+      font-size: 8px;
+      color: var(--faint);
+    }
+    .mock-priority {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 7px;
+      padding: 1px 4px;
+      border-radius: 2px;
+      margin-top: 3px;
+    }
+    .priority-high { background: rgba(192,59,45,0.08); color: #C03B2D; }
+    .priority-med { background: rgba(184,92,26,0.08); color: #B85C1A; }
+
+    .takeaway { padding: 48px 0; }
+    .takeaway-text {
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--muted);
+      max-width: 600px;
+      border-left: 2px solid var(--accent);
+      padding-left: 24px;
+    }
+
+    .cta-section {
+      padding: 48px 0 56px;
+      text-align: center;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 16px 48px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+    .cta-btn:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(44,74,110,0.2);
+    }
+    .cta-note {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      margin-top: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    .footer {
+      padding: 24px 40px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .footer a:hover { text-decoration: underline; }
+    .footer-right {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-1 { animation: fadeUp 0.5s ease 0.1s both; }
+    .anim-2 { animation: fadeUp 0.5s ease 0.2s both; }
+    .anim-3 { animation: fadeUp 0.5s ease 0.3s both; }
+
+    @media (max-width: 700px) {
+      .container { padding: 0 24px; }
+      .nav { padding: 16px 24px; }
+      .hero { padding: 56px 0 40px; }
+      .mock-stats { grid-template-columns: repeat(2, 1fr); }
+      .mock-kanban { grid-template-columns: repeat(2, 1fr); }
+      .footer { padding: 20px 24px; }
+      .breakdown-item { flex-direction: column; gap: 4px; }
+      .breakdown-key { min-width: unset; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <a href="/" class="nav-back">← Back to Lab</a>
+    <span class="nav-number">06 / 08</span>
+  </nav>
+
+  <div class="container">
+    <div class="hero">
+      <span class="hero-tag">Tool</span>
+      <h1>Job Search<br>Command Center</h1>
+      <p class="hero-subtitle">Kanban pipeline tracker for job applications. Board and list views, priority tagging, status filtering.</p>
+      <div class="tech-chips">
+        <span class="tech-chip">React</span>
+        <span class="tech-chip">Client-side State</span>
+        <span class="tech-chip">Product Design</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="section anim-1">
+      <div class="section-label">The Breakdown</div>
+      <div class="breakdown">
+        <div class="breakdown-item">
+          <span class="breakdown-key">Problem</span>
+          <span class="breakdown-val">After enduring the job application process (the open tabs, the half-finished cover letters, the spreadsheets that stopped being useful after the first week) I realized the problem wasn't motivation. It was information architecture. A job search is a pipeline, and I was managing it like a to-do list. Different roles at different stages, each with different deadlines, contacts, and follow-up actions. Spreadsheets collapse under that kind of dimensionality.</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-key">Constraint</span>
+          <span class="breakdown-val">Most job-tracking tools are either too simple (a list with checkboxes) or too heavy (full CRM platforms designed for recruiters, not applicants). I needed something in between: visual enough to see the full pipeline at a glance, structured enough to track status and priority, and lightweight enough that updating it wasn't its own chore.</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-key">Solution</span>
+          <span class="breakdown-val">A kanban-style command center with four pipeline stages (Saved, Applied, Interview, Offer) plus a stats dashboard showing totals, response rates, and active applications. Each job card captures company, role, priority level, date applied, and notes. Board view for visual scanning, list view for detail. Filters by status and priority. The whole thing runs client-side with no login required.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MOCKUP -->
+  <div class="container">
+    <div class="mockup-section anim-2">
+      <div class="section-label">What It Looks Like</div>
+      <div class="mockup-single">
+        <div class="mockup-wrapper">
+          <div class="mockup-titlebar">
+            <div class="dot dot-r"></div>
+            <div class="dot dot-y"></div>
+            <div class="dot dot-g"></div>
+            <span class="mockup-url">halle.studio/lab</span>
+          </div>
+          <div class="mockup-body">
+            <div class="mock-heading">Command Center</div>
+
+            <div class="mock-stats">
+              <div class="mock-stat">
+                <div class="mock-stat-num">24</div>
+                <div class="mock-stat-label">Total</div>
+              </div>
+              <div class="mock-stat">
+                <div class="mock-stat-num">14</div>
+                <div class="mock-stat-label">Active</div>
+              </div>
+              <div class="mock-stat">
+                <div class="mock-stat-num">3</div>
+                <div class="mock-stat-label">Interviews</div>
+              </div>
+              <div class="mock-stat">
+                <div class="mock-stat-num">12%</div>
+                <div class="mock-stat-label">Response</div>
+              </div>
+            </div>
+
+            <div class="mock-kanban">
+              <div class="mock-column">
+                <div class="mock-col-header">Saved</div>
+                <div class="mock-card">
+                  <div class="mock-card-company">Pernod Ricard</div>
+                  <div class="mock-card-role">Brand Manager</div>
+                  <span class="mock-priority priority-high">HIGH</span>
+                </div>
+                <div class="mock-card">
+                  <div class="mock-card-company">OpenTable</div>
+                  <div class="mock-card-role">Content Strategist</div>
+                  <span class="mock-priority priority-med">MED</span>
+                </div>
+              </div>
+              <div class="mock-column">
+                <div class="mock-col-header">Applied</div>
+                <div class="mock-card">
+                  <div class="mock-card-company">Campari Group</div>
+                  <div class="mock-card-role">Sr. Marketing Mgr</div>
+                  <span class="mock-priority priority-high">HIGH</span>
+                </div>
+                <div class="mock-card">
+                  <div class="mock-card-company">Figma</div>
+                  <div class="mock-card-role">Brand Marketing</div>
+                  <span class="mock-priority priority-med">MED</span>
+                </div>
+              </div>
+              <div class="mock-column">
+                <div class="mock-col-header">Interview</div>
+                <div class="mock-card">
+                  <div class="mock-card-company">Seed Health</div>
+                  <div class="mock-card-role">Growth Marketing</div>
+                  <span class="mock-priority priority-high">HIGH</span>
+                </div>
+              </div>
+              <div class="mock-column">
+                <div class="mock-col-header">Offer</div>
+                <div class="mock-card" style="opacity: 0.4; border-style: dashed;">
+                  <div class="mock-card-role" style="text-align:center;">—</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div class="mockup-caption">Full-width view: stats dashboard + kanban pipeline.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="takeaway anim-3">
+      <div class="section-label">The Takeaway</div>
+      <p class="takeaway-text">A job search is a project. It has stages, stakeholders, deadlines, and competing priorities. The people who treat it that way tend to be the people who move through it faster. This tool reflects the way I actually think about process: if you can see the whole system, you can make better decisions about where to spend your time next.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="cta-section">
+    <a href="/command-center/" class="cta-btn">Try It Yourself →</a>
+    <div class="cta-note">Client-side tool · No login required</div>
+  </div>
+
+  <div class="footer">
+    <a href="https://halle.studio">halle.studio</a>
+    <span class="footer-right">2026</span>
+  </div>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 10);
+    });
+  </script>
+</body>
+</html>
