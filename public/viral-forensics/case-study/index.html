@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Viral Content Forensics â Lab â Halle Gilbert</title>
+  <title>Viral Content Forensics — Lab — Halle Gilbert</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,6 +35,600 @@
 
     /* NAV */
     .nav {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: rgba(250,249,246,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 100;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+    .nav.scrolled { border-bottom-color: var(--border); }
+    .nav-back {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--red);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-back:hover { opacity: 0.7; }
+    .nav-number {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--faint);
+    }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 0 40px; }
+
+    /* HERO */
+    .hero {
+      padding: 80px 0 48px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--red);
+      background: var(--red-tag);
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 2px;
+      margin-bottom: 24px;
+      font-weight: 700;
+    }
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 400;
+      line-height: 1.05;
+      color: var(--text);
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+    .hero-subtitle {
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--muted);
+      max-width: 580px;
+    }
+    .tech-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .tech-chip {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--faint);
+    }
+
+    .divider { height: 1px; background: var(--border); }
+
+    /* SECTION */
+    .section { padding: 48px 0; }
+    .section-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 24px;
+    }
+    .section p {
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--muted);
+      margin-bottom: 16px;
+      max-width: 620px;
+    }
+    .section p:last-child { margin-bottom: 0; }
+    .section p em { font-style: italic; color: var(--text); }
+
+    /* BREAKDOWN */
+    .breakdown { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
+    .breakdown-item {
+      display: flex;
+      gap: 20px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .breakdown-item:last-child { border-bottom: none; }
+    .breakdown-key {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--red);
+      font-weight: 700;
+      min-width: 100px;
+      flex-shrink: 0;
+      padding-top: 3px;
+    }
+    .breakdown-val {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    /* COMPACT MOCKUP */
+    .mockup-section { padding: 48px 0; }
+    .mockup-wrapper {
+      background: #F0EFEC;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.02);
+    }
+    .mockup-titlebar {
+      background: #E8E6E2;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .dot-r { background: #E8645A; }
+    .dot-y { background: #F0C350; }
+    .dot-g { background: #6BC86E; }
+    .mockup-url {
+      margin-left: 10px;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--faint);
+      letter-spacing: 0.02em;
+    }
+    .mockup-body { padding: 24px; background: #FDFCFA; }
+    .mockup-caption {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      letter-spacing: 0.04em;
+      text-align: center;
+      margin-top: 14px;
+    }
+
+    /* SIDE BY SIDE */
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    /* INPUT */
+    .mock-heading {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 400;
+      text-align: center;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    .mock-subhead {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--faint);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .mock-textarea {
+      width: 100%;
+      min-height: 60px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 10px 12px;
+      font-family: var(--sans);
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--muted);
+      background: var(--bg);
+      resize: none;
+      margin-bottom: 10px;
+    }
+    .mock-controls {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .mock-select {
+      flex: 1;
+      padding: 7px 8px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-family: var(--sans);
+      font-size: 10px;
+      color: var(--muted);
+      background: var(--bg);
+    }
+    .mock-run-btn {
+      width: 100%;
+      padding: 9px;
+      background: var(--red);
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: default;
+    }
+
+    /* OUTPUT */
+    .mock-verdict {
+      background: var(--red-bg);
+      border: 1px solid rgba(192,59,45,0.12);
+      border-radius: 3px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+    .mock-verdict-label {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+    .mock-verdict-text {
+      font-family: var(--serif);
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .mock-score-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .mock-score-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .mock-score-num {
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--red);
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+    .mock-score-label {
+      font-family: var(--mono);
+      font-size: 7px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--faint);
+    }
+    .mock-analysis-block {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+    }
+    .mock-analysis-block:last-child { margin-bottom: 0; }
+    .mock-analysis-title {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .mock-analysis-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.03);
+      font-size: 11px;
+    }
+    .mock-analysis-item:last-child { border-bottom: none; }
+    .mock-analysis-key { color: var(--muted); font-size: 11px; }
+    .mock-analysis-val {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--red);
+      font-weight: 700;
+    }
+    .mock-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .mock-bar-row:last-child { margin-bottom: 0; }
+    .mock-bar-label {
+      font-size: 10px;
+      color: var(--muted);
+      min-width: 80px;
+    }
+    .mock-bar-track {
+      flex: 1;
+      height: 4px;
+      background: rgba(0,0,0,0.04);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .mock-bar-fill {
+      height: 100%;
+      background: var(--red);
+      border-radius: 2px;
+    }
+
+    /* CTA */
+    .cta-section {
+      padding: 48px 0 56px;
+      text-align: center;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 16px 48px;
+      background: var(--red);
+      color: #fff;
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+    .cta-btn:hover {
+      background: var(--red-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(192,59,45,0.2);
+    }
+    .cta-note {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      margin-top: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    /* TAKEAWAY */
+    .takeaway {
+      padding: 48px 0;
+    }
+    .takeaway-text {
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--muted);
+      max-width: 600px;
+      border-left: 2px solid var(--red);
+      padding-left: 24px;
+    }
+
+    /* FOOTER */
+    .footer {
+      padding: 24px 40px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer a {
+      color: var(--red);
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .footer a:hover { text-decoration: underline; }
+    .footer-right {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-1 { animation: fadeUp 0.5s ease 0.1s both; }
+    .anim-2 { animation: fadeUp 0.5s ease 0.2s both; }
+    .anim-3 { animation: fadeUp 0.5s ease 0.3s both; }
+
+    @media (max-width: 700px) {
+      .container { padding: 0 24px; }
+      .nav { padding: 16px 24px; }
+      .hero { padding: 56px 0 40px; }
+      .mockup-grid { grid-template-columns: 1fr; }
+      .footer { padding: 20px 24px; }
+      .breakdown-item { flex-direction: column; gap: 4px; }
+      .breakdown-key { min-width: unset; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <a href="/" class="nav-back">← Back to Lab</a>
+    <span class="nav-number">02 / 08</span>
+  </nav>
+
+  <div class="container">
+    <div class="hero">
+      <span class="hero-tag">Interactive</span>
+      <h1>Viral Content<br>Forensics</h1>
+      <p class="hero-subtitle">Paste any social post. Get the structural, psychological, and cultural mechanics behind why it works, or why it doesn't.</p>
+      <div class="tech-chips">
+        <span class="tech-chip">React</span>
+        <span class="tech-chip">Claude API</span>
+        <span class="tech-chip">Content Strategy</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="section anim-1">
+      <div class="section-label">The Breakdown</div>
+      <div class="breakdown">
+        <div class="breakdown-item">
+          <span class="breakdown-key">Problem</span>
+          <span class="breakdown-val">I spent years making content for hospitality brands and watching some of it perform and some of it not. The post-mortems were always the same: vague feedback, gut-feel explanations, and a few metrics pulled out of context.</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-key">Constraint</span>
+          <span class="breakdown-val">What I actually wanted was a forensic breakdown. Not "this did well because it was relatable" but <em>why</em> it was relatable, <em>what</em> triggered the share, and <em>where</em> the viewer almost scrolled past.</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-key">Solution</span>
+          <span class="breakdown-val">A tool where you paste any social post (caption, transcript, full text), select the platform, optionally add metrics, and get a structured analysis: hook identification, retention architecture, a psychology layer mapping the emotional triggers behind shares and comments, cultural timing, platform-specific algorithm fit, and a keep/kill/test prescription.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MOCKUPS -->
+  <div class="container">
+    <div class="mockup-section anim-2">
+      <div class="section-label">What It Looks Like</div>
+      <div class="mockup-grid">
+
+        <!-- INPUT -->
+        <div>
+          <div class="mockup-wrapper">
+            <div class="mockup-titlebar">
+              <div class="dot dot-r"></div>
+              <div class="dot dot-y"></div>
+              <div class="dot dot-g"></div>
+              <span class="mockup-url">halle.studio/lab</span>
+            </div>
+            <div class="mockup-body">
+              <div class="mock-heading">Viral Content Forensics</div>
+              <div class="mock-subhead">Paste a post. Run the analysis.</div>
+              <div class="mock-textarea">We stopped doing "signature cocktails." Every drink on the menu is built around what's in season within 30 miles of the restaurant. Last week that meant a clarified apple shrub with cardamom. This week it's a persimmon old fashioned. The menu changes when the harvest does.</div>
+              <div class="mock-controls">
+                <div class="mock-select">Instagram</div>
+                <div class="mock-select">8.2K likes</div>
+              </div>
+              <div class="mock-run-btn">Run Forensics</div>
+            </div>
+          </div>
+          <div class="mockup-caption">Input: paste any caption, transcript, or post.</div>
+        </div>
+
+        <!-- OUTPUT -->
+        <div>
+          <div class="mockup-wrapper">
+            <div class="mockup-titlebar">
+              <div class="dot dot-r"></div>
+              <div class="dot dot-y"></div>
+              <div class="dot dot-g"></div>
+              <span class="mockup-url">halle.studio/lab</span>
+            </div>
+            <div class="mockup-body">
+              <div class="mock-verdict">
+                <div class="mock-verdict-label">Verdict</div>
+                <div class="mock-verdict-text">Strong share trigger. The post works because it frames a business decision as a philosophy, making the audience feel like insiders.</div>
+              </div>
+              <div class="mock-score-row">
+                <div class="mock-score-card">
+                  <div class="mock-score-num">84</div>
+                  <div class="mock-score-label">Virality</div>
+                </div>
+                <div class="mock-score-card">
+                  <div class="mock-score-num">91</div>
+                  <div class="mock-score-label">Hook</div>
+                </div>
+                <div class="mock-score-card">
+                  <div class="mock-score-num">78</div>
+                  <div class="mock-score-label">Retention</div>
+                </div>
+              </div>
+              <div class="mock-analysis-block">
+                <div class="mock-analysis-title">Hook Architecture</div>
+                <div class="mock-analysis-item">
+                  <span class="mock-analysis-key">Type</span>
+                  <span class="mock-analysis-val">Status Disruption</span>
+                </div>
+                <div class="mock-analysis-item">
+                  <span class="mock-analysis-key">Entry</span>
+                  <span class="mock-analysis-val">Curiosity Gap</span>
+                </div>
+              </div>
+              <div class="mock-analysis-block">
+                <div class="mock-analysis-title">Psychology</div>
+                <div class="mock-bar-row">
+                  <span class="mock-bar-label">Identity</span>
+                  <div class="mock-bar-track"><div class="mock-bar-fill" style="width:85%"></div></div>
+                </div>
+                <div class="mock-bar-row">
+                  <span class="mock-bar-label">Social proof</span>
+                  <div class="mock-bar-track"><div class="mock-bar-fill" style="width:72%"></div></div>
+                </div>
+                <div class="mock-bar-row">
+                  <span class="mock-bar-label">Emotion</span>
+                  <div class="mock-bar-track"><div class="mock-bar-fill" style="width:68%"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mockup-caption">Output: scores, hook analysis, psychology, prescription.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- TAKEAWAY -->
+  <div class="container">
+    <div class="takeaway anim-3">
+      <div class="section-label">The Takeaway</div>
+      <p class="takeaway-text">Most content audits describe what happened without explaining the mechanics. This tool forces precision. When I say a post worked because of a curiosity gap combined with identity signaling, that gives a team something to actually use when they make the next piece. That is the difference between a post-mortem and a playbook.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CTA at very bottom -->
+  <div class="cta-section">
+    <a href="/viral-forensics/" class="cta-btn">Try It Yourself →</a>
+    <div class="cta-note">AI-powered · Rate limited to 10 uses/day</div>
+  </div>
+
+  <div class="footer">
+    <a href="https://halle.studio">halle.studio</a>
+    <span class="footer-right">2026</span>
+  </div>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 10);
+    });
+  </script>
+</body>
+</html>    .nav {
       padding: 20px 40px;
       display: flex;
       justify-content: space-between;
