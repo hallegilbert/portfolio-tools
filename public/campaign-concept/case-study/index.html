@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campaign Concept Generator — Lab — Halle Gilbert</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #FAF9F6;
+      --text: #1C1B18;
+      --muted: #4A4843;
+      --faint: #8A8780;
+      --border: #E2E0DB;
+      --accent: #C4553A;
+      --accent-dark: #A8472F;
+      --accent-bg: rgba(196,85,58,0.04);
+      --accent-tag: rgba(196,85,58,0.08);
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+      --serif: 'Instrument Serif', serif;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: rgba(196,85,58,0.12); }
+
+    .nav {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: rgba(250,249,246,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 100;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+    .nav.scrolled { border-bottom-color: var(--border); }
+    .nav-back {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-back:hover { opacity: 0.7; }
+    .nav-number {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--faint);
+    }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 0 40px; }
+
+    .hero {
+      padding: 80px 0 48px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-tag);
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 2px;
+      margin-bottom: 24px;
+      font-weight: 700;
+    }
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 400;
+      line-height: 1.05;
+      color: var(--text);
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+    .hero-subtitle {
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--muted);
+      max-width: 580px;
+    }
+    .tech-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .tech-chip {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--faint);
+    }
+
+    .divider { height: 1px; background: var(--border); }
+
+    .section { padding: 48px 0; }
+    .section-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 24px;
+    }
+
+    .breakdown { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
+    .breakdown-item {
+      display: flex;
+      gap: 20px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .breakdown-item:last-child { border-bottom: none; }
+    .breakdown-key {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      min-width: 100px;
+      flex-shrink: 0;
+      padding-top: 3px;
+    }
+    .breakdown-val {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+    .breakdown-val em { font-style: italic; color: var(--text); }
+
+    /* MOCKUP */
+    .mockup-section { padding: 48px 0; }
+    .mockup-wrapper {
+      background: #F0EFEC;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.02);
+    }
+    .mockup-titlebar {
+      background: #E8E6E2;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .dot-r { background: #E8645A; }
+    .dot-y { background: #F0C350; }
+    .dot-g { background: #6BC86E; }
+    .mockup-url {
+      margin-left: 10px;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--faint);
+      letter-spacing: 0.02em;
+    }
+    .mockup-body { padding: 24px; background: #FDFCFA; }
+    .mockup-caption {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      letter-spacing: 0.04em;
+      text-align: center;
+      margin-top: 14px;
+    }
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    /* INPUT */
+    .mock-heading {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 400;
+      text-align: center;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    .mock-subhead {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--faint);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .mock-field {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 9px 12px;
+      font-family: var(--sans);
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--muted);
+      background: var(--bg);
+    }
+    .mock-field-label {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+    .mock-field-group { margin-bottom: 12px; }
+    .mock-run-btn {
+      width: 100%;
+      padding: 9px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: default;
+    }
+
+    /* OUTPUT */
+    .mock-output-section {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+    }
+    .mock-output-section:last-child { margin-bottom: 0; }
+    .mock-output-title {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .mock-output-item {
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.03);
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .mock-output-item:last-child { border-bottom: none; }
+    .mock-output-tag {
+      font-family: var(--mono);
+      font-size: 8px;
+      color: var(--accent);
+      font-weight: 700;
+      display: inline-block;
+      margin-right: 6px;
+    }
+    .mock-insight {
+      background: var(--accent-bg);
+      border: 1px solid rgba(196,85,58,0.12);
+      border-radius: 3px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+    }
+    .mock-insight-label {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+    .mock-insight-text {
+      font-family: var(--serif);
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    /* TAKEAWAY */
+    .takeaway { padding: 48px 0; }
+    .takeaway-text {
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--muted);
+      max-width: 600px;
+      border-left: 2px solid var(--accent);
+      padding-left: 24px;
+    }
+
+    /* CTA */
+    .cta-section {
+      padding: 48px 0 56px;
+      text-align: center;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 16px 48px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+    .cta-btn:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(196,85,58,0.2);
+    }
+    .cta-note {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      margin-top: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    .footer {
+      padding: 24px 40px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .footer a:hover { text-decoration: underline; }
+    .footer-right {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-1 { animation: fadeUp 0.5s ease 0.1s both; }
+    .anim-2 { animation: fadeUp 0.5s ease 0.2s both; }
+    .anim-3 { animation: fadeUp 0.5s ease 0.3s both; }
+
+    @media (max-width: 700px) {
+      .container { padding: 0 24px; }
+      .nav { padding: 16px 24px; }
+      .hero { padding: 56px 0 40px; }
+      .mockup-grid { grid-template-columns: 1fr; }
+      .footer { padding: 20px 24px; }
+      .breakdown-item { flex-direction: column; gap: 4px; }
+      .breakdown-key { min-width: unset; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <a href="/" class="nav-back">← Back to Lab</a>
+    <span class="nav-number">04 / 08</span>
+  </nav>
+
+  <div class="container">
+    <div class="hero">
+      <span class="hero-tag">Interactive</span>
+      <h1>Campaign Concept<br>Generator</h1>
+      <p class="hero-subtitle">Input any brand and objective. Get a full campaign strategy with activations, channel roles, and KPIs.</p>
+      <div class="tech-chips">
+        <span class="tech-chip">React</span>
+        <span class="tech-chip">Claude API</span>
+        <span class="tech-chip">Campaign Strategy</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="section anim-1">
+      <div class="section-label">The Breakdown</div>
+      <div class="breakdown">
+        <div class="breakdown-item">
+          <span class="breakdown-key">Problem</span>
+          <span class="breakdown-val">Every strategist gets the same question in the first week of a new role: "What would you do with this brand?" The answer is supposed to demonstrate how you think, not just what you know. But translating a brand's position, audience, cultural moment, and business objectives into a cohesive campaign concept takes time, and the thinking often stays trapped in someone's head until a deck forces it out.</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-key">Constraint</span>
+          <span class="breakdown-val">A campaign concept has to do a lot of things at once. It needs to work across multiple channels without losing coherence. It has to be specific enough to execute against a budget but flexible enough to scale. It needs to tie creative decisions back to measurable business outcomes. And it has to be presentable to leadership, not just a creative team. Most of that thinking happens in someone's head or across a dozen disconnected slides.</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-key">Solution</span>
+          <span class="breakdown-val">A tool where you input a brand name, what they do, a campaign objective, target audience, channel strategy, and budget tier. It returns a full campaign concept: the strategic insight (the cultural tension, the "why now"), a big idea, three activations with channel tags, content pillars, channel role definitions, tagline alternatives, a measurement framework, and a section called "The Bold Move," which is the risky idea the room probably won't go for but should.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MOCKUPS -->
+  <div class="container">
+    <div class="mockup-section anim-2">
+      <div class="section-label">What It Looks Like</div>
+      <div class="mockup-grid">
+
+        <!-- INPUT -->
+        <div>
+          <div class="mockup-wrapper">
+            <div class="mockup-titlebar">
+              <div class="dot dot-r"></div>
+              <div class="dot dot-y"></div>
+              <div class="dot dot-g"></div>
+              <span class="mockup-url">halle.studio/lab</span>
+            </div>
+            <div class="mockup-body">
+              <div class="mock-heading">Campaign Concept Generator</div>
+              <div class="mock-subhead">The big idea. Not just the brief.</div>
+              <div class="mock-field-group">
+                <div class="mock-field-label">Brand</div>
+                <div class="mock-field">Campari, Italian aperitivo brand</div>
+              </div>
+              <div class="mock-field-group">
+                <div class="mock-field-label">Objective</div>
+                <div class="mock-field">Reposition as an everyday ritual, not just a special occasion spirit</div>
+              </div>
+              <div class="mock-field-group">
+                <div class="mock-field-label">Audience</div>
+                <div class="mock-field">Urban 28–42, drinks culture, hospitality-adjacent</div>
+              </div>
+              <div class="mock-field-group">
+                <div class="mock-field-label">Budget Tier</div>
+                <div class="mock-field">Mid-range ($50K–$150K)</div>
+              </div>
+              <div class="mock-run-btn">Generate Concept</div>
+            </div>
+          </div>
+          <div class="mockup-caption">Input: brand, objective, audience, channels, budget tier.</div>
+        </div>
+
+        <!-- OUTPUT -->
+        <div>
+          <div class="mockup-wrapper">
+            <div class="mockup-titlebar">
+              <div class="dot dot-r"></div>
+              <div class="dot dot-y"></div>
+              <div class="dot dot-g"></div>
+              <span class="mockup-url">halle.studio/lab</span>
+            </div>
+            <div class="mockup-body">
+              <div class="mock-insight">
+                <div class="mock-insight-label">Strategic Insight</div>
+                <div class="mock-insight-text">Aperitivo culture is aspirational abroad but quotidian in Italy. The opportunity is in closing that gap: making the Tuesday Negroni feel as natural as the Saturday one.</div>
+              </div>
+              <div class="mock-output-section">
+                <div class="mock-output-title">Activations</div>
+                <div class="mock-output-item"><span class="mock-output-tag">01</span> "Tuesday Bitter" bar takeovers in 6 cities, weeknight-only</div>
+                <div class="mock-output-item"><span class="mock-output-tag">02</span> Creator series: bartenders film their personal weeknight pour</div>
+                <div class="mock-output-item"><span class="mock-output-tag">03</span> Limited glassware collab, only available Tues–Thurs</div>
+              </div>
+              <div class="mock-output-section">
+                <div class="mock-output-title">Content Pillars</div>
+                <div class="mock-output-item">The Weeknight Pour · Behind the Bar · The Bitter Truth</div>
+              </div>
+              <div class="mock-output-section">
+                <div class="mock-output-title">The Bold Move</div>
+                <div class="mock-output-item">Run a campaign that explicitly tells people <em>not</em> to save Campari for the weekend. Anti-occasion positioning.</div>
+              </div>
+            </div>
+          </div>
+          <div class="mockup-caption">Output: insight, activations, pillars, taglines, the bold move.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- TAKEAWAY -->
+  <div class="container">
+    <div class="takeaway anim-3">
+      <div class="section-label">The Takeaway</div>
+      <p class="takeaway-text">Most campaign concepts live in someone's head until a deadline forces them into a deck. This tool externalizes the process: given a brand, a goal, and a set of real-world constraints, it connects cultural insight to activations to measurement in a structure that's ready to present. It's the thinking behind the pitch, made visible.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <a href="/campaign-concept/" class="cta-btn">Try It Yourself →</a>
+    <div class="cta-note">AI-powered · Rate limited to 10 uses/day</div>
+  </div>
+
+  <div class="footer">
+    <a href="https://halle.studio">halle.studio</a>
+    <span class="footer-right">2026</span>
+  </div>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 10);
+    });
+  </script>
+</body>
+</html>
