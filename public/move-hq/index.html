@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MoveHQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --bg:#FAFAF8;--card:#FFF;--border:#E8E6E1;--blt:#F0EFEC;
+      --tx:#1C1B18;--tx2:#6B6965;--txm:#9B9890;
+      --ac:#0D9488;--acl:rgba(13,148,136,.07);
+      --red:#DC2626;--rl:rgba(220,38,38,.07);
+      --amb:#D97706;--al:rgba(217,119,6,.07);
+      --grn:#16A34A;--gl:rgba(22,163,74,.07);
+      --blu:#2563EB;--bl:rgba(37,99,235,.07);
+      --pur:#7C3AED;--pl:rgba(124,58,237,.07);
+      --sw:210px;--rad:6px;
+    }
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px}
+    ::selection{background:rgba(13,148,136,.15)}
+    #root{display:flex;min-height:100vh}
+    input,select,textarea,button{font-family:inherit;font-size:inherit}
+    input:focus,select:focus,textarea:focus{outline:2px solid var(--ac);outline-offset:-1px}
+
+    .sb{width:var(--sw);background:var(--card);border-right:1px solid var(--border);padding:20px 0;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:10;overflow-y:auto}
+    .sb-brand{padding:0 16px 16px;border-bottom:1px solid var(--blt);margin-bottom:12px}
+    .sb-brand h1{font-family:'DM Serif Display',serif;font-size:20px;font-weight:400;color:var(--ac)}
+    .sb-brand span{font-size:10px;color:var(--txm);font-family:'JetBrains Mono',monospace;display:block;margin-top:2px}
+    .nv{padding:0 8px;margin-bottom:4px}
+    .nvl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--txm);padding:10px 12px 4px}
+    .ni{display:flex;align-items:center;gap:9px;padding:7px 12px;border-radius:5px;cursor:pointer;font-size:13px;color:var(--tx2);transition:all .12s;user-select:none}
+    .ni:hover{background:var(--acl);color:var(--tx)}
+    .ni.on{background:var(--ac);color:#fff;font-weight:500}
+    .nii{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+    .sbf{margin-top:auto;padding:12px 16px;border-top:1px solid var(--blt)}
+    .sbf a{font-size:11px;color:var(--txm);text-decoration:none;font-family:'JetBrains Mono',monospace}
+    .sbf a:hover{color:var(--ac)}
+
+    .mn{margin-left:var(--sw);flex:1;padding:28px 36px 60px;max-width:960px}
+    .ph{margin-bottom:24px}
+    .ph h2{font-family:'DM Serif Display',serif;font-size:26px;font-weight:400;margin-bottom:3px}
+    .ph p{font-size:13px;color:var(--tx2)}
+
+    .cd{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:20px}
+    .ct{font-weight:600;font-size:13px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+    .sg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+    .sc{background:var(--card);border:1px solid var(--border);border-radius:var(--rad);padding:16px}
+    .sl{font-size:12px;color:var(--tx2);margin-bottom:4px}
+    .sv{font-size:22px;font-weight:600;font-family:'JetBrains Mono',monospace}
+    .ss{font-size:11px;color:var(--txm);margin-top:2px}
+
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:5px;border:1px solid var(--border);background:var(--card);color:var(--tx);font-size:13px;font-weight:500;cursor:pointer;transition:all .12s}
+    .btn:hover{border-color:var(--ac)}
+    .bp{background:var(--ac);color:#fff;border-color:var(--ac)}
+    .bp:hover{opacity:.9}
+    .bd{background:var(--red);color:#fff;border-color:var(--red)}
+
+    .tg{display:inline-flex;align-items:center;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600}
+    .tr{background:var(--rl);color:var(--red)}
+    .ta{background:var(--al);color:var(--amb)}
+    .tgr{background:var(--gl);color:var(--grn)}
+    .tb{background:var(--bl);color:var(--blu)}
+    .tp{background:var(--pl);color:var(--pur)}
+
+    table{width:100%;border-collapse:collapse}
+    th{text-align:left;font-size:11px;font-weight:600;color:var(--txm);text-transform:uppercase;letter-spacing:.04em;padding:8px 12px;border-bottom:1px solid var(--border)}
+    td{padding:10px 12px;border-bottom:1px solid var(--blt);font-size:13px}
+    tr:last-child td{border-bottom:none}
+
+    .bg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .bc{border:1px solid var(--border);border-radius:var(--rad);padding:16px;background:var(--card)}
+    .bn{font-weight:600;font-size:13px;margin-bottom:10px}
+    .br_{display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:4px}
+    .br_ span:last-child{font-family:'JetBrains Mono',monospace;color:var(--tx);font-weight:500}
+    .bar{height:4px;background:var(--blt);border-radius:2px;margin-top:8px;overflow:hidden}
+    .fill{height:100%;border-radius:2px;transition:width .3s}
+
+    .kb{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .kc{min-height:200px}
+    .kh{font-size:12px;font-weight:600;color:#fff;padding:6px 12px;border-radius:4px 4px 0 0;text-align:center}
+    .kbo{border:1px solid var(--border);border-top:none;border-radius:0 0 4px 4px;padding:8px;min-height:160px;background:var(--bg)}
+    .kd{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:10px;margin-bottom:6px;font-size:12px}
+    .kdt{font-weight:600;margin-bottom:4px}
+    .kdm{color:var(--tx2);font-size:11px;display:flex;gap:8px;flex-wrap:wrap}
+
+    .ti{border:1px solid var(--border);border-radius:var(--rad);padding:14px 16px;margin-bottom:8px;background:var(--card)}
+    .tt{display:flex;align-items:center;gap:10px;margin-bottom:4px;flex-wrap:wrap}
+    .tn{font-weight:500;font-size:13px}
+    .tm{font-size:11px;color:var(--tx2)}
+
+    .fg{margin-bottom:16px}
+    .fg label{display:block;font-size:12px;font-weight:600;margin-bottom:4px;color:var(--tx2)}
+    .fg input,.fg select,.fg textarea{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:4px;background:var(--card)}
+    .fg textarea{min-height:80px;resize:vertical}
+
+    .tabs{display:flex;gap:4px;margin-bottom:16px}
+    .tab{padding:6px 14px;border-radius:4px;font-size:12px;font-weight:500;cursor:pointer;color:var(--tx2);transition:all .12s;border:1px solid transparent}
+    .tab:hover{background:var(--acl)}
+    .tab.on{background:var(--ac);color:#fff}
+
+    .srow{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .srow label{width:160px;font-size:13px;flex-shrink:0}
+    .srow input[type=range]{flex:1;accent-color:var(--ac)}
+    .srow .sv2{width:40px;text-align:right;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500}
+
+    .ag{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+    .acd{border:1px solid var(--border);border-radius:var(--rad);padding:16px;background:var(--gl)}
+    .acd .acl{font-size:12px;color:var(--tx2)}
+    .acd .acv{font-size:20px;font-weight:600;font-family:'JetBrains Mono',monospace;color:var(--ac);margin:4px 0 2px}
+    .acd .acp{font-size:11px;color:var(--tx2)}
+
+    .uz{border:2px dashed var(--border);border-radius:var(--rad);padding:40px;text-align:center;color:var(--txm);cursor:pointer;transition:all .15s}
+    .uz:hover{border-color:var(--ac);background:var(--acl)}
+
+    .dc{border:1px solid var(--border);border-radius:var(--rad);padding:16px;margin-bottom:10px;background:var(--card)}
+    .dcd{font-size:11px;color:var(--txm);font-family:'JetBrains Mono',monospace}
+    .dct{font-size:14px;font-weight:500;margin:6px 0 4px}
+    .dcm{font-size:12px;color:var(--tx2)}
+
+    .dz{border:1px solid var(--red);border-radius:var(--rad);padding:20px;background:rgba(220,38,38,.03);margin-top:24px}
+
+    @media(max-width:768px){
+      .sb{width:60px;padding:12px 0}
+      .sb-brand h1,.sb-brand span,.nvl,.ni span:not(.nii){display:none}
+      .ni{justify-content:center;padding:10px}
+      .mn{margin-left:60px;padding:20px 16px}
+      .sg,.bg,.kb{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const {useState} = React;
+
+    const TASKS = [
+      {id:1,name:'Set move window dates',area:'Housing',prio:'High',status:'Done',who:'Person A',due:'Jan 10',desc:'Lock in the exact move-in dates'},
+      {id:2,name:'Research neighborhoods',area:'Housing',prio:'High',status:'Done',who:'Person B',due:'Jan 12',desc:'Narrow down target neighborhoods'},
+      {id:3,name:'Set up savings auto-transfer',area:'Money',prio:'High',status:'Done',who:'Person A',due:'Jan 15',desc:'Configure automatic transfers to move fund'},
+      {id:4,name:'Assemble rental paperwork',area:'Housing',prio:'High',status:'In Progress',who:'Person A',due:'Feb 1',desc:'Gather pay stubs, references, ID documents'},
+      {id:5,name:'Schedule apartment tours',area:'Housing',prio:'High',status:'In Progress',who:'Person B',due:'Feb 5',desc:'Book tours for shortlisted apartments'},
+      {id:6,name:'Payout allocation plan',area:'Money',prio:'High',status:'In Progress',who:'Person B',due:'Feb 8',desc:'Finalize how payout gets divided'},
+      {id:7,name:'Compare movers (get 3 quotes)',area:'Logistics',prio:'Med',status:'Not Started',who:'Person A',due:'Feb 15',desc:'Get quotes from at least 3 moving companies'},
+      {id:8,name:'Notify landlord — 60 day notice',area:'Housing',prio:'High',status:'Not Started',who:'Person A',due:'Feb 20',desc:'Submit written notice to current landlord'},
+      {id:9,name:'Forward mail / update address',area:'Logistics',prio:'Med',status:'Not Started',who:'Person B',due:'Mar 1',desc:'USPS mail forwarding + update key accounts'},
+      {id:10,name:'Sell / donate furniture',area:'Logistics',prio:'Low',status:'Not Started',who:'Person A',due:'Mar 10',desc:'Inventory what stays and what goes'},
+    ];
+
+    const LISTINGS = [
+      {id:1,addr:'544 4th Ave #3',hood:'Park Slope',br:2,price:3250,status:'Backlog',found:'Both'},
+      {id:2,addr:'221 E 12th St #4B',hood:'East Village',br:1,price:2800,status:'Ready',found:'Person A'},
+      {id:3,addr:'87 Montague St #6',hood:'Brooklyn Heights',br:2,price:3600,status:'Doing',found:'Person B'},
+      {id:4,addr:'415 Grand Ave #2R',hood:'Clinton Hill',br:2,price:2950,status:'Ready',found:'Person A'},
+    ];
+
+    const DECISIONS = [
+      {id:1,date:'Jan 8, 2026',text:'Move window set for March 1–15',owner:'Both',notes:'Gives us 8 weeks to prep. Aligns with lease end.'},
+      {id:2,date:'Jan 15, 2026',text:'Target neighborhoods: Brooklyn Heights, Park Slope, Clinton Hill',owner:'Both',notes:'Prioritizing walkability and commute under 30 min.'},
+      {id:3,date:'Jan 22, 2026',text:'Going with broker instead of solo search',owner:'Person A',notes:'Worth the fee for access to off-market listings.'},
+      {id:4,date:'Feb 3, 2026',text:'Max rent budget: $3,400/mo',owner:'Both',notes:'Based on combined income after payout allocation.'},
+    ];
+
+    const BCAT = [
+      {name:'Groceries',target:600,spent:412},{name:'Dining',target:400,spent:285},{name:'Gas/Transit',target:200,spent:60},
+      {name:'Utilities',target:250,spent:189},{name:'Subscriptions',target:150,spent:134},{name:'Fun',target:300,spent:178},{name:'Misc',target:200,spent:45},
+    ];
+
+    const NAV = [
+      {id:'dash',icon:'📊',label:'Dashboard',sec:'overview'},
+      {id:'vibe',icon:'💛',label:'Vibe Check',sec:'overview'},
+      {id:'budget',icon:'💰',label:'Budget',sec:'money'},
+      {id:'payout',icon:'📋',label:'Payout Planner',sec:'money'},
+      {id:'listings',icon:'🏠',label:'Listings',sec:'housing'},
+      {id:'tasks',icon:'✓',label:'Tasks',sec:'planning'},
+      {id:'decisions',icon:'⚡',label:'Decisions',sec:'planning'},
+      {id:'paper',icon:'📎',label:'Paperwork',sec:'planning'},
+      {id:'settings',icon:'⚙',label:'Settings',sec:'system'},
+    ];
+    const SECS = {overview:'Overview',money:'Money',housing:'Housing',planning:'Planning',system:''};
+
+    function Sidebar({pg,setPg}) {
+      let cur = null;
+      return (
+        <div className="sb">
+          <div className="sb-brand"><h1>MoveHQ</h1><span>Life management app</span></div>
+          <div className="nv">
+            {NAV.map(n => {
+              const show = SECS[n.sec] && n.sec !== cur;
+              if(show) cur = n.sec;
+              return (<React.Fragment key={n.id}>
+                {show && <div className="nvl">{SECS[n.sec]}</div>}
+                <div className={`ni${pg===n.id?' on':''}`} onClick={()=>setPg(n.id)}>
+                  <span className="nii">{n.icon}</span><span>{n.label}</span>
+                </div>
+              </React.Fragment>);
+            })}
+          </div>
+          <div className="sbf"><a href="/">← Back to Lab</a></div>
+        </div>
+      );
+    }
+
+    function Dashboard({setPg}) {
+      const tBud = BCAT.reduce((s,c)=>s+c.target,0);
+      const tSp = BCAT.reduce((s,c)=>s+c.spent,0);
+      const done = TASKS.filter(t=>t.status==='Done').length;
+      return (<div>
+        <div className="ph"><h2>Dashboard</h2><p>Your financial and life overview</p></div>
+        <div className="sg">
+          <div className="sc"><div className="sl">Monthly Budget</div><div className="sv" style={{color:tSp>tBud?'var(--red)':'var(--ac)'}}>${tSp.toLocaleString()}</div><div className="ss">${tBud.toLocaleString()} target</div><div className="bar" style={{marginTop:8}}><div className="fill" style={{width:`${Math.min(100,tSp/tBud*100)}%`,background:'var(--ac)'}}></div></div></div>
+          <div className="sc"><div className="sl">Move Window</div><div className="sv" style={{color:'var(--amb)'}}>18 days</div><div className="ss">Mar 1 – Mar 15, 2026</div></div>
+          <div className="sc"><div className="sl">Apartments Tracked</div><div className="sv">{LISTINGS.length}</div><div className="ss">Total listings tracked</div></div>
+        </div>
+        <div className="cd" style={{marginBottom:16}}>
+          <div className="ct">💛 Vibe Check</div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <div style={{textAlign:'center',flex:1}}><div style={{fontSize:12,color:'var(--tx2)'}}>Person A</div><div style={{fontSize:28,fontWeight:700,color:'var(--grn)'}}>72</div><div style={{fontSize:11,color:'var(--tx2)'}}>Good</div></div>
+            <div style={{flex:2,margin:'0 20px'}}><div style={{height:12,borderRadius:6,background:'linear-gradient(to right,#DC2626,#FBBF24,#22C55E)',position:'relative'}}><div style={{width:18,height:18,borderRadius:'50%',border:'3px solid #fff',boxShadow:'0 1px 4px rgba(0,0,0,.2)',position:'absolute',top:'50%',left:'72%',transform:'translate(-50%,-50%)',background:'#22C55E'}}></div></div></div>
+            <div style={{textAlign:'center',flex:1}}><div style={{fontSize:12,color:'var(--tx2)'}}>Person B</div><div style={{fontSize:28,fontWeight:700,color:'var(--amb)'}}>58</div><div style={{fontSize:11,color:'var(--tx2)'}}>Neutral</div></div>
+          </div>
+          <div style={{textAlign:'center',marginTop:12}}><button className="btn" onClick={()=>setPg('vibe')}>Log Today's Vibe</button></div>
+        </div>
+        <div className="cd">
+          <div className="ct" style={{justifyContent:'space-between'}}><span>✓ Next Tasks</span><span style={{fontSize:11,color:'var(--ac)',cursor:'pointer',fontWeight:400}} onClick={()=>setPg('tasks')}>View All →</span></div>
+          {TASKS.filter(t=>t.status!=='Done').slice(0,5).map(t=>(<div key={t.id} className="ti" style={{padding:'10px 14px',marginBottom:6}}>
+            <div className="tt"><span className="tn">{t.name}</span>{t.status==='Not Started'?<span className="tg ta">Upcoming</span>:<span className="tg tb">In Progress</span>}</div>
+            <div className="tm"><span className="tg" style={{background:t.area==='Housing'?'var(--gl)':t.area==='Money'?'var(--al)':'var(--bl)',color:t.area==='Housing'?'var(--grn)':t.area==='Money'?'var(--amb)':'var(--blu)',marginRight:4}}>{t.area}</span> · {t.who} · Due {t.due}</div>
+          </div>))}
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginTop:16}}>
+          <div className="sc" style={{cursor:'pointer'}} onClick={()=>setPg('tasks')}><div className="sl">Tasks Progress</div><div className="sv">{done}/{TASKS.length}</div><div className="bar" style={{marginTop:6}}><div className="fill" style={{width:`${done/TASKS.length*100}%`,background:'var(--grn)'}}></div></div></div>
+          <div className="sc" style={{cursor:'pointer'}} onClick={()=>setPg('decisions')}><div className="sl">Decisions Logged</div><div className="sv">{DECISIONS.length}</div><div className="ss">Last: {DECISIONS[DECISIONS.length-1].date}</div></div>
+        </div>
+      </div>);
+    }
+
+    function VibeCheck() {
+      const [vA,setVA]=useState(72),[vB,setVB]=useState(58),[notes,setNotes]=useState('');
+      const lbl=v=>v>=75?'Great':v>=55?'Good':v>=35?'Neutral':v>=20?'Low':'Rough';
+      const clr=v=>v>=55?'var(--grn)':v>=35?'var(--amb)':'var(--red)';
+      const hist=[{d:'Feb 24',a:68,b:62},{d:'Feb 23',a:75,b:70},{d:'Feb 22',a:55,b:48,n:'Apartment fell through'},{d:'Feb 21',a:80,b:72},{d:'Feb 20',a:65,b:60}];
+      return (<div>
+        <div className="ph"><h2>Vibe Check</h2><p>Track your daily vibe</p></div>
+        <div className="cd" style={{marginBottom:16}}>
+          <div className="ct">Today's Feelings — Feb 25, 2026</div>
+          <div style={{display:'flex',gap:40,alignItems:'center',margin:'20px 0'}}>
+            <div style={{flex:1,textAlign:'center'}}><div style={{fontSize:12,color:'var(--tx2)',marginBottom:4}}>Person A</div><div style={{fontSize:36,fontWeight:700,color:clr(vA)}}>{vA}</div><div style={{fontSize:12,color:'var(--tx2)'}}>{lbl(vA)}</div><input type="range" min="0" max="100" value={vA} onChange={e=>setVA(+e.target.value)} style={{width:'100%',marginTop:8,accentColor:'var(--ac)'}} /></div>
+            <div style={{flex:1,textAlign:'center'}}><div style={{fontSize:12,color:'var(--tx2)',marginBottom:4}}>Person B</div><div style={{fontSize:36,fontWeight:700,color:clr(vB)}}>{vB}</div><div style={{fontSize:12,color:'var(--tx2)'}}>{lbl(vB)}</div><input type="range" min="0" max="100" value={vB} onChange={e=>setVB(+e.target.value)} style={{width:'100%',marginTop:8,accentColor:'var(--ac)'}} /></div>
+          </div>
+          <div className="fg"><label>Notes (optional)</label><textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder="How are things going? Any thoughts to share..." /></div>
+          <div style={{display:'flex',gap:8}}><button className="btn bp" style={{flex:1}}>Save Person A's Vibe</button><button className="btn" style={{flex:1,background:'var(--al)',borderColor:'var(--amb)',color:'var(--amb)'}}>Save Person B's Vibe</button></div>
+        </div>
+        <div className="cd" style={{marginBottom:16}}>
+          <div className="ct">📈 30-Day Trend</div>
+          <div style={{display:'flex',alignItems:'flex-end',gap:3,height:100,padding:'10px 0'}}>
+            {[65,70,55,48,72,68,80,55,75,60,72,68,62,58,70,74,80,65,55,60,72,78,68,55,62,75,68,72,58,72].map((v,i)=>(<div key={i} style={{flex:1}}><div style={{height:`${v}%`,background:v>=55?'var(--gl)':v>=35?'var(--al)':'var(--rl)',borderRadius:2,border:`1px solid ${v>=55?'rgba(22,163,74,.2)':v>=35?'rgba(217,119,6,.2)':'rgba(220,38,38,.2)'}`}}></div></div>))}
+          </div>
+          <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'var(--txm)',fontFamily:"'JetBrains Mono',monospace"}}><span>Jan 27</span><span>Feb 10</span><span>Feb 25</span></div>
+        </div>
+        <div className="cd">
+          <div className="ct">History</div>
+          <table><thead><tr><th>Date</th><th>Person A</th><th>Person B</th><th>Notes</th></tr></thead>
+          <tbody>{hist.map((h,i)=>(<tr key={i}><td style={{fontFamily:"'JetBrains Mono',monospace",fontSize:12}}>{h.d}</td><td><span style={{fontWeight:600,color:clr(h.a)}}>{h.a}</span> <span style={{fontSize:11,color:'var(--txm)'}}>{lbl(h.a)}</span></td><td><span style={{fontWeight:600,color:clr(h.b)}}>{h.b}</span> <span style={{fontSize:11,color:'var(--txm)'}}>{lbl(h.b)}</span></td><td style={{fontSize:12,color:'var(--tx2)'}}>{h.n||'—'}</td></tr>))}</tbody></table>
+        </div>
+      </div>);
+    }
+
+    function BudgetPage() {
+      const [tab,setTab]=useState('Combined');
+      return (<div>
+        <div className="ph"><div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}><div><h2>Budget Summary</h2><p>Monthly spending overview (2026-02)</p></div><button className="btn">↓ Export CSV</button></div></div>
+        <div className="tabs">{['Combined','Person A','Person B'].map(t=>(<div key={t} className={`tab${tab===t?' on':''}`} onClick={()=>setTab(t)}>{t}</div>))}</div>
+        <div className="bg">{BCAT.map(c=>{const sp=tab==='Combined'?c.spent:tab==='Person A'?Math.round(c.spent*.55):Math.round(c.spent*.45);const tg=tab==='Combined'?c.target:tab==='Person A'?Math.round(c.target*.55):Math.round(c.target*.45);const p=Math.round(sp/tg*100);return(<div key={c.name} className="bc"><div className="bn">{c.name}</div><div className="br_"><span>Spent:</span><span>${sp.toFixed(2)}</span></div><div className="br_"><span>Target:</span><span>${tg.toFixed(2)}</span></div><div className="br_"><span>Remaining:</span><span style={{color:sp>tg?'var(--red)':'var(--grn)'}}>${(tg-sp).toFixed(2)}</span></div><div className="bar"><div className="fill" style={{width:`${Math.min(100,p)}%`,background:p>=90?'var(--red)':p>=70?'var(--amb)':'var(--ac)'}}></div></div><div style={{fontSize:11,color:'var(--txm)',marginTop:4,textAlign:'right'}}>{p}% used</div></div>)})}</div>
+      </div>);
+    }
+
+    function PayoutPlanner() {
+      const [amt,setAmt]=useState(10000),[debt,setDebt]=useState(30),[mf,setMf]=useState(50),[rw,setRw]=useState(20);
+      const tot=debt+mf+rw;const ok=tot===100;
+      return (<div>
+        <div className="ph"><h2>Payout Planner</h2><p>Plan how to allocate your payouts</p></div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+          <div className="cd">
+            <div className="ct">💲 Configure Payout</div>
+            <div className="fg"><label>Payout Amount</label><input type="number" value={amt} onChange={e=>setAmt(+e.target.value)} /></div>
+            <div style={{margin:'8px 0 16px'}}>
+              <div className="srow"><label>Debt Payment</label><input type="range" min="0" max="100" value={debt} onChange={e=>setDebt(+e.target.value)} /><span className="sv2">{debt}%</span></div>
+              <div className="srow"><label>Move Fund</label><input type="range" min="0" max="100" value={mf} onChange={e=>setMf(+e.target.value)} /><span className="sv2">{mf}%</span></div>
+              <div className="srow"><label>Runway/Emergency</label><input type="range" min="0" max="100" value={rw} onChange={e=>setRw(+e.target.value)} /><span className="sv2">{rw}%</span></div>
+            </div>
+            <div className="cd" style={{background:ok?'var(--gl)':'var(--rl)',border:`1px solid ${ok?'rgba(22,163,74,.2)':'rgba(220,38,38,.2)'}`}}>
+              <div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontWeight:600}}>Total Allocation</span><span style={{fontFamily:"'JetBrains Mono',monospace",fontWeight:600,fontSize:18}}>{tot}%</span></div>
+              <div style={{fontSize:12,color:ok?'var(--grn)':'var(--red)',marginTop:2}}>{ok?'✓ Valid':'⚠ Must equal 100%'}</div>
+            </div>
+          </div>
+          <div>
+            <div className="cd" style={{marginBottom:12}}>
+              <div className="ct">📊 Allocation Breakdown</div>
+              <div className="ag">
+                {[{l:'Debt Payment',p:debt},{l:'Move Fund',p:mf},{l:'Runway/Emergency',p:rw}].map(x=>(<div key={x.l} className="acd"><div className="acl">{x.l}</div><div className="acv">${(amt*x.p/100).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</div><div className="acp">{x.p}% of payout</div></div>))}
+              </div>
+            </div>
+            <button className="btn bp" style={{width:'100%'}}>Save Scenario</button>
+          </div>
+        </div>
+      </div>);
+    }
+
+    function ListingsPage() {
+      const [fl,setFl]=useState('All');
+      const cols=['Backlog','Ready','Doing','Done'];
+      const cc={Backlog:'var(--txm)',Ready:'var(--blu)',Doing:'var(--amb)',Done:'var(--grn)'};
+      return (<div>
+        <div className="ph"><div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}><div><h2>Listings Board</h2><p>Track apartment searches</p></div><div style={{display:'flex',gap:8}}><button className="btn">↓ Export</button><button className="btn">↑ Import</button><button className="btn bp">+ Add Listing</button></div></div></div>
+        <div style={{marginBottom:16,display:'flex',alignItems:'center',gap:8}}><span style={{fontSize:12,color:'var(--tx2)'}}>Found by:</span><select value={fl} onChange={e=>setFl(e.target.value)} style={{padding:'4px 8px',border:'1px solid var(--border)',borderRadius:4,fontSize:12}}><option>All</option><option>Person A</option><option>Person B</option></select></div>
+        <div className="kb">{cols.map(col=>{const items=LISTINGS.filter(l=>l.status===col&&(fl==='All'||l.found===fl||l.found==='Both'));return(<div key={col} className="kc"><div className="kh" style={{background:cc[col]}}>{col} ({items.length})</div><div className="kbo">{items.map(l=>(<div key={l.id} className="kd"><div className="kdt">{l.addr}</div><div className="kdm"><span>{l.hood}</span><span>{l.br} BR</span><span>Found: {l.found}</span></div><div style={{fontSize:13,fontWeight:600,color:'var(--ac)',marginTop:4,fontFamily:"'JetBrains Mono',monospace"}}>${l.price.toLocaleString()}/mo</div><div style={{marginTop:6}}><select defaultValue={l.status} style={{width:'100%',padding:'3px 6px',fontSize:11,border:'1px solid var(--border)',borderRadius:3}}>{cols.map(c=><option key={c}>{c}</option>)}</select></div></div>))}{items.length===0&&<div style={{fontSize:12,color:'var(--txm)',textAlign:'center',padding:20}}>No listings</div>}</div></div>)})}</div>
+      </div>);
+    }
+
+    function TasksPage() {
+      const [vw,setVw]=useState('List'),[af,setAf]=useState('All'),[sf,setSf]=useState('All');
+      const fd=TASKS.filter(t=>(af==='All'||t.area===af)&&(sf==='All'||t.status===sf));
+      const sc=s=>s==='Done'?'tgr':s==='In Progress'?'tb':'ta';
+      const pc=p=>p==='High'?'tr':p==='Med'?'ta':'tp';
+      const ac=a=>a==='Housing'?['var(--gl)','var(--grn)']:a==='Money'?['var(--al)','var(--amb)']:['var(--bl)','var(--blu)'];
+      return (<div>
+        <div className="ph"><div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}><div><h2>Tasks</h2><p>Manage your move tasks</p></div><button className="btn bp">+ New Task</button></div></div>
+        <div style={{display:'flex',gap:8,marginBottom:16,flexWrap:'wrap'}}>
+          <div className="tabs" style={{marginBottom:0}}>{['List','Kanban'].map(v=><div key={v} className={`tab${vw===v?' on':''}`} onClick={()=>setVw(v)}>{v}</div>)}</div>
+          <select value={af} onChange={e=>setAf(e.target.value)} style={{padding:'4px 8px',border:'1px solid var(--border)',borderRadius:4,fontSize:12}}><option>All</option><option>Housing</option><option>Money</option><option>Logistics</option></select>
+          <select value={sf} onChange={e=>setSf(e.target.value)} style={{padding:'4px 8px',border:'1px solid var(--border)',borderRadius:4,fontSize:12}}><option>All</option><option>Not Started</option><option>In Progress</option><option>Done</option></select>
+        </div>
+        {vw==='List'?(<div>{fd.map(t=>{const [bg,fg]=ac(t.area);return(<div key={t.id} className="ti"><div className="tt"><span className="tn">{t.name}</span><span className={`tg ${sc(t.status)}`}>{t.status}</span><span className={`tg ${pc(t.prio)}`}>{t.prio}</span></div><div className="tm"><span className="tg" style={{background:bg,color:fg,marginRight:4}}>{t.area}</span> · {t.who} · Due {t.due} {t.desc&&<span style={{color:'var(--txm)'}}>— {t.desc}</span>}</div></div>)})}</div>):(
+          <div className="kb" style={{gridTemplateColumns:'repeat(3,1fr)'}}>{['Not Started','In Progress','Done'].map(st=>{const items=fd.filter(t=>t.status===st);const color=st==='Done'?'var(--grn)':st==='In Progress'?'var(--blu)':'var(--txm)';return(<div key={st} className="kc"><div className="kh" style={{background:color}}>{st} ({items.length})</div><div className="kbo">{items.map(t=>(<div key={t.id} className="kd"><div className="kdt">{t.name}</div><div className="kdm"><span className={`tg ${pc(t.prio)}`}>{t.prio}</span><span>{t.who}</span><span>{t.due}</span></div></div>))}</div></div>)})}</div>
+        )}
+      </div>);
+    }
+
+    function DecisionsPage() {
+      const [show,setShow]=useState(false);
+      return (<div>
+        <div className="ph"><div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}><div><h2>Decision Log</h2><p>Track important decisions</p></div><button className="btn bp" onClick={()=>setShow(!show)}>+ Log Decision</button></div></div>
+        {show&&(<div className="cd" style={{marginBottom:16}}>
+          <div className="ct">New Decision</div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}><div className="fg"><label>Date</label><input type="text" defaultValue="02/25/2026" /></div><div className="fg"><label>Owner</label><select><option>Both</option><option>Person A</option><option>Person B</option></select></div></div>
+          <div className="fg"><label>Decision</label><textarea placeholder="What was decided?" /></div>
+          <div className="fg"><label>Notes (Optional)</label><textarea placeholder="Additional context..." style={{minHeight:60}} /></div>
+          <div className="fg"><label>Review Date (Optional)</label><input type="text" placeholder="MM/DD/YYYY" /></div>
+          <button className="btn bp">Log Decision</button>
+        </div>)}
+        {DECISIONS.slice().reverse().map(d=>(<div key={d.id} className="dc"><div className="dcd">{d.date}</div><div className="dct">{d.text}</div><div className="dcm">Owner: {d.owner} {d.notes&&<span style={{color:'var(--txm)'}}>— {d.notes}</span>}</div></div>))}
+      </div>);
+    }
+
+    function PaperworkPage() {
+      const docs=[
+        {name:'Pay stubs (Jan-Feb)',type:'Financial',up:'Feb 15, 2026',ok:true},
+        {name:'Employment verification letter',type:'Financial',up:'Feb 18, 2026',ok:true},
+        {name:'Photo ID (front + back)',type:'ID Document',up:'Feb 10, 2026',ok:true},
+        {name:'Previous landlord reference',type:'Reference',up:'Feb 20, 2026',ok:true},
+        {name:'Bank statements (3 months)',type:'Financial',up:'',ok:false},
+        {name:'Tax return (2025)',type:'Financial',up:'',ok:false},
+      ];
+      const ready=docs.filter(d=>d.ok).length;
+      return (<div>
+        <div className="ph"><h2>Paperwork Vault</h2><p>Securely store important documents</p></div>
+        <div className="uz" style={{marginBottom:20}}>
+          <div style={{fontSize:24,marginBottom:8}}>↑</div>
+          <div style={{fontWeight:500,color:'var(--tx)'}}>Upload Document</div>
+          <div style={{fontSize:12,marginTop:4}}>PDF, JPG, or PNG (max 10MB)</div>
+          <div style={{display:'flex',gap:8,justifyContent:'center',marginTop:12}}>
+            <select style={{padding:'4px 8px',border:'1px solid var(--border)',borderRadius:4,fontSize:12}}><option>ID Document</option><option>Financial</option><option>Reference</option><option>Lease</option><option>Other</option></select>
+            <button className="btn bp" style={{padding:'4px 12px',fontSize:12}}>Choose File</button>
+          </div>
+        </div>
+        <div className="cd">
+          <div className="ct">📁 Documents</div>
+          <table><thead><tr><th>Document</th><th>Type</th><th>Uploaded</th><th>Status</th></tr></thead>
+          <tbody>{docs.map((d,i)=>(<tr key={i}><td style={{fontWeight:500}}>{d.name}</td><td><span className="tg tb">{d.type}</span></td><td style={{fontFamily:"'JetBrains Mono',monospace",fontSize:12}}>{d.up||'—'}</td><td>{d.ok?<span className="tg tgr">✓ Ready</span>:<span className="tg tr">Missing</span>}</td></tr>))}</tbody></table>
+        </div>
+        <div style={{marginTop:12,fontSize:12,color:'var(--txm)',display:'flex',justifyContent:'space-between'}}>
+          <span>{ready} of {docs.length} documents ready</span>
+          <span style={{color:ready<docs.length?'var(--red)':'var(--grn)'}}>{ready<docs.length?'⚠ Missing documents':'✓ All documents ready'}</span>
+        </div>
+      </div>);
+    }
+
+    function SettingsPage() {
+      const [b,setB]=useState(3000),[mg,setMg]=useState(25000),[fb,setFb]=useState(200),[inc,setInc]=useState(8500),[sd,setSd]=useState('03/01/2026'),[ed,setEd]=useState('03/15/2026');
+      return (<div>
+        <div className="ph"><h2>Settings</h2><p>Configure your budget targets and goals</p></div>
+        <div className="cd">
+          <div className="ct">Budget & Goals</div>
+          <div style={{maxWidth:500}}>
+            {[{l:'Monthly Budget Target',v:b,s:setB,h:'Your target total spending for the month'},
+              {l:'Move Reserve Goal',v:mg,s:setMg,h:'Your savings goal for the move'},
+              {l:'Weekly Fun Budget',v:fb,s:setFb,h:'Weekly budget for entertainment and fun'},
+              {l:'Household Monthly Income',v:inc,s:setInc,h:'Combined monthly income for the household'}
+            ].map(f=>(<div key={f.l} className="fg"><label>{f.l}</label><div style={{display:'flex',alignItems:'center',gap:4}}><span style={{color:'var(--tx2)'}}>$</span><input type="number" value={f.v} onChange={e=>f.s(+e.target.value)} /></div><span style={{fontSize:11,color:'var(--txm)'}}>{f.h}</span></div>))}
+            <div className="fg"><label>Move Window Start Date</label><input type="text" value={sd} onChange={e=>setSd(e.target.value)} /><span style={{fontSize:11,color:'var(--txm)'}}>Target start date for your move</span></div>
+            <div className="fg"><label>Move Window End Date</label><input type="text" value={ed} onChange={e=>setEd(e.target.value)} /><span style={{fontSize:11,color:'var(--txm)'}}>Target end date for your move</span></div>
+            <button className="btn bp" style={{width:'100%'}}>⚙ Save Settings</button>
+          </div>
+        </div>
+        <div className="dz">
+          <div style={{fontSize:14,fontWeight:600,color:'var(--red)',marginBottom:8}}>⚠ Danger Zone</div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            <div><div style={{fontWeight:500,fontSize:13}}>Reset Vibe Data</div><div style={{fontSize:12,color:'var(--tx2)'}}>Delete all vibe entries and start fresh</div></div>
+            <button className="btn bd">Reset Vibe Data</button>
+          </div>
+        </div>
+      </div>);
+    }
+
+    function App() {
+      const [pg,setPg]=useState('dash');
+      const pages={dash:<Dashboard setPg={setPg}/>,vibe:<VibeCheck/>,budget:<BudgetPage/>,payout:<PayoutPlanner/>,listings:<ListingsPage/>,tasks:<TasksPage/>,decisions:<DecisionsPage/>,paper:<PaperworkPage/>,settings:<SettingsPage/>};
+      return (<><Sidebar pg={pg} setPg={setPg}/><div className="mn">{pages[pg]}</div></>);
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+  </script>
+</body>
+</html>
