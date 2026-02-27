@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cowgirl Down — Lab — Halle Gilbert</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #FAF9F6;
+      --text: #1C1B18;
+      --muted: #4A4843;
+      --faint: #8A8780;
+      --border: #E2E0DB;
+      --accent: #A0522D;
+      --accent-dark: #7A3E22;
+      --accent-bg: rgba(160,82,45,0.04);
+      --accent-tag: rgba(160,82,45,0.08);
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+      --serif: 'Instrument Serif', serif;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: rgba(160,82,45,0.12); }
+
+    .nav {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: rgba(250,249,246,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 100;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+    .nav.scrolled { border-bottom-color: var(--border); }
+    .nav-back {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-back:hover { opacity: 0.7; }
+    .nav-number {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--faint);
+    }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 0 40px; }
+
+    .hero {
+      padding: 80px 0 48px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-tag);
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 2px;
+      margin-bottom: 24px;
+      font-weight: 700;
+    }
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 400;
+      line-height: 1.05;
+      color: var(--text);
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+    .hero-subtitle {
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--muted);
+      max-width: 580px;
+    }
+    .tech-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .tech-chip {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--faint);
+    }
+
+    .divider { height: 1px; background: var(--border); }
+
+    .section { padding: 48px 0; }
+    .section-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 24px;
+    }
+
+    .breakdown { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
+    .breakdown-item {
+      display: flex;
+      gap: 20px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .breakdown-item:last-child { border-bottom: none; }
+    .breakdown-key {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      min-width: 100px;
+      flex-shrink: 0;
+      padding-top: 3px;
+    }
+    .breakdown-val {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+    .breakdown-val em { font-style: italic; color: var(--text); }
+
+    /* VISUAL GALLERY */
+    .gallery-section { padding: 48px 0; }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .gallery-item {
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .gallery-full {
+      grid-column: 1 / -1;
+    }
+
+    /* MOCKUP */
+    .mockup-wrapper {
+      background: #F0EFEC;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.02);
+    }
+    .mockup-titlebar {
+      background: #E8E6E2;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .dot-r { background: #E8645A; }
+    .dot-y { background: #F0C350; }
+    .dot-g { background: #6BC86E; }
+    .mockup-url {
+      margin-left: 10px;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--faint);
+      letter-spacing: 0.02em;
+    }
+    .mockup-caption {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      letter-spacing: 0.04em;
+      text-align: center;
+      margin-top: 14px;
+    }
+
+    /* SITE MOCKUP */
+    .site-mock {
+      background: #F5F0E8;
+      padding: 40px 32px;
+      text-align: center;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .site-mock h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: #2C2418;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .site-mock .tagline {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 13px;
+      color: #8B7D6B;
+      margin-bottom: 20px;
+    }
+    .site-mock .myth {
+      font-family: var(--sans);
+      font-size: 12px;
+      line-height: 1.7;
+      color: #6B5D4F;
+      max-width: 320px;
+      margin-bottom: 20px;
+    }
+    .site-mock .email-mock {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .site-mock .email-mock input {
+      padding: 8px 12px;
+      border: 1px solid #D4CFC4;
+      background: rgba(255,255,255,0.6);
+      font-family: var(--sans);
+      font-size: 10px;
+      color: #6B5D4F;
+      border-radius: 2px;
+      width: 160px;
+    }
+    .site-mock .email-mock button {
+      padding: 8px 14px;
+      background: #2C2418;
+      color: #F5F0E8;
+      border: none;
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 2px;
+      cursor: default;
+    }
+
+    /* HAT MOCKUPS */
+    .hat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .hat-card {
+      background: #F5F0E8;
+      border: 1px solid #E0D9CE;
+      border-radius: 3px;
+      padding: 16px 10px 12px;
+      text-align: center;
+    }
+    .hat-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+      filter: grayscale(20%);
+    }
+    .hat-name {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6B5D4F;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .hat-desc {
+      font-size: 9px;
+      color: #8B7D6B;
+      margin-top: 4px;
+      line-height: 1.3;
+    }
+
+    /* FLYER MOCKUP */
+    .flyer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    .flyer-card {
+      background: #FFFEF8;
+      border: 1px solid #E0D9CE;
+      border-radius: 2px;
+      padding: 16px 12px;
+      text-align: center;
+      position: relative;
+    }
+    .flyer-day {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .flyer-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #2C2418;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .flyer-text {
+      font-family: var(--sans);
+      font-size: 9px;
+      line-height: 1.5;
+      color: #6B5D4F;
+    }
+    .flyer-footer {
+      font-family: var(--mono);
+      font-size: 7px;
+      color: #8B7D6B;
+      margin-top: 8px;
+      letter-spacing: 0.06em;
+    }
+
+    .takeaway { padding: 48px 0; }
+    .takeaway-text {
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--muted);
+      max-width: 600px;
+      border-left: 2px solid var(--accent);
+      padding-left: 24px;
+    }
+
+    .cta-section {
+      padding: 48px 0 56px;
+      text-align: center;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 16px 48px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+    .cta-btn:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(160,82,45,0.2);
+    }
+    .cta-note {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      margin-top: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    .footer {
+      padding: 24px 40px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .footer a:hover { text-decoration: underline; }
+    .footer-right {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-1 { animation: fadeUp 0.5s ease 0.1s both; }
+    .anim-2 { animation: fadeUp 0.5s ease 0.2s both; }
+    .anim-3 { animation: fadeUp 0.5s ease 0.3s both; }
+    .anim-4 { animation: fadeUp 0.5s ease 0.4s both; }
+    .anim-5 { animation: fadeUp 0.5s ease 0.5s both; }
+
+    @media (max-width: 700px) {
+      .container { padding: 0 24px; }
+      .nav { padding: 16px 24px; }
+      .hero { padding: 56px 0 40px; }
+      .gallery-grid { grid-template-columns: 1fr; }
+      .hat-grid { grid-template-columns: repeat(2, 1fr); }
+      .flyer-grid { grid-template-columns: 1fr; }
+      .footer { padding: 20px 24px; }
+      .breakdown-item { flex-direction: column; gap: 4px; }
+      .breakdown-key { min-width: unset; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <a href="/" class="nav-back">← Back to Lab</a>
+    <span class="nav-number">07 / 08</span>
+  </nav>
+
+  <div class="container">
+    <div class="hero">
+      <span class="hero-tag">Campaign</span>
+      <h1>Cowgirl<br>Down</h1>
+      <p class="hero-subtitle">Full brand campaign for a fictional western concept. Strategy, identity, product line, guerrilla distribution, and a phased website. From myth to merch.</p>
+      <div class="tech-chips">
+        <span class="tech-chip">HTML · SVG</span>
+        <span class="tech-chip">Brand Strategy</span>
+        <span class="tech-chip">Campaign Design</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="section anim-1">
+      <div class="section-label">The Concept</div>
+      <div class="breakdown">
+        <div class="breakdown-item">
+          <span class="breakdown-key">Origin</span>
+          <span class="breakdown-val">I wanted to make a bunch of hats. Western-themed, with slogans I'd been collecting. I was heading to Under the Big Sky Music Festival in Whitefish, Montana, and I thought: what if the hats weren't just merch? What if the way I sold them was the story itself?</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-key">The Brand</span>
+          <span class="breakdown-val">Cowgirl Down is a fictional character and a brand built around her. She's a sad, disappeared cowgirl femme fatale whose story unfolds over three days at the festival. Nobody knows where she went. Nobody knows if she fell or if she left. The ambiguity is the hook. The brand identity sits somewhere between rodeo typography, 1970s desert print ephemera, and highway signage. Gritty, not curated. Found, not designed.</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-key">The System</span>
+          <span class="breakdown-val">The marketing, the product, and the narrative are all the same thing. Flyers posted in women's restrooms and festival grounds, designed like wanted posters with pull tabs at the bottom, drive people to the website. The website follows her story in a Gossip Girl-style daily dispatch format: Day 1, she shows up. Day 2, she's spotted again. Day 3, she's gone. Each dispatch names real bars in downtown Whitefish and builds on the last. The hats are woven into the narrative but never hard-sold. You find the brand the same way you'd find a rumor.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- WEBSITE MOCKUP -->
+  <div class="container">
+    <div class="gallery-section anim-2">
+      <div class="section-label">The Website</div>
+      <div class="mockup-wrapper">
+        <div class="mockup-titlebar">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+          <span class="mockup-url">cowgirldown.com</span>
+        </div>
+        <div class="site-mock">
+          <h2>Cowgirl Down.</h2>
+          <div class="tagline">dead & alive</div>
+          <div class="myth">There was a woman who left. No goodbye. Just a bar tab and a dust trail. She went west. Bought land. Started something small and strange. Works the late shift somewhere no one thought to look.</div>
+          <div class="email-mock">
+            <input type="text" placeholder="your email" disabled>
+            <button>REPORT</button>
+          </div>
+        </div>
+      </div>
+      <div class="mockup-caption">Phase 1 website: the myth, the mystery, the email capture.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- HAT MOCKUPS -->
+  <div class="container">
+    <div class="gallery-section anim-3">
+      <div class="section-label">The Product Line</div>
+      <div class="hat-grid">
+        <div class="hat-card">
+          <div class="hat-icon">🧢</div>
+          <div class="hat-name">Cowgirl Down</div>
+          <div class="hat-desc">Dead & alive. The anchor.</div>
+        </div>
+        <div class="hat-card">
+          <div class="hat-icon">🧢</div>
+          <div class="hat-name">No Money Rich</div>
+          <div class="hat-desc">Broke-but-fabulous. Service industry chic.</div>
+        </div>
+        <div class="hat-card">
+          <div class="hat-icon">🧢</div>
+          <div class="hat-name">I ♥ Sweet Men</div>
+          <div class="hat-desc">Soft, disarming, flirty.</div>
+        </div>
+        <div class="hat-card">
+          <div class="hat-icon">🧢</div>
+          <div class="hat-name">Cowgirl Hat</div>
+          <div class="hat-desc">It says cowgirl hat. On a baseball cap.</div>
+        </div>
+      </div>
+      <div class="mockup-caption">Four hats. Each one a different register of the same voice.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FLYER MOCKUPS -->
+  <div class="container">
+    <div class="gallery-section anim-4">
+      <div class="section-label">The Flyers</div>
+      <div class="flyer-grid">
+        <div class="flyer-card">
+          <div class="flyer-day">Day 1 — Friday</div>
+          <div class="flyer-headline">Have You Seen Her?</div>
+          <div class="flyer-text">She showed up at the Great Northern last night. Ordered a Negroni. Didn't close her tab. Nobody got her name.</div>
+          <div class="flyer-footer">cowgirldown.com</div>
+        </div>
+        <div class="flyer-card">
+          <div class="flyer-day">Day 2 — Saturday</div>
+          <div class="flyer-headline">She Was at Casey's.</div>
+          <div class="flyer-text">Rooftop. Corner seat. Somebody recognized her from the festival grounds. She smiled and said nothing. Left before the check.</div>
+          <div class="flyer-footer">cowgirldown.com</div>
+        </div>
+        <div class="flyer-card">
+          <div class="flyer-day">Day 3 — Sunday</div>
+          <div class="flyer-headline">Gone Again.</div>
+          <div class="flyer-text">Her truck was parked outside the Blue Moon honky tonk at 2am. By sunrise it was gone. She left a hat on the barstool.</div>
+          <div class="flyer-footer">cowgirldown.com</div>
+        </div>
+      </div>
+      <div class="mockup-caption">Wanted-poster style with pull tabs. Posted in women's restrooms and around festival grounds. Each one updates the story and drives to the site.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="takeaway anim-5">
+      <div class="section-label">The Takeaway</div>
+      <p class="takeaway-text">The distribution channel, the content, the narrative, and the commerce are all the same system. Each piece drives people to the next. That's not a marketing plan with a creative layer on top. It's a campaign where the structure <em>is</em> the creativity. Concept, identity, product line, guerrilla distribution strategy, phased website, and daily content, all developed with AI as a strategic partner.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="cta-section">
+    <a href="/cowgirl-down/" class="cta-btn">Visit the Site →</a>
+    <div class="cta-note">Static site · Brand campaign artifact</div>
+  </div>
+
+  <div class="footer">
+    <a href="https://halle.studio">halle.studio</a>
+    <span class="footer-right">2026</span>
+  </div>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 10);
+    });
+  </script>
+</body>
+</html>
