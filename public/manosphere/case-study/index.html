@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manosphere Generator — Lab — Halle Gilbert</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #FAF9F6;
+      --text: #1C1B18;
+      --muted: #4A4843;
+      --faint: #8A8780;
+      --border: #E2E0DB;
+      --accent: #B22222;
+      --accent-dark: #8B1A1A;
+      --accent-bg: rgba(178,34,34,0.04);
+      --accent-tag: rgba(178,34,34,0.08);
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+      --serif: 'Instrument Serif', serif;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: rgba(178,34,34,0.12); }
+
+    .nav {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: rgba(250,249,246,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 100;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+    .nav.scrolled { border-bottom-color: var(--border); }
+    .nav-back {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-back:hover { opacity: 0.7; }
+    .nav-number {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--faint);
+    }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 0 40px; }
+
+    .hero {
+      padding: 80px 0 48px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-tag);
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 2px;
+      margin-bottom: 24px;
+      font-weight: 700;
+    }
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 400;
+      line-height: 1.05;
+      color: var(--text);
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+    .hero-subtitle {
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--muted);
+      max-width: 580px;
+    }
+    .tech-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .tech-chip {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--faint);
+    }
+
+    .divider { height: 1px; background: var(--border); }
+
+    .section { padding: 48px 0; }
+    .section-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 24px;
+    }
+
+    .breakdown { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
+    .breakdown-item {
+      display: flex;
+      gap: 20px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .breakdown-item:last-child { border-bottom: none; }
+    .breakdown-key {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      min-width: 100px;
+      flex-shrink: 0;
+      padding-top: 3px;
+    }
+    .breakdown-val {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+    .breakdown-val em { font-style: italic; color: var(--text); }
+
+    /* MOCKUP */
+    .mockup-section { padding: 48px 0; }
+    .mockup-wrapper {
+      background: #0A0A0A;
+      border: 1px solid #2A2A2A;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .mockup-titlebar {
+      background: #1A1A1A;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border-bottom: 1px solid #2A2A2A;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .dot-r { background: #E8645A; }
+    .dot-y { background: #F0C350; }
+    .dot-g { background: #6BC86E; }
+    .mockup-url {
+      margin-left: 10px;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: #555;
+      letter-spacing: 0.02em;
+    }
+    .mockup-body-dark {
+      padding: 32px 24px;
+      background: #0A0A0A;
+      text-align: center;
+    }
+    .mockup-caption {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      letter-spacing: 0.04em;
+      text-align: center;
+      margin-top: 14px;
+    }
+
+    .mock-dark-title {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #D4AF37;
+      margin-bottom: 24px;
+    }
+    .mock-sentence-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .mock-word-box {
+      background: #1A1A1A;
+      border: 1px solid #2A2A2A;
+      border-radius: 3px;
+      padding: 12px 8px;
+    }
+    .mock-word-label {
+      font-family: var(--mono);
+      font-size: 7px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 6px;
+    }
+    .mock-word-text {
+      font-family: var(--serif);
+      font-size: 14px;
+      color: #E0E0E0;
+    }
+    .mock-result {
+      background: #1A1A1A;
+      border: 1px solid #D4AF37;
+      border-radius: 3px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+    }
+    .mock-result-text {
+      font-family: var(--serif);
+      font-size: 16px;
+      font-style: italic;
+      color: #E0E0E0;
+      line-height: 1.5;
+    }
+    .mock-disclaimer {
+      font-family: var(--mono);
+      font-size: 8px;
+      color: #444;
+      letter-spacing: 0.06em;
+    }
+
+    .takeaway { padding: 48px 0; }
+    .takeaway-text {
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--muted);
+      max-width: 600px;
+      border-left: 2px solid var(--accent);
+      padding-left: 24px;
+    }
+
+    .cta-section {
+      padding: 48px 0 56px;
+      text-align: center;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 16px 48px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+    .cta-btn:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(178,34,34,0.2);
+    }
+    .cta-note {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      margin-top: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    .footer {
+      padding: 24px 40px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .footer a:hover { text-decoration: underline; }
+    .footer-right {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-1 { animation: fadeUp 0.5s ease 0.1s both; }
+    .anim-2 { animation: fadeUp 0.5s ease 0.2s both; }
+    .anim-3 { animation: fadeUp 0.5s ease 0.3s both; }
+
+    @media (max-width: 700px) {
+      .container { padding: 0 24px; }
+      .nav { padding: 16px 24px; }
+      .hero { padding: 56px 0 40px; }
+      .mock-sentence-grid { grid-template-columns: 1fr; }
+      .footer { padding: 20px 24px; }
+      .breakdown-item { flex-direction: column; gap: 4px; }
+      .breakdown-key { min-width: unset; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <a href="/" class="nav-back">← Back to Lab</a>
+    <span class="nav-number">08 / 08</span>
+  </nav>
+
+  <div class="container">
+    <div class="hero">
+      <span class="hero-tag">Satire</span>
+      <h1>Manosphere<br>Generator</h1>
+      <p class="hero-subtitle">Generates absurd alpha-male motivational content. Cultural commentary disguised as a toy.</p>
+      <div class="tech-chips">
+        <span class="tech-chip">HTML</span>
+        <span class="tech-chip">JavaScript</span>
+        <span class="tech-chip">Cultural Satire</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="section anim-1">
+      <div class="section-label">The Breakdown</div>
+      <div class="breakdown">
+        <div class="breakdown-item">
+          <span class="breakdown-key">Problem</span>
+          <span class="breakdown-val">If you've spent any time on social media in the last few years, you've encountered a specific genre of motivational content: hyper-masculine, pseudo-philosophical, dripping with references to wolves, silence, and waking up at 4am. It follows a rigid formula, and the repetition is part of why it works. It also makes it very easy to parody.</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-key">Constraint</span>
+          <span class="breakdown-val">Satire only works if the thing you're making is indistinguishable from the thing you're satirizing. The generator had to produce sentences that felt real (grammatically correct, tonally consistent, immediately recognizable) while being just absurd enough to tip into comedy. Too subtle and it reads as sincere. Too broad and it's just a joke.</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-key">Solution</span>
+          <span class="breakdown-val">A personalized sentence generator that works like a "what's your rapper name" quiz. You answer a few questions: first letter of your last name, the month you were born, what you had for breakfast. Each answer maps to a word from a curated bank of manosphere vocabulary, and the combination produces your personal manosphere sentence. Dark background, gold accents, monospace type. The aesthetic is part of the joke. It's a toy, and it's supposed to be funny. That's it.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MOCKUP -->
+  <div class="container">
+    <div class="mockup-section anim-2">
+      <div class="section-label">What It Looks Like</div>
+      <div class="mockup-wrapper">
+        <div class="mockup-titlebar">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+          <span class="mockup-url">halle.studio/lab</span>
+        </div>
+        <div class="mockup-body-dark">
+          <div class="mock-dark-title">What's Your Manosphere Sentence?</div>
+          <div class="mock-sentence-grid">
+            <div class="mock-word-box">
+              <div class="mock-word-label">First letter of your last name</div>
+              <div class="mock-word-text" style="color: #D4AF37;">G → "A silent man"</div>
+            </div>
+            <div class="mock-word-box">
+              <div class="mock-word-label">Month you were born</div>
+              <div class="mock-word-text" style="color: #D4AF37;">April → "never explains"</div>
+            </div>
+            <div class="mock-word-box">
+              <div class="mock-word-label">What you had for breakfast</div>
+              <div class="mock-word-text" style="color: #D4AF37;">Coffee → "his canthal tilt"</div>
+            </div>
+          </div>
+          <div class="mock-result">
+            <div class="mock-result-text">"A silent man never explains his canthal tilt."</div>
+          </div>
+          <div class="mock-disclaimer">This is satire. Not life advice. Your results are personal and non-refundable.</div>
+        </div>
+      </div>
+      <div class="mockup-caption">Click to generate. Send to someone who needs to laugh.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="takeaway anim-3">
+      <div class="section-label">The Takeaway</div>
+      <p class="takeaway-text">Not everything has to be a strategic framework. Sometimes you notice a pattern, it makes you laugh, and you build a thing that makes other people laugh too. The design is polished because the comedy is sharper when the execution is straight-faced. And the vocabulary bank proves I can identify and deconstruct a content formula, which is, incidentally, exactly what content strategy is.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="cta-section">
+    <a href="/manosphere/" class="cta-btn">Try It Yourself →</a>
+    <div class="cta-note">Static tool · No AI required · Just vibes</div>
+  </div>
+
+  <div class="footer">
+    <a href="https://halle.studio">halle.studio</a>
+    <span class="footer-right">2026</span>
+  </div>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 10);
+    });
+  </script>
+</body>
+</html>
