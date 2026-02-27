@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NYC Move HQ — Lab — Halle Gilbert</title>
+  <title>MoveHQ — Lab — Halle Gilbert</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,6 +35,627 @@
 
     .nav {
       padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: rgba(250,249,246,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 100;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+    .nav.scrolled { border-bottom-color: var(--border); }
+    .nav-back {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-back:hover { opacity: 0.7; }
+    .nav-number {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--faint);
+    }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 0 40px; }
+
+    .hero {
+      padding: 80px 0 48px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-tag);
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 2px;
+      margin-bottom: 24px;
+      font-weight: 700;
+    }
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 400;
+      line-height: 1.05;
+      color: var(--text);
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+    .hero-subtitle {
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--muted);
+      max-width: 580px;
+    }
+    .tech-chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .tech-chip {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--faint);
+    }
+
+    .divider { height: 1px; background: var(--border); }
+
+    .section { padding: 48px 0; }
+    .section-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 24px;
+    }
+
+    .breakdown { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
+    .breakdown-item {
+      display: flex;
+      gap: 20px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .breakdown-item:last-child { border-bottom: none; }
+    .breakdown-key {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      min-width: 100px;
+      flex-shrink: 0;
+      padding-top: 3px;
+    }
+    .breakdown-val {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+    .breakdown-val em { font-style: italic; color: var(--text); }
+
+    /* MOCKUP */
+    .mockup-section { padding: 48px 0; }
+    .mockup-wrapper {
+      background: #F0EFEC;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.04), 0 1px 4px rgba(0,0,0,0.02);
+    }
+    .mockup-titlebar {
+      background: #E8E6E2;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .dot-r { background: #E8645A; }
+    .dot-y { background: #F0C350; }
+    .dot-g { background: #6BC86E; }
+    .mockup-url {
+      margin-left: 10px;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--faint);
+      letter-spacing: 0.02em;
+    }
+    .mockup-body { padding: 24px; background: #FDFCFA; }
+    .mockup-caption {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      letter-spacing: 0.04em;
+      text-align: center;
+      margin-top: 14px;
+    }
+
+    /* Dashboard mockup */
+    .mock-heading {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 400;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+    .mock-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .mock-stat {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .mock-stat-num {
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+    .mock-stat-label {
+      font-family: var(--mono);
+      font-size: 7px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--faint);
+    }
+    .mock-views {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .mock-view-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 12px 10px;
+    }
+    .mock-view-title {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .mock-view-item {
+      font-size: 10px;
+      color: var(--muted);
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.03);
+      line-height: 1.4;
+    }
+    .mock-view-item:last-child { border-bottom: none; }
+    .mock-progress {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 3px;
+    }
+    .mock-bar-track {
+      flex: 1;
+      height: 3px;
+      background: rgba(0,0,0,0.04);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .mock-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    .mock-bar-pct {
+      font-family: var(--mono);
+      font-size: 8px;
+      color: var(--faint);
+      min-width: 24px;
+      text-align: right;
+    }
+
+    .takeaway { padding: 48px 0; }
+    .takeaway-text {
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--muted);
+      max-width: 600px;
+      border-left: 2px solid var(--accent);
+      padding-left: 24px;
+    }
+
+    .cta-section {
+      padding: 48px 0 56px;
+      text-align: center;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 16px 48px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+    .cta-btn:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59,111,160,0.2);
+    }
+    .cta-note {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      margin-top: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    .footer {
+      padding: 24px 40px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .footer a:hover { text-decoration: underline; }
+    .footer-right {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-1 { animation: fadeUp 0.5s ease 0.1s both; }
+    .anim-2 { animation: fadeUp 0.5s ease 0.2s both; }
+    .anim-3 { animation: fadeUp 0.5s ease 0.3s both; }
+
+    @media (max-width: 700px) {
+      .container { padding: 0 24px; }
+      .nav { padding: 16px 24px; }
+      .hero { padding: 56px 0 40px; }
+      .mock-stats { grid-template-columns: repeat(2, 1fr); }
+      .mock-views { grid-template-columns: 1fr; }
+      .footer { padding: 20px 24px; }
+      .breakdown-item { flex-direction: column; gap: 4px; }
+      .breakdown-key { min-width: unset; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <a href="/" class="nav-back">← Back to Lab</a>
+    <span class="nav-number">01 / 08</span>
+  </nav>
+
+  <div class="container">
+    <div class="hero">
+      <span class="hero-tag">App</span>
+      <h1>MoveHQ</h1>
+      <p class="hero-subtitle">Life management app built to coordinate a cross-country move. Task tracking, apartment hunting, budgets, and vibe checks.</p>
+      <div class="tech-chips">
+        <span class="tech-chip">React</span>
+        <span class="tech-chip">Full-Stack App</span>
+        <span class="tech-chip">Product Design</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="section anim-1">
+      <div class="section-label">The Breakdown</div>
+      <div class="breakdown">
+        <div class="breakdown-item">
+          <span class="breakdown-key">Problem</span>
+          <span class="breakdown-val">Planning a cross-country move to New York is not one project. It's six or seven running in parallel on different timelines: apartment hunting, budget tracking, job searching, neighborhood research, packing logistics, utility transfers, lease overlaps. Every existing tool I found addressed one of those in isolation. Nothing handled the fact that they all affect each other simultaneously.</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-key">Constraint</span>
+          <span class="breakdown-val">Two people coordinating the move meant the system had to support shared visibility without overcomplicating things. I needed something that showed the full picture at a glance. Not a Notion doc with eighteen linked databases, but a single dashboard where you could see budget health, task progress, apartment comparisons, and emotional state all in one place. Yes, emotional state. Moves are stressful.</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-key">Solution</span>
+          <span class="breakdown-val">A full-stack life management app with nine views: a dashboard with stat cards and next actions, a budget tracker with category breakdowns and progress bars, a payout planner with interactive allocation sliders, a listings kanban for apartment hunting, a task manager with area filtering and priority tagging, a decision log, a paperwork tracker, a vibe check (dual mood sliders with a 30-day trend chart), and a settings panel. Pre-populated with realistic sample data so it reads as a tool in active use.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- MOCKUP -->
+  <div class="container">
+    <div class="mockup-section anim-2">
+      <div class="section-label">What It Looks Like</div>
+      <div class="mockup-wrapper">
+        <div class="mockup-titlebar">
+          <div class="dot dot-r"></div>
+          <div class="dot dot-y"></div>
+          <div class="dot dot-g"></div>
+          <span class="mockup-url">halle.studio/lab</span>
+        </div>
+        <div class="mockup-body">
+          <div class="mock-heading">Move HQ — Dashboard</div>
+
+          <div class="mock-stats">
+            <div class="mock-stat">
+              <div class="mock-stat-num">47</div>
+              <div class="mock-stat-label">Days Left</div>
+            </div>
+            <div class="mock-stat">
+              <div class="mock-stat-num">68%</div>
+              <div class="mock-stat-label">Tasks Done</div>
+            </div>
+            <div class="mock-stat">
+              <div class="mock-stat-num">$4.2K</div>
+              <div class="mock-stat-label">Budget Left</div>
+            </div>
+            <div class="mock-stat">
+              <div class="mock-stat-num">12</div>
+              <div class="mock-stat-label">Listings</div>
+            </div>
+          </div>
+
+          <div class="mock-views">
+            <div class="mock-view-card">
+              <div class="mock-view-title">Budget</div>
+              <div class="mock-view-item">
+                Deposit / First Month
+                <div class="mock-progress">
+                  <div class="mock-bar-track"><div class="mock-bar-fill" style="width:85%"></div></div>
+                  <span class="mock-bar-pct">85%</span>
+                </div>
+              </div>
+              <div class="mock-view-item">
+                Moving Costs
+                <div class="mock-progress">
+                  <div class="mock-bar-track"><div class="mock-bar-fill" style="width:42%"></div></div>
+                  <span class="mock-bar-pct">42%</span>
+                </div>
+              </div>
+              <div class="mock-view-item">
+                Furniture
+                <div class="mock-progress">
+                  <div class="mock-bar-track"><div class="mock-bar-fill" style="width:15%"></div></div>
+                  <span class="mock-bar-pct">15%</span>
+                </div>
+              </div>
+            </div>
+            <div class="mock-view-card">
+              <div class="mock-view-title">Tasks</div>
+              <div class="mock-view-item">☑ Transfer utilities</div>
+              <div class="mock-view-item">☑ Forward mail / USPS</div>
+              <div class="mock-view-item">☐ Schedule movers</div>
+              <div class="mock-view-item">☐ Pack kitchen</div>
+            </div>
+            <div class="mock-view-card">
+              <div class="mock-view-title">Vibe Check</div>
+              <div class="mock-view-item">
+                Person A: Optimistic
+                <div class="mock-progress">
+                  <div class="mock-bar-track"><div class="mock-bar-fill" style="width:75%; background:#6BC86E"></div></div>
+                  <span class="mock-bar-pct">7.5</span>
+                </div>
+              </div>
+              <div class="mock-view-item">
+                Person B: Stressed
+                <div class="mock-progress">
+                  <div class="mock-bar-track"><div class="mock-bar-fill" style="width:40%; background:#E8645A"></div></div>
+                  <span class="mock-bar-pct">4.0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="mockup-caption">Dashboard view: budget, tasks, listings, and emotional state, all in one place.</div>
+
+      <!-- LISTINGS VIEW -->
+      <div style="margin-top: 24px;">
+        <div class="mockup-wrapper">
+          <div class="mockup-titlebar">
+            <div class="dot dot-r"></div>
+            <div class="dot dot-y"></div>
+            <div class="dot dot-g"></div>
+            <span class="mockup-url">halle.studio/lab → Listings</span>
+          </div>
+          <div class="mockup-body">
+            <div class="mock-heading">Listings</div>
+            <div class="mock-kanban" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px;">
+              <div style="background:var(--bg); border:1px solid var(--border); border-radius:3px; padding:8px;">
+                <div style="font-family:var(--mono); font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--faint); font-weight:700; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid rgba(0,0,0,0.04);">Backlog</div>
+                <div style="background:#fff; border:1px solid var(--border); border-radius:2px; padding:6px 8px; margin-bottom:4px; font-size:9px; color:var(--muted); line-height:1.4;"><div style="font-weight:600; color:var(--text); font-size:10px;">E 12th St, 1BR</div><div style="font-size:8px; color:var(--faint);">East Village · $2,800</div></div>
+                <div style="background:#fff; border:1px solid var(--border); border-radius:2px; padding:6px 8px; font-size:9px; color:var(--muted); line-height:1.4;"><div style="font-weight:600; color:var(--text); font-size:10px;">Havemeyer St, 2BR</div><div style="font-size:8px; color:var(--faint);">Williamsburg · $3,400</div></div>
+              </div>
+              <div style="background:var(--bg); border:1px solid var(--border); border-radius:3px; padding:8px;">
+                <div style="font-family:var(--mono); font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--faint); font-weight:700; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid rgba(0,0,0,0.04);">Touring</div>
+                <div style="background:#fff; border:1px solid var(--border); border-radius:2px; padding:6px 8px; font-size:9px; color:var(--muted); line-height:1.4;"><div style="font-weight:600; color:var(--text); font-size:10px;">Dean St, 1BR</div><div style="font-size:8px; color:var(--faint);">Prospect Heights · $2,650</div></div>
+              </div>
+              <div style="background:var(--bg); border:1px solid var(--border); border-radius:3px; padding:8px;">
+                <div style="font-family:var(--mono); font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--faint); font-weight:700; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid rgba(0,0,0,0.04);">Applied</div>
+                <div style="background:#fff; border:1px solid var(--border); border-radius:2px; padding:6px 8px; font-size:9px; color:var(--muted); line-height:1.4;"><div style="font-weight:600; color:var(--text); font-size:10px;">Atlantic Ave, 1BR</div><div style="font-size:8px; color:var(--faint);">Boerum Hill · $2,900</div></div>
+              </div>
+              <div style="background:var(--bg); border:1px solid var(--border); border-radius:3px; padding:8px;">
+                <div style="font-family:var(--mono); font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--faint); font-weight:700; margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid rgba(0,0,0,0.04);">Done</div>
+                <div style="background:#fff; border:1px dashed var(--border); border-radius:2px; padding:6px 8px; font-size:9px; color:var(--faint); text-align:center; opacity:0.5;">Waiting...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-caption">Listings kanban: track apartments from discovery through application.</div>
+      </div>
+
+      <!-- VIBE CHECK VIEW -->
+      <div style="margin-top: 24px;">
+        <div class="mockup-wrapper">
+          <div class="mockup-titlebar">
+            <div class="dot dot-r"></div>
+            <div class="dot dot-y"></div>
+            <div class="dot dot-g"></div>
+            <span class="mockup-url">halle.studio/lab → Vibe Check</span>
+          </div>
+          <div class="mockup-body">
+            <div class="mock-heading">Vibe Check</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+              <div style="background:var(--bg); border:1px solid var(--border); border-radius:3px; padding:14px;">
+                <div style="font-family:var(--mono); font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); font-weight:700; margin-bottom:10px;">Person A</div>
+                <div style="font-family:var(--serif); font-size:28px; font-weight:400; color:#6BC86E; margin-bottom:4px;">7.5</div>
+                <div style="font-size:11px; color:var(--muted);">Optimistic</div>
+                <div style="margin-top:8px;">
+                  <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="font-size:9px; color:var(--faint); min-width:50px;">Energy</span><div style="flex:1; height:3px; background:rgba(0,0,0,0.04); border-radius:2px; overflow:hidden;"><div style="height:100%; width:80%; background:#6BC86E; border-radius:2px;"></div></div></div>
+                  <div style="display:flex; align-items:center; gap:6px;"><span style="font-size:9px; color:var(--faint); min-width:50px;">Stress</span><div style="flex:1; height:3px; background:rgba(0,0,0,0.04); border-radius:2px; overflow:hidden;"><div style="height:100%; width:30%; background:#F0C350; border-radius:2px;"></div></div></div>
+                </div>
+              </div>
+              <div style="background:var(--bg); border:1px solid var(--border); border-radius:3px; padding:14px;">
+                <div style="font-family:var(--mono); font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); font-weight:700; margin-bottom:10px;">Person B</div>
+                <div style="font-family:var(--serif); font-size:28px; font-weight:400; color:#E8645A; margin-bottom:4px;">4.0</div>
+                <div style="font-size:11px; color:var(--muted);">Stressed but functional</div>
+                <div style="margin-top:8px;">
+                  <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;"><span style="font-size:9px; color:var(--faint); min-width:50px;">Energy</span><div style="flex:1; height:3px; background:rgba(0,0,0,0.04); border-radius:2px; overflow:hidden;"><div style="height:100%; width:45%; background:#F0C350; border-radius:2px;"></div></div></div>
+                  <div style="display:flex; align-items:center; gap:6px;"><span style="font-size:9px; color:var(--faint); min-width:50px;">Stress</span><div style="flex:1; height:3px; background:rgba(0,0,0,0.04); border-radius:2px; overflow:hidden;"><div style="height:100%; width:75%; background:#E8645A; border-radius:2px;"></div></div></div>
+                </div>
+              </div>
+            </div>
+            <div style="background:var(--bg); border:1px solid var(--border); border-radius:3px; padding:12px;">
+              <div style="font-family:var(--mono); font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--faint); font-weight:700; margin-bottom:8px;">30-Day Trend</div>
+              <div style="display:flex; align-items:flex-end; gap:3px; height:40px;">
+                <div style="flex:1; background:#6BC86E; border-radius:1px; height:60%; opacity:0.6;"></div>
+                <div style="flex:1; background:#6BC86E; border-radius:1px; height:55%; opacity:0.6;"></div>
+                <div style="flex:1; background:#F0C350; border-radius:1px; height:40%; opacity:0.6;"></div>
+                <div style="flex:1; background:#F0C350; border-radius:1px; height:45%; opacity:0.6;"></div>
+                <div style="flex:1; background:#6BC86E; border-radius:1px; height:65%; opacity:0.6;"></div>
+                <div style="flex:1; background:#6BC86E; border-radius:1px; height:70%; opacity:0.6;"></div>
+                <div style="flex:1; background:#E8645A; border-radius:1px; height:30%; opacity:0.6;"></div>
+                <div style="flex:1; background:#F0C350; border-radius:1px; height:50%; opacity:0.6;"></div>
+                <div style="flex:1; background:#6BC86E; border-radius:1px; height:60%; opacity:0.6;"></div>
+                <div style="flex:1; background:#6BC86E; border-radius:1px; height:75%; opacity:0.6;"></div>
+                <div style="flex:1; background:#6BC86E; border-radius:1px; height:80%; opacity:0.6;"></div>
+                <div style="flex:1; background:#F0C350; border-radius:1px; height:55%; opacity:0.6;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-caption">Vibe Check: dual mood sliders, energy/stress tracking, 30-day trend chart.</div>
+      </div>
+
+      <!-- PAYOUT PLANNER VIEW -->
+      <div style="margin-top: 24px;">
+        <div class="mockup-wrapper">
+          <div class="mockup-titlebar">
+            <div class="dot dot-r"></div>
+            <div class="dot dot-y"></div>
+            <div class="dot dot-g"></div>
+            <span class="mockup-url">halle.studio/lab → Payout Planner</span>
+          </div>
+          <div class="mockup-body">
+            <div class="mock-heading">Payout Planner</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px;">
+              <div style="background:var(--bg); border:1px solid var(--border); border-radius:3px; padding:12px; text-align:center;">
+                <div style="font-family:var(--mono); font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--faint); margin-bottom:6px;">Debt Payoff</div>
+                <div style="font-family:var(--mono); font-size:22px; font-weight:700; color:var(--accent);">30%</div>
+                <div style="font-size:10px; color:var(--muted); margin-top:2px;">$1,200/mo</div>
+              </div>
+              <div style="background:var(--bg); border:1px solid var(--border); border-radius:3px; padding:12px; text-align:center;">
+                <div style="font-family:var(--mono); font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--faint); margin-bottom:6px;">Move Fund</div>
+                <div style="font-family:var(--mono); font-size:22px; font-weight:700; color:#6BC86E;">50%</div>
+                <div style="font-size:10px; color:var(--muted); margin-top:2px;">$2,000/mo</div>
+              </div>
+              <div style="background:var(--bg); border:1px solid var(--border); border-radius:3px; padding:12px; text-align:center;">
+                <div style="font-family:var(--mono); font-size:8px; letter-spacing:0.1em; text-transform:uppercase; color:var(--faint); margin-bottom:6px;">Runway</div>
+                <div style="font-family:var(--mono); font-size:22px; font-weight:700; color:#F0C350;">20%</div>
+                <div style="font-size:10px; color:var(--muted); margin-top:2px;">$800/mo</div>
+              </div>
+            </div>
+            <div style="background:var(--bg); border:1px solid var(--border); border-radius:3px; padding:12px;">
+              <div style="display:flex; height:8px; border-radius:4px; overflow:hidden; gap:2px;">
+                <div style="flex:3; background:var(--accent); border-radius:4px;"></div>
+                <div style="flex:5; background:#6BC86E; border-radius:4px;"></div>
+                <div style="flex:2; background:#F0C350; border-radius:4px;"></div>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-top:6px; font-family:var(--mono); font-size:8px; color:var(--faint);">
+                <span>$4,000/mo combined income</span>
+                <span>100% allocated</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mockup-caption">Payout Planner: interactive allocation sliders with live dollar breakdowns.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="takeaway anim-3">
+      <div class="section-label">The Takeaway</div>
+      <p class="takeaway-text">This was the first thing I built with AI development tools, and it taught me something I keep coming back to: the bottleneck was never the code. It was the thinking. What to track, what to surface, what to hide, how to structure information so it's useful under stress. The tool is a product design project more than a technical one, and it works because the decisions behind it came from real, lived urgency.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="cta-section">
+    <a href="/move-hq/" class="cta-btn">Try the App →</a>
+    <div class="cta-note">Full-stack app · 9 views · Pre-populated demo data</div>
+  </div>
+
+  <div class="footer">
+    <a href="https://halle.studio">halle.studio</a>
+    <span class="footer-right">2026</span>
+  </div>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 10);
+    });
+  </script>
+</body>
+</html>      padding: 20px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
