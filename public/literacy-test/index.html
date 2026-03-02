@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Literacy Test — A Cultural Exam, 2026 Edition</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,300;1,8..60,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #faf8f4; overflow-x: hidden; }
+    #root { min-height: 100vh; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes expandLine { from { width: 0; } to { width: 60px; } }
+    .option-btn { display: block; width: 100%; text-align: left; padding: 18px 22px; border: 1px solid #d4d0c8; background: transparent; font-family: 'Source Serif 4', Georgia, serif; font-size: 15px; line-height: 1.55; color: #2a2a2a; cursor: pointer; transition: all 0.25s ease; letter-spacing: 0.01em; position: relative; }
+    .option-btn:hover:not(.answered) { background: #f8f6f2; border-color: #2a2a2a; }
+    .option-btn.answered { cursor: default; }
+    .option-btn.correct { background: #f0f5ed; border-color: #5a7a52; color: #3a5a32; }
+    .option-btn.incorrect { background: #fdf2f0; border-color: #c4736a; color: #8a4a42; }
+    .option-btn.correct-answer { background: #f0f5ed; border-color: #5a7a52; color: #3a5a32; }
+    .option-btn .option-letter { display: inline-block; width: 22px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #999; margin-right: 8px; flex-shrink: 0; }
+    .option-btn.correct .option-letter, .option-btn.correct-answer .option-letter { color: #5a7a52; }
+    .option-btn.incorrect .option-letter { color: #c4736a; }
+    .next-btn { display: inline-block; padding: 14px 40px; background: #2a2a2a; color: #f5f3ef; border: none; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease; }
+    .next-btn:hover { background: #1a1a1a; letter-spacing: 0.2em; }
+    .progress-track { position: fixed; top: 0; left: 0; right: 0; height: 2px; background: #e8e5df; z-index: 100; }
+    .progress-fill { height: 100%; background: #2a2a2a; transition: width 0.5s ease; }
+    .category-tag { display: inline-block; font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: #999; margin-bottom: 16px; }
+    .score-bar-track { height: 3px; background: #e8e5df; width: 100%; margin-top: 6px; }
+    .score-bar-fill { height: 100%; background: #2a2a2a; transition: width 1s ease; }
+    .review-item { padding: 20px 0; border-bottom: 1px solid #e8e5df; }
+    .review-item:last-child { border-bottom: none; }
+    .intro-enter { animation: fadeUp 0.8s ease forwards; }
+    .stagger-1 { animation-delay: 0.1s; opacity: 0; }
+    .stagger-2 { animation-delay: 0.25s; opacity: 0; }
+    .stagger-3 { animation-delay: 0.4s; opacity: 0; }
+    .stagger-4 { animation-delay: 0.55s; opacity: 0; }
+    .stagger-5 { animation-delay: 0.7s; opacity: 0; }
+    .stagger-6 { animation-delay: 0.85s; opacity: 0; }
+    .scroll-container { height: 100vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const QUESTIONS = [
+      { category:"Literature", term:"Bluets", options:["A prose poem meditation on the color blue by Maggie Nelson","A French perfume house founded in the 1920s","A collection of short stories by Ottessa Moshfegh","A photography monograph by Wolfgang Tillmans"], correct:0 },
+      { category:"Cultural Figures", term:"Virgil Abloh", options:["An Italian film director and screenwriter","An architect, designer, DJ — founder of Off-White, artistic director of Louis Vuitton menswear","A tech entrepreneur and art collector","A music producer known for ambient electronic compositions"], correct:1 },
+      { category:"Literature", term:"Roberto Bolaño", options:["Italian architect known for brutalist churches","Chilean novelist, author of 2666 and The Savage Detectives","Spanish cinematographer who worked with Almodóvar","Argentine fashion designer based in Paris"], correct:1 },
+      { category:"Literature", term:"Anne Carson", options:["Canadian poet, essayist, and classicist — Autobiography of Red","British war correspondent and memoirist","American sculptor known for large-scale steel works","Editor-in-chief of Harper's Bazaar in the 2000s"], correct:0 },
+      { category:"Literature", term:"Elena Ferrante", options:["Creative director of Bottega Veneta","Pseudonymous Italian novelist — the Neapolitan Quartet","Milanese gallery owner and art advisor","Director of the Venice Biennale"], correct:1 },
+      { category:"Literature", term:"Ocean Vuong", options:["Vietnamese-American poet and novelist — On Earth We're Briefly Gorgeous","Japanese-British conceptual artist","Contemporary choreographer at the Paris Opera Ballet","Photographer known for underwater editorial work"], correct:0 },
+      { category:"Literature", term:"Sally Rooney", options:["Irish novelist — Normal People, Beautiful World, Where Are You, Intermezzo","A British journalist who edits the London Review of Books","An Irish playwright and Beckett scholar","A Dublin-based knitwear designer"], correct:0 },
+      { category:"Film", term:"In the Mood for Love", options:["A 1995 Almodóvar melodrama set in Madrid","Wong Kar-wai's 2000 film about unconsummated longing in 1960s Hong Kong","A documentary about the Paris fashion shows of the 1970s","Sofia Coppola's follow-up to Lost in Translation"], correct:1 },
+      { category:"Film", term:"Céline Sciamma", options:["French perfumer behind Le Labo's Santal 33","Belgian choreographer and contemporary dancer","French filmmaker — Portrait of a Lady on Fire, Petite Maman","Swiss architect known for monastic minimalism"], correct:2 },
+      { category:"Cultural Figures", term:"Tilda Swinton", options:["British actress, artist, and fashion muse — Orlando, We Need to Talk About Kevin; perennial front row presence","A Scottish landscape painter exhibited at the Royal Academy","A London-based architect known for museum renovations","The editor-in-chief of Another Magazine"], correct:0 },
+      { category:"Film", term:"Park Chan-wook", options:["Korean fashion designer known for structured tailoring","South Korean director — Oldboy, The Handmaiden, Decision to Leave","Architect of the Dongdaemun Design Plaza in Seoul","Korean-American artist known for video installations"], correct:1 },
+      { category:"Art", term:"Yayoi Kusama", options:["Japanese artist known for infinity rooms, polka dots, and pumpkins — one of the most visited artists alive","A Japanese fashion designer who founded Issey Miyake","A ceramicist whose work is collected by the British Museum","A manga artist whose work crossed into the fine art world"], correct:0 },
+      { category:"Art", term:"Kara Walker", options:["A London-based fashion designer known for deconstructed suiting","An American artist known for black-paper silhouettes exploring race, violence, and history","A Canadian novelist who wrote Outline","A documentary filmmaker focused on the fashion industry"], correct:1 },
+      { category:"Art", term:"Nan Goldin", options:["American photographer — The Ballad of Sexual Dependency; Sackler activism","British textile designer for Liberty of London","Jewelry designer favored by European aristocracy","Longtime photo editor at Vanity Fair"], correct:0 },
+      { category:"Film", term:"Wes Anderson", options:["American filmmaker — The Royal Tenenbaums, The Grand Budapest Hotel; meticulous visual style","A British menswear designer known for Savile Row tailoring","An architect who designed boutique hotels across Southeast Asia","A New Yorker staff writer covering politics"], correct:0 },
+      { category:"Literature", term:"Haruki Murakami", options:["Japanese novelist — Norwegian Wood, Kafka on the Shore, 1Q84","A Tokyo-based architect known for floating concrete structures","A Japanese fashion designer who founded Sacai","A filmmaker who directed Spirited Away"], correct:0 },
+      { category:"Art", term:"Maurizio Cattelan", options:["Florentine leather goods artisan behind Gucci's revival","Italian conceptual artist — America (the gold toilet), Comedian (the banana)","Milanese restaurateur behind the world's most exclusive dining club","Art director at Italian Vogue for three decades"], correct:1 },
+      { category:"Art", term:"Dia:Beacon", options:["A Japanese restaurant in Hudson Yards","A contemporary art museum in a former Nabisco factory on the Hudson","A members-only social club in Tribeca","The design studio behind Apple's retail stores"], correct:1 },
+      { category:"Fashion", term:"Phoebe Philo", options:["Photographer known for stark, unflinching celebrity portraits","Former Céline creative director who launched her own label in 2023","Editor-in-chief of W Magazine","British actress and fashion muse"], correct:1 },
+      { category:"Fashion", term:"The Row", options:["A members-only restaurant on Savile Row","The luxury label founded by Mary-Kate and Ashley Olsen","An architecture firm known for museum design","A literary journal based in Brooklyn"], correct:1 },
+      { category:"Fashion", term:"Demna", options:["Georgian designer, creative director of Balenciaga","A Scandinavian ceramics studio","Italian couture house founded in the 1950s","A fragrance note derived from rare orchids"], correct:0 },
+      { category:"Fashion", term:"Comme des Garçons", options:["A French patisserie chain with cult following","A Japanese fashion house founded by Rei Kawakubo","A Belgian art collective active in the 1980s","A perfume line by Frédéric Malle"], correct:1 },
+      { category:"Fashion", term:"Dries Van Noten", options:["A Dutch master painter rediscovered in the 2010s","The creative director of Hermès","Belgian designer, one of the Antwerp Six — known for prints and textiles","A Michelin-starred chef in Amsterdam"], correct:2 },
+      { category:"Fashion", term:"André Leon Talley", options:["Longtime Vogue editor-at-large, fashion icon, and memoirist","French-Senegalese filmmaker and Palme d'Or winner","Architect who designed the National Museum of African American History","Jazz musician and cultural commentator"], correct:0 },
+      { category:"Architecture", term:"Tadao Ando", options:["A Japanese chef with the most Michelin stars worldwide","A self-taught Japanese architect known for concrete, light, and water","A calligrapher whose work appears in major museum collections","A fashion designer for Issey Miyake"], correct:1 },
+      { category:"Architecture", term:"Peter Zumthor", options:["Swiss architect — Therme Vals, Bruder Klaus Chapel; Pritzker laureate","German philosopher and cultural critic","Austrian painter known for large-scale geometric abstractions","Editor of Architectural Digest from 2007–2016"], correct:0 },
+      { category:"Architecture", term:"Zaha Hadid", options:["A Lebanese fashion designer based in London","Iraqi-British architect — MAXXI, Heydar Aliyev Center; first woman to win the Pritzker","Egyptian curator of the Sharjah Biennial","An interior designer known for maximalist residential work"], correct:1 },
+      { category:"Photography", term:"Wolfgang Tillmans", options:["German photographer — Turner Prize winner; images of intimacy, abstraction, and club culture","Swiss watchmaker known for minimalist design","Berlin-based DJ and electronic music producer","Austrian filmmaker and documentarian"], correct:0 },
+      { category:"Photography", term:"Tyler Mitchell", options:["The first Black photographer to shoot a US Vogue cover (Beyoncé, 2018)","A streetwear designer from Detroit","An R&B musician and visual artist","Creative director of Dazed magazine"], correct:0 },
+      { category:"Film", term:"Pedro Almodóvar", options:["Spanish filmmaker — All About My Mother, Talk to Her, Pain and Glory","A Portuguese architect who won the Pritzker Prize","A Barcelona-based fashion designer known for bold prints","A flamenco guitarist who collaborated with Miles Davis"], correct:0 },
+      { category:"Music & Performance", term:"FKA twigs", options:["A London-based gallery specializing in video art","British artist, singer, dancer, and director — LP1, Magdalene, CAPRISONGS","A Scandinavian design collective","A pseudonym used by an anonymous street artist"], correct:1 },
+      { category:"Art", term:"Jean-Michel Basquiat", options:["A French-American chef who opened the first fusion restaurant in SoHo","American artist — neo-expressionist paintings, graffiti origins, Warhol collaborator; died at 27","A Haitian-American novelist who won the National Book Award","A hip-hop producer and visual artist from Brooklyn"], correct:1 },
+      { category:"Places & Institutions", term:"The Met Gala", options:["An annual fundraising dinner for the Metropolitan Museum's Costume Institute","A charity auction held at the Guggenheim each December","A fashion trade show held in Paris twice a year","A members-only viewing night at the Met for collectors and donors"], correct:0 },
+      { category:"Places & Institutions", term:"Chateau Marmont", options:["A vineyard in Provence producing natural wines","The storied hotel on Sunset Boulevard — old Hollywood, bohemian glamour","A fashion house founded by a French countess","A gallery in the Marais district of Paris"], correct:1 },
+      { category:"Places & Institutions", term:"Berghain", options:["A minimalist furniture brand from Copenhagen","A Berlin techno club in a former power station — famed for its door policy","An Austrian ski resort frequented by the fashion set","A German porcelain manufacturer"], correct:1 },
+      { category:"Places & Institutions", term:"Gagosian", options:["An Italian olive oil brand sold at specialty grocers","A contemporary art mega-gallery with locations worldwide","A luxury hotel group headquartered in Milan","A typeface designed for editorial use"], correct:1 },
+      { category:"Places & Institutions", term:"The Carlyle", options:["A literary magazine published in Edinburgh","A luxury hotel on the Upper East Side — Bemelmans Bar, old-money Manhattan","A modern art museum in São Paulo","A British menswear label"], correct:1 },
+      { category:"Cultural Figures", term:"Rachel Cusk", options:["Canadian-British novelist — Outline trilogy, autofiction pioneer","A gallerist who represents emerging African artists","An American documentary filmmaker","Fashion critic for The Financial Times"], correct:0 },
+      { category:"Cultural Figures", term:"Fran Lebowitz", options:["New York writer, humorist, and cultural commentator — Metropolitan Life, Pretend It's a City","A jewelry designer known for Art Deco revival pieces","A literary agent who represents Pulitzer Prize winners","An editor at The Paris Review"], correct:0 },
+      { category:"Cultural Figures", term:"Isabella Rossellini", options:["A Milanese opera singer","Italian actress, model, filmmaker, and author — daughter of Ingrid Bergman and Roberto Rossellini","A contemporary sculptor working in marble","The founder of a luxury Italian leather goods house"], correct:1 },
+      { category:"Food & Dining", term:"Momofuku", options:["A Japanese textile brand known for indigo dyeing","David Chang's restaurant group — began with a noodle bar, reshaped American dining","A Tokyo-based publishing house for food photography","A line of ceramic tableware sold at ABC Carpet & Home"], correct:1 },
+      { category:"Food & Dining", term:"Per Se", options:["Thomas Keller's New York restaurant — French-American tasting menus at Columbus Circle","An Italian leather goods atelier on Madison Avenue","A fragrance by Maison Francis Kurkdjian","A phrase used in fashion to mean 'by itself' or 'intrinsically'"], correct:0 },
+      { category:"Food & Dining", term:"Noma", options:["A Scandinavian design studio known for glassware","René Redzepi's Copenhagen restaurant — New Nordic cuisine, foraging, fermentation","A Norwegian wool brand popular in fashion circles","A documentary about the Danish welfare state"], correct:1 },
+      { category:"Food & Dining", term:"Alice Waters", options:["American chef and activist — Chez Panisse, farm-to-table movement pioneer","A British watercolorist in the tradition of Turner","A character in a Michael Cunningham novel","A perfumer who sources botanicals from her own garden"], correct:0 },
+      { category:"Food & Dining", term:"Yotam Ottolenghi", options:["An Israeli architect working on cultural centers","British-Israeli chef and cookbook author — transformed how people cook with vegetables","A Tel Aviv-based fashion designer","An art dealer specializing in Middle Eastern contemporary art"], correct:1 },
+    ];
+
+    const VERDICTS = [
+      { min:0, max:12, title:"We'll keep your résumé on file.", subtitle:"Perhaps start with a subscription." },
+      { min:13, max:22, title:"You have potential.", subtitle:"Spend more time at the bookstore and the museum." },
+      { min:23, max:33, title:"You'd survive the interview.", subtitle:"Your cultural fluency is above average. A few blind spots remain." },
+      { min:34, max:40, title:"You'd get the job.", subtitle:"Impeccable taste. Anna would be intrigued." },
+      { min:41, max:45, title:"You could write the test.", subtitle:"Your cultural literacy is extraordinary. Do you need an assistant?" },
+    ];
+
+    function shuffleArray(arr) {
+      const s = [...arr];
+      for (let i = s.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [s[i], s[j]] = [s[j], s[i]];
+      }
+      return s;
+    }
+
+    function CulturalLiteracyQuiz() {
+      const [phase, setPhase] = useState("intro");
+      const [questions, setQuestions] = useState([]);
+      const [currentQ, setCurrentQ] = useState(0);
+      const [selected, setSelected] = useState(null);
+      const [score, setScore] = useState(0);
+      const [answers, setAnswers] = useState([]);
+      const [showFeedback, setShowFeedback] = useState(false);
+      const [fadeIn, setFadeIn] = useState(true);
+      const [categoryScores, setCategoryScores] = useState({});
+      const questionRef = useRef(null);
+
+      useEffect(() => {
+        const pinned = QUESTIONS.slice(0, 2);
+        const rest = shuffleArray(QUESTIONS.slice(2));
+        setQuestions([...pinned, ...rest]);
+      }, []);
+
+      const startQuiz = () => { setPhase("quiz"); setFadeIn(true); };
+
+      const handleSelect = (idx) => {
+        if (showFeedback) return;
+        setSelected(idx);
+        setShowFeedback(true);
+        const q = questions[currentQ];
+        const isCorrect = idx === q.correct;
+        if (isCorrect) setScore(s => s + 1);
+        setCategoryScores(prev => ({
+          ...prev,
+          [q.category]: {
+            correct: (prev[q.category]?.correct || 0) + (isCorrect ? 1 : 0),
+            total: (prev[q.category]?.total || 0) + 1,
+          }
+        }));
+        setAnswers(prev => [...prev, { question: q, selected: idx, correct: isCorrect }]);
+      };
+
+      const nextQuestion = () => {
+        setFadeIn(false);
+        setTimeout(() => {
+          if (currentQ + 1 >= questions.length) setPhase("results");
+          else { setCurrentQ(c => c + 1); setSelected(null); setShowFeedback(false); }
+          setFadeIn(true);
+        }, 300);
+      };
+
+      const restart = () => {
+        const pinned = QUESTIONS.slice(0, 2);
+        const rest = shuffleArray(QUESTIONS.slice(2));
+        setQuestions([...pinned, ...rest]);
+        setCurrentQ(0); setSelected(null); setScore(0); setAnswers([]);
+        setShowFeedback(false); setCategoryScores({}); setPhase("intro"); setFadeIn(true);
+      };
+
+      const getVerdict = () => VERDICTS.find(v => score >= v.min && score <= v.max) || VERDICTS[0];
+      const progress = questions.length > 0 ? ((currentQ + (showFeedback ? 1 : 0)) / questions.length) * 100 : 0;
+
+      const st = {
+        container: { width:"100%", minHeight:"100vh", background:"#faf8f4", color:"#2a2a2a", fontFamily:"'Source Serif 4',Georgia,serif" },
+        introContainer: { display:"flex", alignItems:"center", justifyContent:"center", padding:"60px 24px" },
+        introInner: { maxWidth:520, textAlign:"center", margin:"0 auto", paddingTop:40 },
+        introEyebrow: { fontFamily:"'DM Sans',sans-serif", fontSize:10, fontWeight:500, letterSpacing:"0.25em", textTransform:"uppercase", color:"#999", marginBottom:20 },
+        introLine: { width:60, height:1, background:"#2a2a2a", margin:"0 auto 32px" },
+        introTitle: { fontFamily:"'Playfair Display',Georgia,serif", fontSize:52, fontWeight:400, fontStyle:"italic", lineHeight:1.1, letterSpacing:"-0.01em", marginBottom:16, color:"#1a1a1a" },
+        introSubheading: { fontFamily:"'Playfair Display',Georgia,serif", fontSize:18, fontWeight:400, fontStyle:"italic", color:"#999", marginBottom:40, letterSpacing:"0.02em" },
+        introText: { fontFamily:"'Source Serif 4',Georgia,serif", fontSize:16, lineHeight:1.7, color:"#555", maxWidth:440, margin:"0 auto" },
+        introSubtext: { fontFamily:"'DM Sans',sans-serif", fontSize:12, fontWeight:400, letterSpacing:"0.15em", textTransform:"uppercase", color:"#aaa", marginTop:36, marginBottom:36 },
+        quizContainer: { display:"flex", alignItems:"flex-start", justifyContent:"center", padding:"40px 20px 60px" },
+        questionCard: { maxWidth:580, width:"100%", margin:"0 auto", paddingTop:30 },
+        questionHeader: { display:"flex", justifyContent:"flex-end", alignItems:"center", marginBottom:8 },
+        questionCount: { fontFamily:"'DM Sans',sans-serif", fontSize:12, fontWeight:400, color:"#bbb", letterSpacing:"0.05em" },
+        termDisplay: { fontFamily:"'Playfair Display',Georgia,serif", fontSize:38, fontWeight:400, fontStyle:"italic", lineHeight:1.15, marginBottom:10, color:"#1a1a1a", letterSpacing:"-0.01em" },
+        identifyLabel: { fontFamily:"'DM Sans',sans-serif", fontSize:11, fontWeight:500, letterSpacing:"0.2em", textTransform:"uppercase", color:"#aaa", marginBottom:28 },
+        optionsContainer: { display:"flex", flexDirection:"column" },
+        resultsContainer: { padding:"60px 24px" },
+        resultsInner: { maxWidth:560, margin:"0 auto", textAlign:"center" },
+        scoreDisplay: { marginBottom:24 },
+        scoreBig: { fontFamily:"'Playfair Display',Georgia,serif", fontSize:80, fontWeight:400, color:"#1a1a1a", lineHeight:1 },
+        scoreSmall: { fontFamily:"'DM Sans',sans-serif", fontSize:24, fontWeight:300, color:"#999" },
+        verdictTitle: { fontFamily:"'Playfair Display',Georgia,serif", fontSize:28, fontWeight:400, fontStyle:"italic", color:"#1a1a1a", marginBottom:8 },
+        verdictSub: { fontFamily:"'Source Serif 4',Georgia,serif", fontSize:15, color:"#777", marginBottom:48 },
+        categoryBreakdown: { textAlign:"left", marginBottom:48, padding:"32px 0", borderTop:"1px solid #e8e5df", borderBottom:"1px solid #e8e5df" },
+        breakdownTitle: { fontFamily:"'DM Sans',sans-serif", fontSize:10, fontWeight:500, letterSpacing:"0.25em", textTransform:"uppercase", color:"#999", marginBottom:20 },
+        categoryRow: { marginBottom:16 },
+        categoryRowHeader: { display:"flex", justifyContent:"space-between", alignItems:"baseline", marginBottom:4 },
+        categoryName: { fontFamily:"'Source Serif 4',Georgia,serif", fontSize:14, color:"#2a2a2a" },
+        categoryFraction: { fontFamily:"'DM Sans',sans-serif", fontSize:12, color:"#999" },
+        reviewSection: { textAlign:"left" },
+        reviewHeader: { display:"flex", alignItems:"center", gap:10, marginBottom:6 },
+        reviewDot: { width:7, height:7, borderRadius:"50%", flexShrink:0 },
+        reviewTerm: { fontFamily:"'Playfair Display',Georgia,serif", fontSize:16, fontWeight:500, fontStyle:"italic" },
+        reviewAnswer: { fontFamily:"'Source Serif 4',Georgia,serif", fontSize:14, color:"#777", lineHeight:1.5, paddingLeft:17 },
+      };
+
+      return (
+        <div style={st.container}>
+          {phase === "intro" && (
+            <div className="scroll-container" style={st.introContainer}>
+              <div style={st.introInner}>
+                <div className="intro-enter stagger-1" style={st.introEyebrow}>A Cultural Exam — 2026 Edition</div>
+                <div className="intro-enter stagger-1" style={st.introLine} />
+                <h1 className="intro-enter stagger-2" style={st.introTitle}>The Literacy<br/>Test</h1>
+                <div className="intro-enter stagger-3" style={st.introSubheading}>Do it all grandly.</div>
+                <p className="intro-enter stagger-4" style={st.introText}>
+                  In 1994, applicants for assistant positions at Vogue were presented with four typed pages of 178 names — people, places, institutions, and cultural ephemera — all of which had to be identified on the spot. It was a test of the shared knowledge that mattered at a place like Condé Nast.
+                </p>
+                <p className="intro-enter stagger-4" style={{...st.introText, marginTop:16}}>
+                  This is an updated version for 2026. Not trending topics, but the references that endure. 45 questions across literature, film, art, fashion, architecture, photography, music, dining, and the institutions that shape taste.
+                </p>
+                <p className="intro-enter stagger-5" style={st.introSubtext}>45 questions · No time limit · Know it or you don't</p>
+                <button className="next-btn intro-enter stagger-6" onClick={startQuiz}>Begin the Exam</button>
+              </div>
+            </div>
+          )}
+
+          {phase === "quiz" && questions.length > 0 && (
+            <>
+              <div className="progress-track"><div className="progress-fill" style={{ width:`${progress}%` }} /></div>
+              <div className="scroll-container" style={st.quizContainer}>
+                <div ref={questionRef} style={{...st.questionCard, opacity:fadeIn?1:0, transform:fadeIn?"translateY(0)":"translateY(10px)", transition:"all 0.3s ease"}}>
+                  <div style={st.questionHeader}>
+                    <span style={st.questionCount}>{currentQ + 1}&thinsp;/&thinsp;{questions.length}</span>
+                  </div>
+                  <h2 style={st.termDisplay}>{questions[currentQ].term}</h2>
+                  <div style={st.identifyLabel}>Identify.</div>
+                  <div style={st.optionsContainer}>
+                    {questions[currentQ].options.map((opt, idx) => {
+                      let cn = "option-btn";
+                      if (showFeedback) {
+                        cn += " answered";
+                        if (idx === questions[currentQ].correct) {
+                          cn += " correct-answer";
+                          if (idx === selected) cn = "option-btn answered correct";
+                        } else if (idx === selected) cn += " incorrect";
+                      }
+                      return (
+                        <button key={idx} className={cn} onClick={() => handleSelect(idx)} style={{ marginBottom:10, display:"flex", alignItems:"flex-start" }}>
+                          <span className="option-letter">{String.fromCharCode(65 + idx)}.</span>
+                          <span>{opt}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {showFeedback && (
+                    <div style={{ marginTop:28, textAlign:"center", animation:"fadeUp 0.4s ease forwards" }}>
+                      <button className="next-btn" onClick={nextQuestion}>
+                        {currentQ + 1 >= questions.length ? "See Results" : "Next Question"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
+          {phase === "results" && (
+            <div className="scroll-container" style={st.resultsContainer}>
+              <div style={st.resultsInner}>
+                <div className="intro-enter stagger-1" style={st.introEyebrow}>Your Results</div>
+                <div className="intro-enter stagger-1" style={st.introLine} />
+                <div className="intro-enter stagger-2" style={st.scoreDisplay}>
+                  <span style={st.scoreBig}>{score}</span>
+                  <span style={st.scoreSmall}>&thinsp;/&thinsp;{questions.length}</span>
+                </div>
+                <h2 className="intro-enter stagger-3" style={st.verdictTitle}>{getVerdict().title}</h2>
+                <p className="intro-enter stagger-3" style={st.verdictSub}>{getVerdict().subtitle}</p>
+                <div className="intro-enter stagger-4" style={st.categoryBreakdown}>
+                  <div style={st.breakdownTitle}>By Category</div>
+                  {Object.entries(categoryScores)
+                    .sort((a, b) => b[1].correct / b[1].total - a[1].correct / a[1].total)
+                    .map(([cat, data]) => (
+                      <div key={cat} style={st.categoryRow}>
+                        <div style={st.categoryRowHeader}>
+                          <span style={st.categoryName}>{cat}</span>
+                          <span style={st.categoryFraction}>{data.correct}/{data.total}</span>
+                        </div>
+                        <div className="score-bar-track">
+                          <div className="score-bar-fill" style={{ width:`${(data.correct/data.total)*100}%` }} />
+                        </div>
+                      </div>
+                    ))}
+                </div>
+                <div className="intro-enter stagger-5" style={st.reviewSection}>
+                  <div style={st.breakdownTitle}>Review</div>
+                  {answers.map((a, i) => (
+                    <div key={i} className="review-item">
+                      <div style={st.reviewHeader}>
+                        <span style={{...st.reviewDot, background: a.correct ? "#5a7a52" : "#c4736a"}} />
+                        <span style={st.reviewTerm}>{a.question.term}</span>
+                        <span className="category-tag" style={{ marginBottom:0, marginLeft:"auto" }}>{a.question.category}</span>
+                      </div>
+                      <div style={st.reviewAnswer}>{a.question.options[a.question.correct]}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ textAlign:"center", paddingTop:40, paddingBottom:60 }}>
+                  <button className="next-btn" onClick={restart}>Take It Again</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<CulturalLiteracyQuiz />);
+  </script>
+</body>
+</html>
