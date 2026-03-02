@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unstuck — Creative Block Diagnostic</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0A0A0A; overflow-x: hidden; }
+    #root { min-height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useRef } = React;
+
+    const Icon = ({ paths, color = "currentColor", size = 24 }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+        {paths.map((d, i) => <path key={i} d={d} />)}
+      </svg>
+    );
+
+    const ICONS = {
+      empty: ["M12 3v2","M12 19v2","M5 12H3","M21 12h-2","M7.05 7.05L5.636 5.636","M18.364 18.364l-1.414-1.414","M7.05 16.95l-1.414 1.414","M18.364 5.636l-1.414 1.414","M12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"],
+      overwhelmed: ["M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20z","M12 6v6","M12 6l4 4","M12 6L8 10","M12 12v6","M12 18l3-3","M12 18l-3-3"],
+      paralyzed: ["M5 3h14","M12 3v18","M8 7l4-4 4 4"],
+      frustrated: ["M3 6h18","M8 6V4h8v2","M5 6v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6","M10 11v6","M14 11v6"],
+      tired: ["M3 7h18","M3 12h12","M3 17h8"],
+    };
+
+    const BRANCHES = {
+      empty: {
+        label: "I have zero ideas", icon: "empty", color: "#FF6B35",
+        diagnosis: "You're running on empty.",
+        explanation: "Creativity is output. Output requires input. If you've been grinding without feeding your brain anything new, of course the well is dry.",
+        exercises: [
+          { title: "The 10-Minute Steal", instruction: "Open a platform you never use (Behance, Are.na, a random subreddit, a physical magazine). Set a 10-minute timer. Save exactly 3 things that make you feel something. Jealousy, curiosity, confusion, whatever. Don't analyze. Just collect." },
+          { title: "Wrong Medium", instruction: "Think about the medium you usually work in. Now pick the opposite. If you design, write. If you write, sketch. If you code, collage. Spend 15 minutes making something terrible in this wrong medium. The point is to short-circuit your inner critic by removing expertise." },
+          { title: "The Conversation Trick", instruction: "Text a friend: \"What's something that annoyed you today?\" Their answer is your creative brief. Make something in response to that real human frustration. Constraints from reality beat invented prompts every time." }
+        ]
+      },
+      overwhelmed: {
+        label: "I have too many ideas", icon: "overwhelmed", color: "#7B61FF",
+        diagnosis: "You're scattered.",
+        explanation: "Having too many ideas feels productive but it's actually avoidance. Every idea stays safe and perfect as long as you never commit to one. The real block here is decision-making.",
+        exercises: [
+          { title: "The Worst One Wins", instruction: "Write down all your ideas. Now pick the one that feels the most \"meh.\" That's the one you're going to spend 30 minutes on. Why? Because the ideas you're precious about are the ones you'll never start. The throwaway idea has no pressure on it, and pressure is what's actually stopping you." },
+          { title: "Kill List", instruction: "Write out every idea. Now cross out all but two. Look at those two. Cross out one more. You now have your project. If you feel a pang of loss about something you crossed out, that's good data, but you're still not allowed to switch. Finish the one you picked first." },
+          { title: "The 2-Hour Rule", instruction: "Set a hard deadline: 2 hours from now, something ships. It doesn't have to be good. It has to be done. When time is the constraint, your brain will naturally prioritize and the \"right\" idea will emerge because it's the one that's actually possible." }
+        ]
+      },
+      paralyzed: {
+        label: "I have an idea but can't start", icon: "paralyzed", color: "#00D4AA",
+        diagnosis: "You're protecting yourself.",
+        explanation: "You know what you want to make. You can see it in your head. It looks incredible up there. And that's exactly the problem. Starting means watching the gap between your vision and your ability, and that gap hurts. This is perfectionism dressed up as writer's block.",
+        exercises: [
+          { title: "Make the Ugly Version", instruction: "Give yourself explicit permission to make the worst possible version of your idea. The WORST version. Comic Sans. Stick figures. Spaghetti code. The goal is to create something so intentionally bad that your perfectionism can't attach to it. You'll be surprised how quickly \"bad on purpose\" becomes \"actually not bad.\"" },
+          { title: "Start in the Middle", instruction: "Skip the beginning. The first page, the hero section, the opening shot. That's where all the pressure lives. Jump to the part that excites you most, even if it makes no sense without context yet. You can stitch it together later. Creative work doesn't have to happen in order." },
+          { title: "The Body Double", instruction: "Tell someone (a friend, a group chat, a stranger on the internet) exactly what you're going to make, and that you're starting right now. Accountability is about making the start feel real instead of theoretical. Bonus: actually work while on a call or in a café. Other humans doing things makes your brain want to do things." }
+        ]
+      },
+      frustrated: {
+        label: "I started but now I hate it", icon: "frustrated", color: "#FF3366",
+        diagnosis: "You're in the messy middle.",
+        explanation: "Every creative project has an ugly phase where it looks nothing like what you imagined and you're convinced you've lost the thread entirely. This is the most predictable part of the entire creative process. Professionals push through this phase on schedule. Amateurs quit here and start something new, then hit the same wall again.",
+        exercises: [
+          { title: "The Squint Test", instruction: "Step back. Literally. Zoom out to 25%. Squint at your work. Look at it from across the room. Hold your phone at arm's length. You're looking for the overall shape. Does it work? If yes, you're further along than you think. The details will follow. If no, you've just found the real problem, and it's way smaller than \"everything.\"" },
+          { title: "Save As V2", instruction: "Duplicate your file. Call it V2. Now you have permission to break things, because V1 still exists. Delete something major. Move things around. Make a drastic change you've been too scared to try. Worst case, you go back to V1. Best case, V2 is the version that actually works." },
+          { title: "Phone a Friend", instruction: "Show someone your work right now, in its current ugly state. Say \"this is unfinished and I kind of hate it, what do you see?\" Other people don't have your vision in their head, so they see what's actually there. And what's actually there is usually better than you think." }
+        ]
+      },
+      tired: {
+        label: "I just don't feel like it", icon: "tired", color: "#FFB800",
+        diagnosis: "You might not be blocked at all.",
+        explanation: "Sometimes you're tired. Sometimes your brain is processing. Sometimes the most productive thing you can do is absolutely nothing. The hustle-culture version of creativity says you should always be making. That's a recipe for burnout.",
+        exercises: [
+          { title: "The Honest Check-In", instruction: "Ask yourself: Am I avoiding this because I'm scared, or because I'm genuinely exhausted? If scared, go back and pick \"I have an idea but can't start.\" If exhausted, keep reading. There's no hack for tired. There's only rest." },
+          { title: "Guilt-Free Time Box", instruction: "Set a timer for 2 hours. During those 2 hours, you are forbidden from feeling guilty about not creating. Watch something. Take a walk. Nap. Stare at the ceiling. The rule is: no screens that make you compare yourself to other people's output. Rest only works if you actually let yourself rest." },
+          { title: "The Smallest Thing", instruction: "If doing nothing feels worse than doing something, try the smallest possible creative act. Rename a file. Organize a folder. Write one sentence. Sketch one shape. Save one reference image. Sometimes the engine just needs one tiny turn of the key." }
+        ]
+      }
+    };
+
+    function Unstuck() {
+      const [stage, setStage] = useState("intro");
+      const [selectedBranch, setSelectedBranch] = useState(null);
+      const [selectedExercise, setSelectedExercise] = useState(null);
+      const [fadeState, setFadeState] = useState("in");
+      const [hoveredOption, setHoveredOption] = useState(null);
+      const containerRef = useRef(null);
+
+      const transition = (callback) => {
+        setFadeState("out");
+        setTimeout(() => {
+          callback();
+          setFadeState("in");
+          if (containerRef.current) containerRef.current.scrollTo({ top: 0, behavior: "instant" });
+        }, 400);
+      };
+
+      const branchData = selectedBranch ? BRANCHES[selectedBranch] : null;
+      const ac = branchData ? branchData.color : "#FF6B35";
+
+      const s = {
+        wrapper: { minHeight:"100vh", background:"#0A0A0A", color:"#E8E4DF", fontFamily:"'Space Mono',monospace", position:"relative", overflow:"hidden" },
+        noise: { position:"fixed", inset:0, opacity:0.03, backgroundImage:"url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")", pointerEvents:"none", zIndex:1 },
+        container: { position:"relative", zIndex:2, maxWidth:720, margin:"0 auto", padding:"60px 24px", minHeight:"100vh", display:"flex", flexDirection:"column", opacity:fadeState==="in"?1:0, transform:fadeState==="in"?"translateY(0)":"translateY(12px)", transition:"opacity 0.4s ease, transform 0.4s ease" },
+        tag: { display:"inline-block", fontSize:10, letterSpacing:"0.2em", textTransform:"uppercase", color:ac, border:`1px solid ${ac}33`, padding:"6px 14px", marginBottom:40 },
+        heroTitle: { fontFamily:"'Instrument Serif',serif", fontSize:"clamp(56px,12vw,96px)", fontWeight:400, lineHeight:0.95, marginBottom:32, color:"#FFF", letterSpacing:"-0.02em" },
+        subtitle: { fontSize:14, lineHeight:1.8, color:"#999", maxWidth:480, marginBottom:48 },
+        startBtn: { display:"inline-flex", alignItems:"center", gap:12, background:"transparent", border:"1px solid #E8E4DF", color:"#E8E4DF", fontFamily:"'Space Mono',monospace", fontSize:13, letterSpacing:"0.05em", padding:"16px 32px", cursor:"pointer", transition:"all 0.3s ease", textTransform:"uppercase" },
+        qLabel: { fontSize:11, letterSpacing:"0.15em", textTransform:"uppercase", color:"#666", marginBottom:24 },
+        qText: { fontFamily:"'Instrument Serif',serif", fontSize:"clamp(28px,5vw,42px)", fontWeight:400, lineHeight:1.2, color:"#FFF", marginBottom:48, fontStyle:"italic" },
+        optBtn: (h, c) => ({ display:"flex", alignItems:"center", gap:16, width:"100%", background:h?`${c}11`:"transparent", border:`1px solid ${h?c:"#333"}`, color:h?"#FFF":"#AAA", fontFamily:"'Space Mono',monospace", fontSize:13, padding:"20px 24px", cursor:"pointer", transition:"all 0.25s ease", textAlign:"left", marginBottom:8 }),
+        optIcon: { width:40, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 },
+        diagH: { fontFamily:"'Instrument Serif',serif", fontSize:"clamp(36px,7vw,56px)", fontWeight:400, lineHeight:1.05, color:"#FFF", marginBottom:24 },
+        body: { fontSize:14, lineHeight:1.85, color:"#999", marginBottom:40 },
+        exCard: (a, c) => ({ border:`1px solid ${a?c:"#222"}`, background:a?`${c}08`:"#111", padding:a?"24px 28px":"20px 28px", marginBottom:12, cursor:"pointer", transition:"all 0.3s ease" }),
+        exNum: (c) => ({ fontSize:10, letterSpacing:"0.2em", textTransform:"uppercase", color:c, marginBottom:8 }),
+        exTitle: { fontFamily:"'Instrument Serif',serif", fontSize:22, color:"#FFF", fontWeight:400 },
+        exInstr: { fontSize:13, lineHeight:1.85, color:"#BBB", marginTop:16, paddingTop:16, borderTop:"1px solid #222" },
+        back: { display:"inline-flex", alignItems:"center", gap:8, background:"none", border:"none", color:"#666", fontFamily:"'Space Mono',monospace", fontSize:11, letterSpacing:"0.1em", textTransform:"uppercase", cursor:"pointer", padding:0, marginTop:48, transition:"color 0.2s ease" },
+        footer: { marginTop:"auto", paddingTop:60, borderTop:"1px solid #1A1A1A", display:"flex", justifyContent:"space-between", alignItems:"center", fontSize:10, letterSpacing:"0.1em", textTransform:"uppercase", color:"#444" },
+        divider: { height:1, background:`linear-gradient(to right, transparent, ${ac}44, transparent)`, margin:"40px 0" }
+      };
+
+      return (
+        <div style={s.wrapper}>
+          <div style={s.noise} />
+          <div style={s.container} ref={containerRef}>
+            {stage === "intro" && <>
+              <div style={s.tag}>Creative Diagnostic Tool</div>
+              <h1 style={s.heroTitle}><span style={{ fontStyle:"italic", color:ac }}>Unstuck</span></h1>
+              <p style={s.subtitle}>Not all creative blocks are the same, so why treat them the same way? This tool figures out why you're actually stuck and gives you a targeted way out. Takes about 2 minutes.</p>
+              <button style={s.startBtn} onClick={() => transition(() => setStage("question"))}
+                onMouseEnter={e => { e.target.style.background="#E8E4DF"; e.target.style.color="#0A0A0A"; }}
+                onMouseLeave={e => { e.target.style.background="transparent"; e.target.style.color="#E8E4DF"; }}>
+                Start the diagnostic <span style={{ fontSize:18, lineHeight:1 }}>→</span>
+              </button>
+            </>}
+
+            {stage === "question" && <>
+              <p style={s.qLabel}>Step 01 / Identify</p>
+              <h2 style={s.qText}>When you think about making something right now, what happens?</h2>
+              <div>
+                {Object.entries(BRANCHES).map(([key, branch]) => (
+                  <button key={key} style={s.optBtn(hoveredOption===key, branch.color)}
+                    onMouseEnter={() => setHoveredOption(key)}
+                    onMouseLeave={() => setHoveredOption(null)}
+                    onClick={() => transition(() => { setSelectedBranch(key); setSelectedExercise(null); setStage("branch"); })}>
+                    <span style={s.optIcon}><Icon paths={ICONS[branch.icon]} color={hoveredOption===key ? branch.color : "#666"} size={20} /></span>
+                    <span>{branch.label}</span>
+                  </button>
+                ))}
+              </div>
+              <button style={s.back} onClick={() => transition(() => setStage("intro"))}
+                onMouseEnter={e => e.target.style.color="#E8E4DF"} onMouseLeave={e => e.target.style.color="#666"}>← Back</button>
+            </>}
+
+            {stage === "branch" && (() => {
+              const b = BRANCHES[selectedBranch];
+              return <>
+                <div style={{...s.tag, color:b.color, borderColor:`${b.color}33`, display:"inline-flex", alignItems:"center", gap:8}}>
+                  <Icon paths={ICONS[b.icon]} color={b.color} size={14} />{b.label}
+                </div>
+                <h2 style={s.diagH}><span style={{ color:b.color, fontStyle:"italic" }}>{b.diagnosis}</span></h2>
+                <p style={s.body}>{b.explanation}</p>
+                <div style={s.divider} />
+                <p style={{...s.qLabel, marginBottom:20, marginTop:8}}>Step 02 / Try one of these</p>
+                {b.exercises.map((ex, i) => {
+                  const isActive = selectedExercise === i;
+                  return (
+                    <div key={i} style={s.exCard(isActive, b.color)} onClick={() => setSelectedExercise(isActive ? null : i)}>
+                      <p style={s.exNum(b.color)}>Exercise {String(i+1).padStart(2,"0")}</p>
+                      <h3 style={s.exTitle}>{ex.title}</h3>
+                      {isActive && <p style={s.exInstr}>{ex.instruction}</p>}
+                    </div>
+                  );
+                })}
+                <button style={s.back} onClick={() => transition(() => { setSelectedBranch(null); setSelectedExercise(null); setStage("question"); })}
+                  onMouseEnter={e => e.target.style.color="#E8E4DF"} onMouseLeave={e => e.target.style.color="#666"}>← Try a different path</button>
+              </>;
+            })()}
+
+            <div style={s.footer}>
+              <span>Unstuck</span>
+              <span>A creative diagnostic</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<Unstuck />);
+  </script>
+</body>
+</html>
