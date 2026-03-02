@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unstuck — Lab — Halle Gilbert</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&family=Instrument+Serif&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #FAF9F6;
+      --text: #1C1B18;
+      --muted: #4A4843;
+      --faint: #8A8780;
+      --border: #E2E0DB;
+      --red: #C03B2D;
+      --red-dark: #A83228;
+      --red-bg: rgba(192,59,45,0.04);
+      --red-tag: rgba(192,59,45,0.08);
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+      --serif: 'Instrument Serif', serif;
+      --accent: #FF6B35;
+      --accent-dark: #E55A28;
+      --accent-bg: rgba(255,107,53,0.06);
+      --accent-tag: rgba(255,107,53,0.12);
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: rgba(255,107,53,0.15); }
+
+    /* NAV */
+    .nav {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: rgba(250,249,246,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 100;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+    .nav.scrolled { border-bottom-color: var(--border); }
+    .nav-back {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-back:hover { opacity: 0.7; }
+    .nav-number {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--faint);
+    }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 0 40px; }
+
+    /* HERO */
+    .hero {
+      padding: 80px 0 48px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-tag);
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 2px;
+      margin-bottom: 24px;
+      font-weight: 700;
+    }
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(42px, 7vw, 64px);
+      font-weight: 400;
+      line-height: 1.05;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+    .hero-subtitle {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--muted);
+      max-width: 540px;
+    }
+    .tech-chips {
+      display: flex;
+      gap: 8px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+    .tech-chip {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--faint);
+    }
+
+    /* DIVIDER */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0;
+    }
+
+    /* SECTION */
+    .section {
+      padding: 48px 0;
+    }
+    .section-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 24px;
+    }
+
+    /* BREAKDOWN */
+    .breakdown { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
+    .breakdown-item {
+      display: flex;
+      gap: 20px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .breakdown-item:last-child { border-bottom: none; }
+    .breakdown-key {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      min-width: 100px;
+      flex-shrink: 0;
+      padding-top: 3px;
+    }
+    .breakdown-val {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    /* MOCKUP */
+    .mockup-section { padding: 48px 0; }
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .mockup-wrapper {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .mockup-titlebar {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      background: #F5F4F1;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+    .dot-r { background: #E8645A; }
+    .dot-y { background: #F0C350; }
+    .dot-g { background: #6BC86E; }
+    .mockup-url {
+      margin-left: 10px;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--faint);
+      letter-spacing: 0.02em;
+    }
+    .mockup-body { padding: 24px; background: #0F0F0F; }
+    .mockup-caption {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      letter-spacing: 0.04em;
+      text-align: center;
+      margin-top: 14px;
+    }
+
+    /* MOCK UI ELEMENTS */
+    .mock-heading {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 400;
+      text-align: center;
+      margin-bottom: 4px;
+      color: #E8E4DF;
+    }
+    .mock-subhead {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: #666;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .mock-question {
+      font-family: var(--serif);
+      font-size: 15px;
+      color: #E8E4DF;
+      text-align: center;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+    .mock-branch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 1px solid #2A2A2A;
+      border-radius: 3px;
+      margin-bottom: 8px;
+      cursor: default;
+      transition: border-color 0.2s;
+    }
+    .mock-branch:hover { border-color: var(--accent); }
+    .mock-branch-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .mock-branch-text {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: #999;
+    }
+    .mock-branch.active {
+      border-color: var(--accent);
+      background: rgba(255,107,53,0.06);
+    }
+    .mock-branch.active .mock-branch-text { color: #E8E4DF; }
+
+    /* OUTPUT MOCK */
+    .mock-diagnosis {
+      background: rgba(255,107,53,0.08);
+      border: 1px solid rgba(255,107,53,0.2);
+      border-radius: 3px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .mock-diagnosis-label {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+    .mock-diagnosis-text {
+      font-family: var(--serif);
+      font-size: 14px;
+      color: #E8E4DF;
+      line-height: 1.4;
+    }
+    .mock-exercise {
+      border: 1px solid #2A2A2A;
+      border-radius: 3px;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+    }
+    .mock-exercise-num {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .mock-exercise-title {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: #ccc;
+      margin-bottom: 2px;
+    }
+    .mock-exercise-desc {
+      font-family: var(--sans);
+      font-size: 10px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    /* TAKEAWAY */
+    .takeaway { padding: 48px 0; }
+    .takeaway-text {
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--muted);
+      border-left: 3px solid var(--accent);
+      padding-left: 24px;
+      max-width: 600px;
+    }
+
+    /* CTA */
+    .cta-section {
+      padding: 48px 0 56px;
+      text-align: center;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 16px 48px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+    .cta-btn:hover { background: var(--accent-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(255,107,53,0.2); }
+    .cta-note {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      letter-spacing: 0.08em;
+      margin-top: 14px;
+    }
+
+    /* FOOTER */
+    .footer {
+      padding: 24px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+    }
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .footer a:hover { text-decoration: underline; }
+    .footer-right {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #B0AEA8;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-1 { animation: fadeUp 0.5s ease 0.1s both; }
+    .anim-2 { animation: fadeUp 0.5s ease 0.2s both; }
+    .anim-3 { animation: fadeUp 0.5s ease 0.3s both; }
+
+    @media (max-width: 600px) {
+      .container { padding: 0 24px; }
+      .nav { padding: 16px 24px; }
+      .hero { padding: 48px 0 32px; }
+      .mockup-grid { grid-template-columns: 1fr; }
+      .breakdown-item { flex-direction: column; gap: 6px; }
+      .breakdown-key { min-width: auto; }
+      .footer { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <a href="/" class="nav-back">← Back to Lab</a>
+    <span class="nav-number">04 / 10</span>
+  </nav>
+
+  <div class="container">
+    <div class="hero">
+      <span class="hero-tag">Tool</span>
+      <h1>Unstuck</h1>
+      <p class="hero-subtitle">A creative block diagnostic. Five branches, targeted exercises for five different kinds of stuck.</p>
+      <div class="tech-chips">
+        <span class="tech-chip">React</span>
+        <span class="tech-chip">Creative Process</span>
+        <span class="tech-chip">Diagnostic Design</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="section anim-1">
+      <div class="section-label">The Breakdown</div>
+      <div class="breakdown">
+        <div class="breakdown-item">
+          <span class="breakdown-key">Problem</span>
+          <span class="breakdown-val">Most advice about creative blocks treats them as one thought problem, when it's actually many. Being stuck because you have no ideas is a completely different situation than being stuck because you have twelve ideas and can't commit to one.</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-key">Constraint</span>
+          <span class="breakdown-val">The fix for "I'm scared to start" has nothing in common with the fix for "I started and now I hate it." Lumping them together under "creative block" is like prescribing the same medication for five completely different conditions.</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-key">Solution</span>
+          <span class="breakdown-val">A diagnostic tool that asks one question, sorts you into one of five branches based on what's actually happening, and gives you three targeted exercises designed for that specific version of stuck. The branches: empty, overwhelmed, paralyzed, frustrated, and tired. The exercises pull from actual creative practice, not productivity hacks. No Pomodoro timers or gratitude journals.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="mockup-section anim-2">
+      <div class="section-label">What It Looks Like</div>
+      <div class="mockup-grid">
+
+        <!-- INPUT -->
+        <div>
+          <div class="mockup-wrapper">
+            <div class="mockup-titlebar">
+              <div class="dot dot-r"></div>
+              <div class="dot dot-y"></div>
+              <div class="dot dot-g"></div>
+              <span class="mockup-url">halle.studio/lab</span>
+            </div>
+            <div class="mockup-body">
+              <div class="mock-heading">Unstuck</div>
+              <div class="mock-subhead">What kind of stuck are you?</div>
+              <div class="mock-question">Right now, creatively, I feel...</div>
+              <div class="mock-branch">
+                <div class="mock-branch-dot" style="background: #FF6B35;"></div>
+                <span class="mock-branch-text">Empty — I have nothing</span>
+              </div>
+              <div class="mock-branch active">
+                <div class="mock-branch-dot" style="background: #4ECDC4;"></div>
+                <span class="mock-branch-text">Overwhelmed — too many ideas</span>
+              </div>
+              <div class="mock-branch">
+                <div class="mock-branch-dot" style="background: #FFE66D;"></div>
+                <span class="mock-branch-text">Paralyzed — can't start</span>
+              </div>
+              <div class="mock-branch">
+                <div class="mock-branch-dot" style="background: #FF6B6B;"></div>
+                <span class="mock-branch-text">Frustrated — started, hate it</span>
+              </div>
+              <div class="mock-branch">
+                <div class="mock-branch-dot" style="background: #C4B5FD;"></div>
+                <span class="mock-branch-text">Tired — just don't feel like it</span>
+              </div>
+            </div>
+          </div>
+          <div class="mockup-caption">Input: one question, five branches.</div>
+        </div>
+
+        <!-- OUTPUT -->
+        <div>
+          <div class="mockup-wrapper">
+            <div class="mockup-titlebar">
+              <div class="dot dot-r"></div>
+              <div class="dot dot-y"></div>
+              <div class="dot dot-g"></div>
+              <span class="mockup-url">halle.studio/lab</span>
+            </div>
+            <div class="mockup-body">
+              <div class="mock-diagnosis">
+                <div class="mock-diagnosis-label">Diagnosis</div>
+                <div class="mock-diagnosis-text">You're not blocked. You're overstimulated. The problem isn't a lack of ideas, it's that none of them feel safe enough to commit to.</div>
+              </div>
+              <div class="mock-exercise">
+                <div class="mock-exercise-num">Exercise 01</div>
+                <div class="mock-exercise-title">The Worst Version</div>
+                <div class="mock-exercise-desc">Pick any idea. Make the worst possible version of it in 15 minutes. Ugly, incomplete, wrong.</div>
+              </div>
+              <div class="mock-exercise">
+                <div class="mock-exercise-num">Exercise 02</div>
+                <div class="mock-exercise-title">Kill List</div>
+                <div class="mock-exercise-desc">Write every idea down. Cross off half immediately. No deliberation.</div>
+              </div>
+              <div class="mock-exercise">
+                <div class="mock-exercise-num">Exercise 03</div>
+                <div class="mock-exercise-title">Combine Two</div>
+                <div class="mock-exercise-desc">Pick two random surviving ideas. Force them into one project. See what happens.</div>
+              </div>
+            </div>
+          </div>
+          <div class="mockup-caption">Output: diagnosis + three targeted exercises.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="takeaway anim-3">
+      <div class="section-label">The Takeaway</div>
+      <p class="takeaway-text">I built this for the times when I don't know where to start. The generic "just start anywhere" advice doesn't account for the fact that the type of stuck matters more than the fact of it. Sometimes the most useful thing a tool can do is tell you that you're not blocked, you're exhausted, and to go take a break.</p>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <a href="/unstuck/" class="cta-btn">Try It Yourself →</a>
+    <div class="cta-note">No AI required · Works instantly</div>
+  </div>
+
+  <div class="footer">
+    <a href="https://halle.studio">halle.studio</a>
+    <span class="footer-right">2026</span>
+  </div>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 10);
+    });
+  </script>
+</body>
+</html>
