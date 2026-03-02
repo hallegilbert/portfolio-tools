@@ -30,6 +30,11 @@
       color: #8A8780;
       margin-bottom: 16px;
     }
+    .eyebrow a {
+      color: #DC3128;
+      text-decoration: none;
+    }
+    .eyebrow a:hover { text-decoration: underline; }
 
     h1 {
       font-family: 'Instrument Serif', serif;
@@ -61,13 +66,29 @@
     }
     .demo-note strong { color: #DC3128; }
 
-    /* GRID */
-    .grid {
+    /* FEATURED GRID — 2 large cards */
+    .featured-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 14px;
+      margin-bottom: 14px;
+    }
+    .featured-grid .card {
+      min-height: 220px;
+    }
+    .featured-grid .card-title {
+      font-size: 26px;
     }
 
+    /* STANDARD GRID — 4 columns */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    /* CARDS */
     .card {
       background: #fff;
       border: 1px solid #E8E6E2;
@@ -90,7 +111,7 @@
     .card-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
     }
     .card-number {
       font-family: 'Space Mono', monospace;
@@ -112,6 +133,7 @@
     .tag-campaign { background: rgba(160,82,45,0.08); color: #A0522D; }
     .tag-satire { background: rgba(212,43,43,0.08); color: #B22222; }
     .tag-app { background: rgba(59,111,160,0.08); color: #3B6FA0; }
+    .tag-quiz { background: rgba(42,42,42,0.06); color: #555; }
 
     .card-title {
       font-family: 'Instrument Serif', serif;
@@ -134,6 +156,28 @@
       border-top: 1px solid #F0EFEC;
     }
 
+    /* COMPACT CARDS in 4-col grid */
+    .grid .card {
+      padding: 20px;
+      min-height: 160px;
+      gap: 8px;
+    }
+    .grid .card-title {
+      font-size: 18px;
+    }
+    .grid .card-desc {
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .grid .card-tag {
+      font-size: 8px;
+      padding: 2px 6px;
+    }
+    .grid .card-tech {
+      font-size: 9px;
+    }
+
+    /* FOOTER */
     .footer {
       margin-top: 64px;
       padding-top: 24px;
@@ -156,39 +200,57 @@
       color: #B0AEA8;
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 700px) {
       .container { padding: 40px 24px 60px; }
+      .featured-grid { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
       .grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="eyebrow"><a href="https://halle.studio" style="color: #8A8780; text-decoration: none; transition: color 0.2s;">← halle.studio</a> / Lab</div>
+    <div class="eyebrow"><a href="https://halle.studio">← halle.studio</a> / Lab</div>
     <h1>Things I <span>built.</span></h1>
-    <p class="subtitle">
-      Tools, campaigns, and experiments made with AI. Each one started with a real question or a real constraint. A few of them you can try yourself.
-    </p>
+    <p class="subtitle">Tools, campaigns, and experiments made with AI. Each one started with a real question or a real constraint. A few of them you can try yourself.</p>
 
     <div class="demo-note">
       <strong>Live demos:</strong> Tools marked "interactive" use AI and are limited to ~10 uses per day. They're real and functional.
     </div>
 
-    <div class="grid">
+    <!-- ============ FEATURED ROW ============ -->
+    <div class="featured-grid">
+
+      <a href="/campaign-concept/case-study/" class="card">
+        <div class="card-header">
+          <span class="card-number">01</span>
+          <span class="card-tag tag-interactive">INTERACTIVE</span>
+        </div>
+        <div class="card-title">Campaign Concept Generator</div>
+        <div class="card-desc">Input any brand + objective. Get a full campaign strategy with activations, channel roles, and a bold move.</div>
+        <div class="card-tech">React · Claude API · Campaign Strategy</div>
+      </a>
 
       <a href="/move-hq/case-study/" class="card">
         <div class="card-header">
-          <span class="card-number">01</span>
+          <span class="card-number">02</span>
           <span class="card-tag tag-app">APP</span>
         </div>
         <div class="card-title">MoveHQ</div>
-        <div class="card-desc">Life management app built to coordinate a cross-country move. Task tracking, apartment hunting, budgets, and vibe checks.</div>
+        <div class="card-desc">Life management app for a cross-country move. Tasks, budgets, timelines, vibe checks.</div>
         <div class="card-tech">React · Full-Stack App · Product Design</div>
       </a>
 
+    </div>
+
+    <!-- ============ ROW 2: CARDS 03–06 ============ -->
+    <div class="grid">
+
       <a href="/viral-forensics/case-study/" class="card">
         <div class="card-header">
-          <span class="card-number">02</span>
+          <span class="card-number">03</span>
           <span class="card-tag tag-interactive">INTERACTIVE</span>
         </div>
         <div class="card-title">Viral Content Forensics</div>
@@ -196,63 +258,78 @@
         <div class="card-tech">React · Claude API · Content Strategy</div>
       </a>
 
-      <a href="/creator-brief/case-study/" class="card">
-        <div class="card-header">
-          <span class="card-number">03</span>
-          <span class="card-tag tag-interactive">INTERACTIVE</span>
-        </div>
-        <div class="card-title">Creator Brief Generator</div>
-        <div class="card-desc">Input a brand and objective, get a structured creator partnership brief. Built from real program experience.</div>
-        <div class="card-tech">React · Claude API · Creator Partnerships</div>
-      </a>
-
-      <a href="/campaign-concept/case-study/" class="card">
+      <a href="/unstuck/case-study/" class="card">
         <div class="card-header">
           <span class="card-number">04</span>
-          <span class="card-tag tag-interactive">INTERACTIVE</span>
+          <span class="card-tag tag-tool">TOOL</span>
         </div>
-        <div class="card-title">Campaign Concept Generator</div>
-        <div class="card-desc">Input any brand + objective. Get a full campaign strategy with activations, channel roles, and KPIs.</div>
-        <div class="card-tech">React · Claude API · Campaign Strategy</div>
+        <div class="card-title">Unstuck</div>
+        <div class="card-desc">A creative block diagnostic. Five branches, targeted exercises.</div>
+        <div class="card-tech">React · Creative Process · Diagnostic Design</div>
       </a>
 
-      <a href="/reverse-research/case-study/" class="card">
+      <a href="/creator-brief/case-study/" class="card">
         <div class="card-header">
           <span class="card-number">05</span>
           <span class="card-tag tag-interactive">INTERACTIVE</span>
         </div>
+        <div class="card-title">Creator Brief Generator</div>
+        <div class="card-desc">Input a brand and objective, get a structured creator brief.</div>
+        <div class="card-tech">React · Claude API · Creator Partnerships</div>
+      </a>
+
+      <a href="/literacy-test/case-study/" class="card">
+        <div class="card-header">
+          <span class="card-number">06</span>
+          <span class="card-tag tag-quiz">QUIZ</span>
+        </div>
+        <div class="card-title">The Literacy Test</div>
+        <div class="card-desc">45-question cultural fluency exam inspired by the 1994 Vogue test.</div>
+        <div class="card-tech">React · Cultural Literacy · Quiz Design</div>
+      </a>
+
+    </div>
+
+    <!-- ============ ROW 3: CARDS 07–10 ============ -->
+    <div class="grid">
+
+      <a href="/reverse-research/case-study/" class="card">
+        <div class="card-header">
+          <span class="card-number">07</span>
+          <span class="card-tag tag-interactive">INTERACTIVE</span>
+        </div>
         <div class="card-title">Reverse Research Lab</div>
-        <div class="card-desc">Upload your work. Get mapped to adjacent thinkers, frameworks, and references you didn't know existed.</div>
+        <div class="card-desc">Upload your work. Get mapped to adjacent thinkers and frameworks.</div>
         <div class="card-tech">React · Claude API · Research Methodology</div>
       </a>
 
       <a href="/command-center/case-study/" class="card">
         <div class="card-header">
-          <span class="card-number">06</span>
+          <span class="card-number">08</span>
           <span class="card-tag tag-tool">TOOL</span>
         </div>
         <div class="card-title">Job Search Command Center</div>
-        <div class="card-desc">Kanban pipeline tracker for job applications. Board and list views, priority tagging, status filtering.</div>
+        <div class="card-desc">Kanban pipeline tracker for job applications.</div>
         <div class="card-tech">React · Client-side State · Product Design</div>
       </a>
 
       <a href="/cowgirl-down/case-study/" class="card">
         <div class="card-header">
-          <span class="card-number">07</span>
+          <span class="card-number">09</span>
           <span class="card-tag tag-campaign">CAMPAIGN</span>
         </div>
         <div class="card-title">Cowgirl Down</div>
-        <div class="card-desc">Full brand campaign for a fictional western concept. Strategy, identity, product line, guerrilla distribution, and a phased website.</div>
+        <div class="card-desc">Full brand campaign. Site, flyers, merchandise.</div>
         <div class="card-tech">HTML · SVG · Brand Campaign</div>
       </a>
 
       <a href="/manosphere/case-study/" class="card">
         <div class="card-header">
-          <span class="card-number">08</span>
+          <span class="card-number">10</span>
           <span class="card-tag tag-satire">SATIRE</span>
         </div>
-        <div class="card-title">Manosphere Tweet Generator</div>
-        <div class="card-desc">Generates absurd alpha-male motivational content. Cultural commentary disguised as a toy.</div>
+        <div class="card-title">Manosphere Generator</div>
+        <div class="card-desc">Absurd alpha-male motivational content. Cultural commentary as a toy.</div>
         <div class="card-tech">HTML · JavaScript · Cultural Satire</div>
       </a>
 
