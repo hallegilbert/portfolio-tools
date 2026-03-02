@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Literacy Test — Lab — Halle Gilbert</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&family=Instrument+Serif&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #FAF9F6;
+      --text: #1C1B18;
+      --muted: #4A4843;
+      --faint: #8A8780;
+      --border: #E2E0DB;
+      --red: #C03B2D;
+      --red-dark: #A83228;
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+      --serif: 'Instrument Serif', serif;
+      --accent: #2A2A2A;
+      --accent-light: #555;
+      --accent-bg: rgba(42,42,42,0.04);
+      --accent-tag: rgba(42,42,42,0.06);
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: rgba(42,42,42,0.12); }
+
+    /* NAV */
+    .nav {
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: rgba(250,249,246,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 100;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s ease;
+    }
+    .nav.scrolled { border-bottom-color: var(--border); }
+    .nav-back {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-back:hover { opacity: 0.7; }
+    .nav-number {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: var(--faint);
+    }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 0 40px; }
+
+    /* HERO */
+    .hero {
+      padding: 80px 0 48px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .hero-tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      background: var(--accent-tag);
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 2px;
+      margin-bottom: 24px;
+      font-weight: 700;
+    }
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(42px, 7vw, 64px);
+      font-weight: 400;
+      line-height: 1.05;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+    .hero-subtitle {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--muted);
+      max-width: 540px;
+    }
+    .tech-chips {
+      display: flex;
+      gap: 8px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+    .tech-chip {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--faint);
+    }
+
+    /* DIVIDER */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0;
+    }
+
+    /* SECTION */
+    .section {
+      padding: 48px 0;
+    }
+    .section-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 24px;
+    }
+
+    /* BREAKDOWN */
+    .breakdown { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
+    .breakdown-item {
+      display: flex;
+      gap: 20px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .breakdown-item:last-child { border-bottom: none; }
+    .breakdown-key {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      min-width: 100px;
+      flex-shrink: 0;
+      padding-top: 3px;
+    }
+    .breakdown-val {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    /* MOCKUP */
+    .mockup-section { padding: 48px 0; }
+    .mockup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .mockup-wrapper {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .mockup-titlebar {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      background: #F5F4F1;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+    .dot-r { background: #E8645A; }
+    .dot-y { background: #F0C350; }
+    .dot-g { background: #6BC86E; }
+    .mockup-url {
+      margin-left: 10px;
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--faint);
+      letter-spacing: 0.02em;
+    }
+    .mockup-body { padding: 24px; background: #F5F3EF; }
+    .mockup-caption {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      letter-spacing: 0.04em;
+      text-align: center;
+      margin-top: 14px;
+    }
+
+    /* MOCK UI — QUIZ INPUT */
+    .mock-quiz-heading {
+      font-family: 'Playfair Display', var(--serif);
+      font-size: 18px;
+      font-weight: 400;
+      text-align: center;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    .mock-quiz-subhead {
+      font-family: var(--sans);
+      font-size: 10px;
+      color: var(--faint);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .mock-quiz-progress {
+      height: 3px;
+      background: #E2E0DB;
+      border-radius: 2px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .mock-quiz-progress-fill {
+      height: 100%;
+      width: 42%;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    .mock-quiz-counter {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--faint);
+      text-align: center;
+      margin-bottom: 16px;
+      letter-spacing: 0.05em;
+    }
+    .mock-quiz-question {
+      font-family: 'Playfair Display', var(--serif);
+      font-size: 14px;
+      font-style: italic;
+      color: var(--text);
+      text-align: center;
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+    .mock-quiz-option {
+      display: block;
+      padding: 10px 14px;
+      border: 1px solid #D4D0C8;
+      border-radius: 3px;
+      margin-bottom: 6px;
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--muted);
+      background: #FDFCFA;
+      cursor: default;
+      transition: border-color 0.2s;
+    }
+    .mock-quiz-option:hover { border-color: var(--accent); }
+    .mock-quiz-option.selected {
+      border-color: var(--accent);
+      background: rgba(42,42,42,0.04);
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* MOCK UI — RESULTS OUTPUT */
+    .mock-results-heading {
+      font-family: 'Playfair Display', var(--serif);
+      font-size: 16px;
+      text-align: center;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .mock-results-verdict {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--faint);
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    .mock-score-overall {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .mock-score-big {
+      font-family: 'Playfair Display', var(--serif);
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+    }
+    .mock-score-label {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-top: 4px;
+    }
+    .mock-category-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .mock-category-row:last-child { border-bottom: none; }
+    .mock-category-name {
+      font-family: var(--sans);
+      font-size: 10px;
+      color: var(--muted);
+    }
+    .mock-category-score {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .mock-category-bar {
+      flex: 1;
+      height: 3px;
+      background: rgba(0,0,0,0.04);
+      border-radius: 2px;
+      margin: 0 10px;
+      overflow: hidden;
+    }
+    .mock-category-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* TAKEAWAY */
+    .takeaway { padding: 48px 0; }
+    .takeaway-text {
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--muted);
+      border-left: 3px solid var(--accent);
+      padding-left: 24px;
+      max-width: 600px;
+    }
+
+    /* CTA */
+    .cta-section {
+      padding: 48px 0 56px;
+      text-align: center;
+    }
+    .cta-btn {
+      display: inline-block;
+      padding: 16px 48px;
+      background: var(--accent);
+      color: #F5F3EF;
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+    .cta-btn:hover { background: #1A1A1A; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .cta-note {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--faint);
+      letter-spacing: 0.08em;
+      margin-top: 14px;
+    }
+
+    /* FOOTER */
+    .footer {
+      padding: 24px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+    }
+    .footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .footer a:hover { text-decoration: underline; }
+    .footer-right {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: #B0AEA8;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-1 { animation: fadeUp 0.5s ease 0.1s both; }
+    .anim-2 { animation: fadeUp 0.5s ease 0.2s both; }
+    .anim-3 { animation: fadeUp 0.5s ease 0.3s both; }
+
+    @media (max-width: 600px) {
+      .container { padding: 0 24px; }
+      .nav { padding: 16px 24px; }
+      .hero { padding: 48px 0 32px; }
+      .mockup-grid { grid-template-columns: 1fr; }
+      .breakdown-item { flex-direction: column; gap: 6px; }
+      .breakdown-key { min-width: auto; }
+      .footer { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <a href="/" class="nav-back">← Back to Lab</a>
+    <span class="nav-number">06 / 10</span>
+  </nav>
+
+  <div class="container">
+    <div class="hero">
+      <span class="hero-tag">Quiz</span>
+      <h1>The Literacy<br>Test</h1>
+      <p class="hero-subtitle">A 45-question cultural fluency exam inspired by the original 1994 Vogue assistant test.</p>
+      <div class="tech-chips">
+        <span class="tech-chip">React</span>
+        <span class="tech-chip">Cultural Literacy</span>
+        <span class="tech-chip">Quiz Design</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="section anim-1">
+      <div class="section-label">The Breakdown</div>
+      <div class="breakdown">
+        <div class="breakdown-item">
+          <span class="breakdown-key">Background</span>
+          <span class="breakdown-val">In 1994, applicants for assistant positions at Vogue were handed four typed pages of 178 names and asked to identify every one on the spot. People, places, institutions, cultural ephemera. It wasn't a trivia exercise. It was a filter for the kind of shared fluency that made someone useful in those rooms.</span>
+        </div>
+        <div class="breakdown-item">
+          <span class="breakdown-key">Update</span>
+          <span class="breakdown-val">This is a version for 2026. Forty-five questions across literature, film, art, fashion, architecture, photography, music, dining, and the institutions that shape taste. Not trending topics or algorithm-friendly references, but the ones that endure. The quiz tracks your score by category so you can see exactly where your blind spots live.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="mockup-section anim-2">
+      <div class="section-label">What It Looks Like</div>
+      <div class="mockup-grid">
+
+        <!-- INPUT: QUIZ QUESTION -->
+        <div>
+          <div class="mockup-wrapper">
+            <div class="mockup-titlebar">
+              <div class="dot dot-r"></div>
+              <div class="dot dot-y"></div>
+              <div class="dot dot-g"></div>
+              <span class="mockup-url">halle.studio/lab</span>
+            </div>
+            <div class="mockup-body">
+              <div class="mock-quiz-heading">The Literacy Test</div>
+              <div class="mock-quiz-subhead">45 questions. No Googling.</div>
+              <div class="mock-quiz-progress">
+                <div class="mock-quiz-progress-fill"></div>
+              </div>
+              <div class="mock-quiz-counter">19 / 45</div>
+              <div class="mock-quiz-question">Tadao Ando is best known for his work in...</div>
+              <div class="mock-quiz-option">Furniture design</div>
+              <div class="mock-quiz-option selected">Architecture</div>
+              <div class="mock-quiz-option">Ceramics</div>
+              <div class="mock-quiz-option">Textile art</div>
+            </div>
+          </div>
+          <div class="mockup-caption">Input: 45 questions, multiple choice, no mercy.</div>
+        </div>
+
+        <!-- OUTPUT: RESULTS -->
+        <div>
+          <div class="mockup-wrapper">
+            <div class="mockup-titlebar">
+              <div class="dot dot-r"></div>
+              <div class="dot dot-y"></div>
+              <div class="dot dot-g"></div>
+              <span class="mockup-url">halle.studio/lab</span>
+            </div>
+            <div class="mockup-body">
+              <div class="mock-results-heading">Your Results</div>
+              <div class="mock-results-verdict">You'd survive the interview.</div>
+              <div class="mock-score-overall">
+                <div class="mock-score-big">78%</div>
+                <div class="mock-score-label">Overall Score</div>
+              </div>
+              <div class="mock-category-row">
+                <span class="mock-category-name">Literature</span>
+                <div class="mock-category-bar"><div class="mock-category-bar-fill" style="width: 80%;"></div></div>
+                <span class="mock-category-score">4/5</span>
+              </div>
+              <div class="mock-category-row">
+                <span class="mock-category-name">Film</span>
+                <div class="mock-category-bar"><div class="mock-category-bar-fill" style="width: 100%;"></div></div>
+                <span class="mock-category-score">5/5</span>
+              </div>
+              <div class="mock-category-row">
+                <span class="mock-category-name">Art</span>
+                <div class="mock-category-bar"><div class="mock-category-bar-fill" style="width: 60%;"></div></div>
+                <span class="mock-category-score">3/5</span>
+              </div>
+              <div class="mock-category-row">
+                <span class="mock-category-name">Fashion</span>
+                <div class="mock-category-bar"><div class="mock-category-bar-fill" style="width: 80%;"></div></div>
+                <span class="mock-category-score">4/5</span>
+              </div>
+              <div class="mock-category-row">
+                <span class="mock-category-name">Architecture</span>
+                <div class="mock-category-bar"><div class="mock-category-bar-fill" style="width: 100%;"></div></div>
+                <span class="mock-category-score">5/5</span>
+              </div>
+              <div class="mock-category-row">
+                <span class="mock-category-name">Music</span>
+                <div class="mock-category-bar"><div class="mock-category-bar-fill" style="width: 60%;"></div></div>
+                <span class="mock-category-score">3/5</span>
+              </div>
+              <div class="mock-category-row">
+                <span class="mock-category-name">Dining</span>
+                <div class="mock-category-bar"><div class="mock-category-bar-fill" style="width: 80%;"></div></div>
+                <span class="mock-category-score">4/5</span>
+              </div>
+              <div class="mock-category-row">
+                <span class="mock-category-name">Photography</span>
+                <div class="mock-category-bar"><div class="mock-category-bar-fill" style="width: 40%;"></div></div>
+                <span class="mock-category-score">2/5</span>
+              </div>
+            </div>
+          </div>
+          <div class="mockup-caption">Output: score by category, honest verdict.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="container">
+    <div class="takeaway anim-3">
+      <div class="section-label">The Takeaway</div>
+      <p class="takeaway-text">I built it because it's fun. It's fun to test what you know, fun to find out where the gaps are, and fun to realize the gap between "I've heard of that" and "I could actually tell you what it is" is wider than you think. If you'd survive the Vogue interview, you'll know.</p>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <a href="/literacy-test/" class="cta-btn">Take the Exam →</a>
+    <div class="cta-note">45 questions · No AI required</div>
+  </div>
+
+  <div class="footer">
+    <a href="https://halle.studio">halle.studio</a>
+    <span class="footer-right">2026</span>
+  </div>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 10);
+    });
+  </script>
+</body>
+</html>
