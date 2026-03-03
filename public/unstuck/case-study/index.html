@@ -37,7 +37,6 @@
 
     ::selection { background: rgba(255,107,53,0.15); }
 
-    /* NAV */
     .nav {
       padding: 20px 40px;
       display: flex;
@@ -71,7 +70,6 @@
 
     .container { max-width: 760px; margin: 0 auto; padding: 0 40px; }
 
-    /* HERO */
     .hero {
       padding: 80px 0 48px;
       animation: fadeUp 0.6s ease both;
@@ -120,17 +118,35 @@
       color: var(--faint);
     }
 
-    /* DIVIDER */
+    /* HERO CTA */
+    .hero-cta {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 10px 28px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+    .hero-cta:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255,107,53,0.2);
+    }
+
     .divider {
       height: 1px;
       background: var(--border);
       margin: 0;
     }
 
-    /* SECTION */
-    .section {
-      padding: 48px 0;
-    }
+    .section { padding: 48px 0; }
     .section-label {
       font-family: var(--mono);
       font-size: 10px;
@@ -140,7 +156,6 @@
       margin-bottom: 24px;
     }
 
-    /* BREAKDOWN */
     .breakdown { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
     .breakdown-item {
       display: flex;
@@ -166,7 +181,6 @@
       color: var(--muted);
     }
 
-    /* MOCKUP */
     .mockup-section { padding: 48px 0; }
     .mockup-grid {
       display: grid;
@@ -206,7 +220,6 @@
       margin-top: 14px;
     }
 
-    /* MOCK UI ELEMENTS */
     .mock-heading {
       font-family: var(--serif);
       font-size: 18px;
@@ -259,7 +272,6 @@
     }
     .mock-branch.active .mock-branch-text { color: #E8E4DF; }
 
-    /* OUTPUT MOCK */
     .mock-diagnosis {
       background: rgba(255,107,53,0.08);
       border: 1px solid rgba(255,107,53,0.2);
@@ -310,7 +322,6 @@
       line-height: 1.4;
     }
 
-    /* TAKEAWAY */
     .takeaway { padding: 48px 0; }
     .takeaway-text {
       font-size: 17px;
@@ -321,7 +332,6 @@
       max-width: 600px;
     }
 
-    /* CTA */
     .cta-section {
       padding: 48px 0 56px;
       text-align: center;
@@ -349,7 +359,6 @@
       margin-top: 14px;
     }
 
-    /* FOOTER */
     .footer {
       padding: 24px 40px;
       display: flex;
@@ -369,7 +378,6 @@
       color: #B0AEA8;
     }
 
-    /* ANIMATIONS */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
@@ -406,6 +414,7 @@
         <span class="tech-chip">Creative Process</span>
         <span class="tech-chip">Diagnostic Design</span>
       </div>
+      <a href="/unstuck/" class="hero-cta">Try It Yourself →</a>
     </div>
   </div>
 
