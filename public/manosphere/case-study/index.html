@@ -7,7 +7,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     :root {
       --bg: #FAF9F6;
       --text: #1C1B18;
@@ -22,7 +21,6 @@
       --sans: 'DM Sans', sans-serif;
       --serif: 'Instrument Serif', serif;
     }
-
     body {
       font-family: var(--sans);
       background: var(--bg);
@@ -30,9 +28,7 @@
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
     }
-
     ::selection { background: rgba(178,34,34,0.12); }
-
     .nav {
       padding: 20px 40px;
       display: flex;
@@ -63,9 +59,7 @@
       letter-spacing: 0.1em;
       color: var(--faint);
     }
-
     .container { max-width: 760px; margin: 0 auto; padding: 0 40px; }
-
     .hero {
       padding: 80px 0 48px;
       animation: fadeUp 0.6s ease both;
@@ -115,8 +109,29 @@
       color: var(--faint);
     }
 
-    .divider { height: 1px; background: var(--border); }
+    /* HERO CTA */
+    .hero-cta {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 10px 28px;
+      background: var(--accent);
+      color: #fff;
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+    .hero-cta:hover {
+      background: var(--accent-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(178,34,34,0.2);
+    }
 
+    .divider { height: 1px; background: var(--border); }
     .section { padding: 48px 0; }
     .section-label {
       font-family: var(--mono);
@@ -126,7 +141,6 @@
       color: var(--faint);
       margin-bottom: 24px;
     }
-
     .breakdown { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
     .breakdown-item {
       display: flex;
@@ -152,7 +166,6 @@
       color: var(--muted);
     }
     .breakdown-val em { font-style: italic; color: var(--text); }
-
     /* MOCKUP */
     .mockup-section { padding: 48px 0; }
     .mockup-wrapper {
@@ -194,7 +207,6 @@
       text-align: center;
       margin-top: 14px;
     }
-
     .mock-dark-title {
       font-family: var(--mono);
       font-size: 10px;
@@ -248,7 +260,6 @@
       color: #444;
       letter-spacing: 0.06em;
     }
-
     .takeaway { padding: 48px 0; }
     .takeaway-text {
       font-size: 16px;
@@ -258,7 +269,6 @@
       border-left: 2px solid var(--accent);
       padding-left: 24px;
     }
-
     .cta-section {
       padding: 48px 0 56px;
       text-align: center;
@@ -289,7 +299,6 @@
       margin-top: 12px;
       letter-spacing: 0.04em;
     }
-
     .footer {
       padding: 24px 40px;
       border-top: 1px solid var(--border);
@@ -308,7 +317,6 @@
       font-size: 10px;
       color: var(--faint);
     }
-
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(16px); }
       to { opacity: 1; transform: translateY(0); }
@@ -316,7 +324,6 @@
     .anim-1 { animation: fadeUp 0.5s ease 0.1s both; }
     .anim-2 { animation: fadeUp 0.5s ease 0.2s both; }
     .anim-3 { animation: fadeUp 0.5s ease 0.3s both; }
-
     @media (max-width: 700px) {
       .container { padding: 0 24px; }
       .nav { padding: 16px 24px; }
@@ -329,12 +336,10 @@
   </style>
 </head>
 <body>
-
   <nav class="nav" id="nav">
     <a href="/" class="nav-back">← Back to Lab</a>
     <span class="nav-number">07 / 08</span>
   </nav>
-
   <div class="container">
     <div class="hero">
       <span class="hero-tag">Satire</span>
@@ -345,11 +350,10 @@
         <span class="tech-chip">JavaScript</span>
         <span class="tech-chip">Cultural Satire</span>
       </div>
+      <a href="/manosphere/" class="hero-cta">Try It Yourself →</a>
     </div>
   </div>
-
   <div class="divider"></div>
-
   <div class="container">
     <div class="section anim-1">
       <div class="section-label">The Breakdown</div>
@@ -369,9 +373,7 @@
       </div>
     </div>
   </div>
-
   <div class="divider"></div>
-
   <!-- MOCKUP -->
   <div class="container">
     <div class="mockup-section anim-2">
@@ -408,28 +410,22 @@
       <div class="mockup-caption">Click to generate. Send to someone who needs to laugh.</div>
     </div>
   </div>
-
   <div class="divider"></div>
-
   <div class="container">
     <div class="takeaway anim-3">
       <div class="section-label">The Takeaway</div>
       <p class="takeaway-text">Not everything has to be a strategic framework. Sometimes you notice a pattern, it makes you laugh, and you build a thing that makes other people laugh too. The design is polished because the comedy is sharper when the execution is straight-faced. And the vocabulary bank is really just content strategy in disguise: identifying a formula, deconstructing it, and rebuilding it as something new.</p>
     </div>
   </div>
-
   <div class="divider"></div>
-
   <div class="cta-section">
     <a href="/manosphere/" class="cta-btn">Try It Yourself →</a>
     <div class="cta-note">Static tool · No AI required · Just vibes</div>
   </div>
-
   <div class="footer">
     <a href="https://halle.studio">halle.studio</a>
     <span class="footer-right">2026</span>
   </div>
-
   <script>
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {
