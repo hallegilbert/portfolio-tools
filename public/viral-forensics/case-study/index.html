@@ -33,7 +33,6 @@
 
     ::selection { background: rgba(192,59,45,0.12); }
 
-    /* NAV */
     .nav {
       padding: 20px 40px;
       display: flex;
@@ -67,7 +66,6 @@
 
     .container { max-width: 760px; margin: 0 auto; padding: 0 40px; }
 
-    /* HERO */
     .hero {
       padding: 80px 0 48px;
       animation: fadeUp 0.6s ease both;
@@ -117,9 +115,30 @@
       color: var(--faint);
     }
 
+    /* HERO CTA */
+    .hero-cta {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 10px 28px;
+      background: var(--red);
+      color: #fff;
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      transition: all 0.2s ease;
+    }
+    .hero-cta:hover {
+      background: var(--red-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(192,59,45,0.2);
+    }
+
     .divider { height: 1px; background: var(--border); }
 
-    /* SECTION */
     .section { padding: 48px 0; }
     .section-label {
       font-family: var(--mono);
@@ -139,7 +158,6 @@
     .section p:last-child { margin-bottom: 0; }
     .section p em { font-style: italic; color: var(--text); }
 
-    /* BREAKDOWN */
     .breakdown { display: flex; flex-direction: column; gap: 0; margin-top: 8px; }
     .breakdown-item {
       display: flex;
@@ -165,7 +183,6 @@
       color: var(--muted);
     }
 
-    /* COMPACT MOCKUP */
     .mockup-section { padding: 48px 0; }
     .mockup-wrapper {
       background: #F0EFEC;
@@ -203,14 +220,12 @@
       margin-top: 14px;
     }
 
-    /* SIDE BY SIDE */
     .mockup-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
     }
 
-    /* INPUT */
     .mock-heading {
       font-family: var(--serif);
       font-size: 18px;
@@ -270,7 +285,6 @@
       cursor: default;
     }
 
-    /* OUTPUT */
     .mock-verdict {
       background: var(--red-bg);
       border: 1px solid rgba(192,59,45,0.12);
@@ -379,7 +393,6 @@
       border-radius: 2px;
     }
 
-    /* CTA */
     .cta-section {
       padding: 48px 0 56px;
       text-align: center;
@@ -411,10 +424,7 @@
       letter-spacing: 0.04em;
     }
 
-    /* TAKEAWAY */
-    .takeaway {
-      padding: 48px 0;
-    }
+    .takeaway { padding: 48px 0; }
     .takeaway-text {
       font-size: 16px;
       line-height: 1.7;
@@ -424,7 +434,6 @@
       padding-left: 24px;
     }
 
-    /* FOOTER */
     .footer {
       padding: 24px 40px;
       border-top: 1px solid var(--border);
@@ -480,6 +489,7 @@
         <span class="tech-chip">Claude API</span>
         <span class="tech-chip">Content Strategy</span>
       </div>
+      <a href="/viral-forensics/" class="hero-cta">Try It Yourself →</a>
     </div>
   </div>
 
