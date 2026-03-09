@@ -190,6 +190,9 @@ Respond ONLY in valid JSON with this exact structure:
         ::selection { background: rgba(192,59,45,0.15); }
         textarea:focus, input:focus { outline: none; border-color: ${C.accent} !important; }
         input::placeholder, textarea::placeholder { color: ${C.textLight}; }
+        @media (max-width: 600px) {
+          .metrics-grid { grid-template-columns: 1fr 1fr !important; }
+        }
       `}</style>
 
       <div style={{ padding: "48px 40px 0", maxWidth: "720px", margin: "0 auto" }}>
@@ -224,11 +227,11 @@ Respond ONLY in valid JSON with this exact structure:
         {/* Metrics */}
         <div style={{ marginBottom: "20px" }}>
           <label style={{ fontFamily: "'Space Mono', monospace", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", color: C.label, display: "block", marginBottom: "8px" }}>METRICS (OPTIONAL)</label>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "8px" }}>
+          <div className="metrics-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "8px" }}>
             {["views", "likes", "comments", "shares"].map((m) => (
               <input key={m} type="text" placeholder={m.charAt(0).toUpperCase() + m.slice(1)} value={metrics[m]}
                 onChange={(e) => setMetrics({ ...metrics, [m]: e.target.value })}
-                style={{ padding: "10px 12px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: "2px", color: C.text, fontFamily: "'Space Mono', monospace", fontSize: "12px", boxSizing: "border-box" }} />
+                style={{ padding: "10px 12px", background: C.surface, border: `1px solid ${C.border}`, borderRadius: "2px", color: C.text, fontFamily: "'Space Mono', monospace", fontSize: "12px", boxSizing: "border-box", width: "100%", minWidth: 0 }} />
             ))}
           </div>
         </div>
